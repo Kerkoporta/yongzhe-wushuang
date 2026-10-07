@@ -12,17 +12,20 @@
   #levelTag{position:fixed;right:12px;top:36px;z-index:5;color:#fff;font:bold 13px sans-serif;text-shadow:0 2px 4px #000;pointer-events:none}
   #gold{position:fixed;right:12px;top:56px;z-index:5;color:#ffd24a;font:bold 18px sans-serif;text-shadow:0 2px 4px #000;pointer-events:none}
   #shopBtn{position:fixed;right:12px;top:94px;z-index:6;background:rgba(200,150,30,.92);color:#fff;border:3px solid #ffd24a;border-radius:14px;padding:7px 12px;font-weight:bold;font-size:15px;box-shadow:0 3px 8px rgba(0,0,0,.4);cursor:pointer}
-  #musicBtn{position:fixed;right:12px;top:140px;z-index:6;background:rgba(90,60,160,.92);color:#fff;border:3px solid #b48af2;border-radius:14px;padding:7px 12px;font-weight:bold;font-size:15px;box-shadow:0 3px 8px rgba(0,0,0,.4);cursor:pointer}
-  #homeBtn{position:fixed;right:12px;top:186px;z-index:6;background:rgba(40,110,160,.92);color:#fff;border:3px solid #6ab8f2;border-radius:14px;padding:7px 12px;font-weight:bold;font-size:15px;box-shadow:0 3px 8px rgba(0,0,0,.4);cursor:pointer}
-  #dexBtn{position:fixed;right:12px;top:232px;z-index:6;background:rgba(110,80,40,.92);color:#fff;border:3px solid #d8b87a;border-radius:14px;padding:7px 12px;font-weight:bold;font-size:15px;box-shadow:0 3px 8px rgba(0,0,0,.4);cursor:pointer}
-  #rotBtn{position:fixed;right:12px;top:278px;z-index:6;background:rgba(60,130,70,.92);color:#fff;border:3px solid #8fd05a;border-radius:14px;padding:7px 12px;font-weight:bold;font-size:15px;box-shadow:0 3px 8px rgba(0,0,0,.4);cursor:pointer}
+  #helpBtn{position:fixed;right:12px;top:140px;z-index:6;background:rgba(40,110,160,.92);color:#fff;border:3px solid #6ab8f2;border-radius:14px;padding:7px 12px;font-weight:bold;font-size:15px;box-shadow:0 3px 8px rgba(0,0,0,.4);cursor:pointer}
+  #gearBtn{position:fixed;right:12px;top:186px;z-index:6;background:rgba(70,70,84,.92);color:#fff;border:3px solid #b8b8c2;border-radius:50%;width:44px;height:44px;font-size:22px;box-shadow:0 3px 8px rgba(0,0,0,.4);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+  #gear,#help{position:fixed;inset:0;z-index:9;display:none;align-items:center;justify-content:center;background:rgba(20,16,10,.7)}
+  #gearCard,#helpCard{background:#2e2414;border:4px solid #d8b87a;border-radius:18px;padding:20px 22px;color:#fff;font-family:sans-serif;width:min(340px,88vw);max-height:84vh;display:flex;flex-direction:column}
+  #gearCard button{margin-top:8px}
+  .hsec{font-weight:bold;color:#ffd24a;margin-top:8px}
+  .htxt{font-size:14px;line-height:1.7;opacity:.92}
   #dex{position:fixed;inset:0;z-index:9;display:none;align-items:center;justify-content:center;background:rgba(20,16,10,.7)}
   #dexCard{background:#2e2414;border:4px solid #d8b87a;border-radius:18px;padding:20px 22px;color:#fff;font-family:sans-serif;width:min(340px,88vw);max-height:84vh;display:flex;flex-direction:column}
   /* 🔄 转屏：只转 #rot 外壳（沙盒世界同款方案，iPad 触控和性能都正常）；左上角经典定位+JS 给真实像素 */
   #rot{position:fixed;inset:0}
   #rot.rot90{inset:auto;top:0;transform:rotate(90deg);transform-origin:top left}
   /* 🔄 旋转后的可用高度=设备宽度（vw），卡片按 vw 限高，关闭钮不会被顶出去；技能钮缩小防重叠 */
-  #rot.rot90 #shopCard, #rot.rot90 #homeCard, #rot.rot90 #dexCard{max-height:88vw}
+  #rot.rot90 #shopCard, #rot.rot90 #homeCard, #rot.rot90 #dexCard, #rot.rot90 #gearCard, #rot.rot90 #helpCard{max-height:88vw}
   #rot.rot90 #skills{gap:5px;bottom:118px;right:112px}
   #rot.rot90 .skl{width:38px;height:38px;font-size:15px;border-width:2px}
   #home{position:fixed;inset:0;z-index:20;display:none;align-items:center;justify-content:center;background:rgba(10,14,24,.86)}
@@ -67,10 +70,28 @@
 <div id="levelTag">🗺️ 第1关·僵尸草原</div>
 <div id="gold">💰 0</div>
 <button id="shopBtn">🏪 商店</button>
-<button id="musicBtn">🎵 音乐</button>
-<button id="homeBtn">🏠 主页</button>
-<button id="dexBtn">📖 图鉴</button>
-<button id="rotBtn">🔄 转屏</button>
+<button id="helpBtn">❓ 玩法</button>
+<button id="gearBtn">⚙️</button>
+<div id="gear"><div id="gearCard">
+  <div style="font-size:22px;font-weight:bold;margin-bottom:8px">⚙️ 设置</div>
+  <button id="gearHome">🏠 主页 / 存档</button>
+  <button id="gearDex">📖 击杀图鉴</button>
+  <button id="gearMusic">🎵 音乐：开</button>
+  <button id="gearRot">🔄 转屏（竖着玩）</button>
+  <button id="gearClose" style="margin-top:10px">继续战斗 ⚔️</button>
+</div></div>
+<div id="help"><div id="helpCard">
+  <div style="font-size:22px;font-weight:bold;margin-bottom:6px">❓ 玩法介绍</div>
+  <div class="hsec">🎯 目标</div>
+  <div class="htxt">打怪赚金币 → 🏪商店买武器/装备/技能/宠物 → 每击败 100 只怪 BOSS 出场 → 打败 BOSS 进下一关，一共 7 关！金币、技能书、宠物都会继承哦</div>
+  <div class="hsec">⌨️ 键盘控制</div>
+  <div class="htxt">W A S D 或方向键 = 移动<br>空格 = 攻击<br>B = 打开商店<br>数字键 1~9 = 放技能</div>
+  <div class="hsec">📱 触屏控制</div>
+  <div class="htxt">左边摇杆 = 推着走<br>右边大红钮 = 攻击（按住就连打）<br>AUTO = 自动攻击开关<br>右下角彩色钮 = 点一下放技能</div>
+  <div class="hsec">💡 小提示</div>
+  <div class="htxt">法杖射得快、枪打得痛、弓箭居中；宠物最多 3 只一起出战；地图上有发光的山洞，走进去有惊喜！</div>
+  <button id="helpClose" style="margin-top:10px">知道啦！</button>
+</div></div>
 <div id="home"><div id="homeCard">
   <div style="font-size:34px;font-weight:bold;text-align:center">🗡️ 勇者无双</div>
   <div style="font-size:13px;opacity:.85;margin:6px 0 4px;text-align:center">选一个存档出发！自动档一直在偷偷帮你记</div>
@@ -406,7 +427,7 @@ function toggleRotate() {
   else { rot.style.left = ''; rot.style.width = ''; rot.style.height = ''; }
   resize(); saveGame();
 }
-document.getElementById('rotBtn').onclick = () => toggleRotate();
+document.getElementById('gearRot').onclick = () => { toggleGear(false); toggleRotate(); };
 
 let player, zombies, kills, spawnT, summonT, parts, gameOver, deco;
 let pets = [], dexCounts = {}, coins = [], portal = null;   // 🐾宠物 / 📖图鉴 / 🪙金币 / 🕳️山洞
@@ -776,7 +797,7 @@ function renderDex() {
   }
   dexList.innerHTML = h;
 }
-document.getElementById('dexBtn').onclick = () => toggleDex();
+document.getElementById('gearDex').onclick = () => { toggleGear(false); toggleDex(true); };
 document.getElementById('dexClose').onclick = () => toggleDex(false);
 /* ================= 💾 存档口袋（自动档+4 手动档，全存在这台设备的浏览器里） ================= */
 const SAVE_KEY = 'zombie_fight_save_v1';
@@ -791,7 +812,7 @@ function packSave() {
 }
 function applySave(s) {
   kills = s.kills || 0; player.gold = s.gold || 0; player.owned = s.owned || {};
-  if (s.music != null) { musicOn = !!s.music; document.getElementById('musicBtn').textContent = musicOn ? '🎵 音乐' : '🔇 音乐'; }
+  if (s.music != null) { musicOn = !!s.music; document.getElementById('gearMusic').textContent = musicOn ? '🎵 音乐：开' : '🔇 音乐：关'; }
   if (!!s.rot !== rotated) toggleRotate();   // 🔄 转屏状态跟着存档走
   bossAt = s.bossAt || 100; level = (s.level >= 2 && s.level <= 7) ? s.level : 1;   // 先定关卡，再校验武器
   player.weapon = (s.weapon && shopNow()[s.weapon]) ? s.weapon : null;
@@ -873,7 +894,7 @@ function renderHome() {
   };
 }
 document.getElementById('homeNew').onclick = () => { for (const k of [SAVE_KEY, SAVE_KEY + '_g0', SAVE_KEY + '_g1', SAVE_KEY + '_bak']) { try { localStorage.removeItem(k); } catch (e) {} } gameOver = false; reset(); closeHome(); setBanner('🆕 新的冒险开始！'); };
-document.getElementById('homeBtn').onclick = () => showHome();
+document.getElementById('gearHome').onclick = () => { toggleGear(false); showHome(); };
 /* 🗡️ 武器招式表：每把武器的手感（含雪原 20 把） */
 const WEAPON_FX = {
   sword: { dmg: 2, tp: true, color: '#8fd8ff' },
@@ -1085,11 +1106,29 @@ function startMusic() {
 }
 function toggleMusic() {
   musicOn = !musicOn;
-  document.getElementById('musicBtn').textContent = musicOn ? '🎵 音乐' : '🔇 音乐';
+  document.getElementById('gearMusic').textContent = musicOn ? '🎵 音乐：开' : '🔇 音乐：关';
   if (musicOn) startMusic();
   saveGame();
 }
-document.getElementById('musicBtn').onclick = () => { toggleMusic(); };
+document.getElementById('gearMusic').onclick = () => { toggleMusic(); };
+/* ================= ⚙️ 齿轮设置面板（暂停） ================= */
+let gearOpen = false;
+function toggleGear(force) {
+  gearOpen = force == null ? !gearOpen : force;
+  paused = gearOpen;
+  document.getElementById('gear').style.display = gearOpen ? 'flex' : 'none';
+}
+document.getElementById('gearBtn').onclick = () => toggleGear();
+document.getElementById('gearClose').onclick = () => toggleGear(false);
+/* ================= ❓ 玩法介绍面板（暂停） ================= */
+let helpOpen = false;
+function toggleHelp(force) {
+  helpOpen = force == null ? !helpOpen : force;
+  paused = helpOpen;
+  document.getElementById('help').style.display = helpOpen ? 'flex' : 'none';
+}
+document.getElementById('helpBtn').onclick = () => toggleHelp();
+document.getElementById('helpClose').onclick = () => toggleHelp(false);
 /* ================= 音效（振荡器现煮） ================= */
 let AC = null;
 function beep(f0, f1, dur, type, vol) {
