@@ -17,7 +17,7 @@ const SHOP = {
   stick: { name: '木棍', icon: '🪵', price: 15, kind: 'weapon', desc: '伤害 1.5：比空手疼一半，新手好伙伴' },
   iron_sword: { name: '铁剑', icon: '⚔️', price: 45, kind: 'weapon', desc: '伤害 2.5：铁匠铺出品，靠谱！' },
   diamond_sword: { name: '钻石剑', icon: '💎', price: 90, kind: 'weapon', desc: '伤害 4：一刀一个僵尸，壕气冲天' },
-  fire_rod: { name: '烈焰棒', icon: '🔥', price: 70, kind: 'weapon', desc: '伤害 1.5+点燃 2 秒：着火的怪会一直掉血' },
+  fire_rod: { name: '烈焰棒', icon: '🔥', price: 70, kind: 'weapon', desc: '远程速射：0.5 秒一发火球，点燃 2 秒（单发 0.9）' },
   mjolnir: { name: '雷神之锤', icon: '⚡', price: 120, kind: 'weapon', desc: '伤害 2，25% 概率一道雷直接把怪劈成灰' },
   ice_bow: { name: '寒冰弓', icon: '🏹', price: 80, kind: 'weapon', desc: '射程×2+冰冻 1.5 秒：远远地冻住慢慢打' },
   boomerang: { name: '回旋镖', icon: '🪃', price: 60, kind: 'weapon', desc: '360° 转圈攻击：周围的怪全挨揍' },
@@ -63,7 +63,7 @@ const SHOP2 = {
   /* ---- 雪原武器 ×20 ---- */
   ice_spike: { name: '冰锥', icon: '🔱', price: 20, kind: 'weapon', desc: '伤害 1.2，10% 把怪冻住 1 秒' },
   bone_sword: { name: '骨剑', icon: '🦴', price: 35, kind: 'weapon', desc: '伤害 2：骷髅的骨头磨的，结实' },
-  snow_staff: { name: '雪杖', icon: '🌨️', price: 45, kind: 'weapon', desc: '伤害 1.3+射程×1.3：隔着老远敲' },
+  snow_staff: { name: '雪杖', icon: '🌨️', price: 45, kind: 'weapon', desc: '远程速射：0.5 秒一发雪球（单发 0.8）' },
   frost_fang: { name: '霜之牙', icon: '🧊', price: 60, kind: 'weapon', desc: '伤害 1.8，20% 冰冻 1 秒' },
   ice_crystal_sword: { name: '冰晶剑', icon: '💠', price: 85, kind: 'weapon', desc: '伤害 3：亮晶晶的冰剑' },
   bone_boomerang: { name: '白骨回旋镖', icon: '🪃', price: 70, kind: 'weapon', desc: '伤害 1.5+360° 转圈：雪原群怪克星' },
@@ -221,6 +221,19 @@ function bossTick(b, p, dt, zspeed) {
   b.flash = Math.max(0, b.flash - dt);
   if (b.kb) { b.x += b.kb.dx; b.y += b.kb.dy; b.kb.t -= dt; if (b.kb.t <= 0) b.kb = null; }
   const d = Math.hypot(p.x - b.x, p.y - b.y) || 1;
+  if (b.crystalBoss) {   /* 💎 水晶魔王：①晶影分身 冷却22s（分出 2 个假身，假身一刀就碎不给赏金）②棱光齐射 冷却16s（8 方向激光） */
+    b.walkT += dt;
+    b.cloneCd = (b.cloneCd == null ? 8 : b.cloneCd) - dt;
+    if (b.cloneCd <= 0 && d < 520) { b.cloneCd = 22; ev.clone = { n: 2 }; }
+    b.laserCd = (b.laserCd == null ? 12 : b.laserCd) - dt;
+    if (b.laserCd <= 0 && d < 560) {
+      b.laserCd = 16; ev.lasers = [];
+      for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2; ev.lasers.push({ x: b.x, y: b.y - 30, dx: Math.cos(a), dy: Math.sin(a) }); }
+    }
+    const spc = zspeed * 0.9;
+    b.x += (p.x - b.x) / d * spc * dt; b.y += (p.y - b.y) / d * spc * dt;
+    return ev;
+  }
   if (b.voidBoss) {   /* 🕳️ 虚空主宰：①虚空裂隙 冷却18s（脚下裂隙 1 秒预警爆发 2 心）②相位轰炸 冷却28s（隐身 4 连瞬移冲击波） */
     b.walkT += dt;
     if (b.state === 'blink') {
@@ -350,7 +363,7 @@ const SHOP3 = {
   chain_sickle: { name: '锁链镰刀', icon: '⛓️', price: 45, kind: 'weapon', desc: '伤害 1.8+射程×1.4：甩出去老远' },
   ghost_claw: { name: '幽冥爪', icon: '🐾', price: 55, kind: 'weapon', desc: '伤害 1.5+攻速×1.4：鬼影般乱抓' },
   soul_bell: { name: '摄魂铃', icon: '🔔', price: 60, kind: 'weapon', desc: '伤害 1.2+360° 音波：铃响一圈全中' },
-  ghostfire_staff: { name: '鬼火法杖', icon: '🕯️', price: 70, kind: 'weapon', desc: '伤害 1.8+鬼火点燃：烧 2 秒' },
+  ghostfire_staff: { name: '鬼火法杖', icon: '🕯️', price: 70, kind: 'weapon', desc: '远程速射：0.5 秒一发鬼火，点燃 2 秒（单发 1.1）' },
   wraith_sword: { name: '怨灵大剑', icon: '🗡️', price: 90, kind: 'weapon', desc: '伤害 3.5：怨灵寄宿的巨剑' },
   hell_trident: { name: '地狱三叉戟', icon: '🔱', price: 100, kind: 'weapon', desc: '伤害 2.5+射程×1.5：地狱制式武器' },
   soul_eater: { name: '噬魂刀', icon: '🍴', price: 120, kind: 'weapon', desc: '伤害 2.5+击杀回半心：吃魂的刀' },
@@ -360,7 +373,7 @@ const SHOP3 = {
   ghost_dual: { name: '幽灵双刺', icon: '⚔️', price: 130, kind: 'weapon', desc: '伤害 2+攻速×1.5：双鬼拍门' },
   grudge_axe: { name: '怨念战斧', icon: '🪓', price: 160, kind: 'weapon', desc: '伤害 4+击退×2：一斧子怨念' },
   soul_chain: { name: '灵魂锁链', icon: '🔗', price: 170, kind: 'weapon', desc: '伤害 3+360° 锁链横扫' },
-  soul_breaker: { name: '灭魂枪', icon: '🔫', price: 180, kind: 'weapon', desc: '伤害 4+射程×1.3：一枪灭魂' },
+  soul_breaker: { name: '灭魂枪', icon: '🔫', price: 180, kind: 'weapon', desc: '远程重炮：1.5 秒一发，单发伤害 8，一枪灭魂' },
   reaper_scythe: { name: '死神镰刀', icon: '⚰️', price: 200, kind: 'weapon', desc: '伤害 4.5+射程×1.6：死神同款' },
   hellfire_blade: { name: '地狱火刃', icon: '🔥', price: 190, kind: 'weapon', desc: '伤害 3+地狱火点燃' },
   phantom_soul: { name: '幻影魂刃', icon: '👤', price: 210, kind: 'weapon', desc: '伤害 3.5，20% 瞬移背刺+无敌残影' },
@@ -400,7 +413,7 @@ const SHOP4 = {
   lava_bow: { name: '熔岩弓', icon: '🏹', price: 85, kind: 'weapon', desc: '自动瞄准射火箭：伤害 1.8+点燃 2 秒' },
   ash_dual: { name: '灰烬双刃', icon: '⚔️', price: 95, kind: 'weapon', desc: '伤害 1.8+攻速×1.4：灰烬双舞' },
   red_spear: { name: '赤焰枪', icon: '🔱', price: 100, kind: 'weapon', desc: '伤害 2+射程×1.5：枪尖永远通红' },
-  magma_staff: { name: '熔核法杖', icon: '🪄', price: 105, kind: 'weapon', desc: '伤害 2，20% 追加熔核击（再掉 2 血）' },
+  magma_staff: { name: '熔核法杖', icon: '🪄', price: 105, kind: 'weapon', desc: '远程速射：0.5 秒一发岩浆弹，20% 追加熔核击（单发 1.2）' },
   volcano_axe: { name: '火山战斧', icon: '🪓', price: 115, kind: 'weapon', desc: '伤害 3.5+击退×2：劈开火山口' },
   sulfur_dagger: { name: '硫磺匕首', icon: '🟡', price: 125, kind: 'weapon', desc: '伤害 1.5+硫磺毒 3 秒：臭但好用' },
   dragon_breath: { name: '火龙之息', icon: '🐉', price: 160, kind: 'weapon', desc: '伤害 2.5+点燃 2 秒：真·火龙吐息' },
@@ -548,9 +561,9 @@ const SHOP5 = {
   cloud_boomerang: { name: '云回旋镖', icon: '🪃', price: 100, kind: 'weapon', desc: '伤害 2+360° 转圈' },
   thunder_bow: { name: '雷霆弓', icon: '🏹', price: 120, kind: 'weapon', desc: '自动瞄准射电光箭：伤害 2+追加电击' },
   sky_axe: { name: '天穹战斧', icon: '🪓', price: 130, kind: 'weapon', desc: '伤害 3.5+击退×2' },
-  storm_staff: { name: '风暴法杖', icon: '🪄', price: 140, kind: 'weapon', desc: '伤害 2.5，25% 追加电击' },
+  storm_staff: { name: '风暴法杖', icon: '🪄', price: 140, kind: 'weapon', desc: '远程速射：0.5 秒一发电光弹，25% 追加电击（单发 1.5）' },
   lightning_blade: { name: '闪电之刃', icon: '⚡', price: 150, kind: 'weapon', desc: '伤害 3+攻速×1.25' },
-  volt_rifle: { name: '伏特枪', icon: '🔫', price: 160, kind: 'weapon', desc: '伤害 3+射程×1.4' },
+  volt_rifle: { name: '伏特枪', icon: '🔫', price: 160, kind: 'weapon', desc: '远程重炮：1.5 秒一发，单发伤害 6' },
   tempest_hammer: { name: '飓风锤', icon: '🔨', price: 170, kind: 'weapon', desc: '伤害 4+击退×2：一锤起飞' },
   thunder_greatsword: { name: '雷霆大剑', icon: '🗡️', price: 190, kind: 'weapon', desc: '伤害 4.5：剑身缠绕雷电' },
   cloud_sword: { name: '行云剑', icon: '☁️', price: 200, kind: 'weapon', desc: '伤害 3.5，25% 残影再斩' },
@@ -623,10 +636,114 @@ const SHOP6 = {
   undying_void: { name: '不灭虚空', icon: '🕯️', price: 230, kind: 'gear', desc: '每局一次：致命一击留 1 颗心' },
   darkstar_crown: { name: '暗星冠', icon: '👑', price: 320, kind: 'gear', desc: '伤害+1、最大血+2、移速+10%：虚空毕业神装' },
 };
-/* ✨ 技能书并入六关商店 */
+/* 💎 第七关·水晶洞窟商店（20 武器+20 装备，全零重名） */
+const SHOP7 = {
+  /* ---- 武器 ---- */
+  crystal_blade: { name: '晶石剑', icon: '🗡️', price: 60, kind: 'weapon', desc: '伤害 8：洞窟入门，亮晶晶' },
+  shard_dagger: { name: '晶刺匕首', icon: '🔪', price: 70, kind: 'weapon', desc: '伤害 9：攻速+10%，小小的超快' },
+  prism_sword: { name: '光棱剑', icon: '⚔️', price: 85, kind: 'weapon', desc: '伤害 10：阳光一照七彩光' },
+  crystal_bow: { name: '水晶弓', icon: '🏹', price: 95, kind: 'weapon', desc: '伤害 9：射程超远的水晶箭' },
+  refraction_spear: { name: '折射矛', icon: '🔱', price: 90, kind: 'weapon', desc: '伤害 9：射程×1.4，光都会拐弯' },
+  crystal_hammer: { name: '晶簇锤', icon: '🔨', price: 110, kind: 'weapon', desc: '伤害 12：一锤把怪锤飞' },
+  diamond_edge: { name: '金刚剑', icon: '💎', price: 120, kind: 'weapon', desc: '伤害 13：世界上最硬的剑' },
+  laser_pen: { name: '激光笔', icon: '🔦', price: 115, kind: 'weapon', desc: '远程重炮：1.5 秒一发激光，单发伤害 20，别照眼睛！' },
+  rainbow_prism: { name: '彩虹棱镜剑', icon: '🌈', price: 150, kind: 'weapon', desc: '伤害 12：25% 折射电到旁边的怪' },
+  crystal_staff: { name: '水晶法杖', icon: '🪄', price: 140, kind: 'weapon', desc: '远程速射：0.5 秒一发水晶焰，点燃 2 秒（单发 6.6）' },
+  light_blade: { name: '光刃', icon: '✨', price: 135, kind: 'weapon', desc: '伤害 12：快得只剩一道光' },
+  star_shard_hammer: { name: '碎星晶锤', icon: '🔨', price: 160, kind: 'weapon', desc: '伤害 14：星星碎片做的锤头' },
+  aurora_sword: { name: '极光剑', icon: '🌌', price: 155, kind: 'weapon', desc: '伤害 13+冰冻 1 秒：北极光做的' },
+  crystalized_bow: { name: '晶化弓', icon: '🏹', price: 145, kind: 'weapon', desc: '伤害 11+电伤：箭上带着晶电' },
+  mirror_boomerang: { name: '折光回旋镖', icon: '🪃', price: 150, kind: 'weapon', desc: '伤害 10：360° 转圈，光做的镖' },
+  holy_crystal_lance: { name: '圣晶枪', icon: '🔱', price: 170, kind: 'weapon', desc: '伤害 14：射程×1.4，圣光加持' },
+  amethyst_sword: { name: '紫晶剑', icon: '🟣', price: 165, kind: 'weapon', desc: '伤害 13+中毒：紫晶淬毒' },
+  prism_greatsword: { name: '棱光巨剑', icon: '⚔️', price: 200, kind: 'weapon', desc: '伤害 16：两个人才抬得动' },
+  cavern_lord: { name: '洞窟之主', icon: '👑', price: 300, kind: 'weapon', desc: '伤害 25+点燃+折射：毕业神兵，洞窟之王' },
+  glow_pick: { name: '荧光镐', icon: '⛏️', price: 75, kind: 'weapon', desc: '伤害 8.5：挖矿顺手打怪' },
+  /* ---- 装备 ---- */
+  crystal_helm: { name: '晶石头盔', icon: '🪖', price: 45, kind: 'gear', desc: '最大血量+1', mod: { heart: 1 } },
+  crystal_armor: { name: '水晶甲', icon: '🛡️', price: 80, kind: 'gear', desc: '25% 概率受伤减半', mod: { half: 0.25 } },
+  refract_charm: { name: '折射护符', icon: '🧿', price: 85, kind: 'gear', desc: '15% 概率完全格挡', mod: { block: 0.15 } },
+  prism_ring: { name: '光棱戒指', icon: '💍', price: 100, kind: 'gear', desc: '攻击 10% 概率追加 2 点光伤', mod: { ringDmg: 2 } },
+  cluster_belt: { name: '晶簇腰带', icon: '🎽', price: 95, kind: 'gear', desc: '武器击退+50%', mod: { knock: 1.5 } },
+  diamond_brooch: { name: '钻石胸针', icon: '💠', price: 120, kind: 'gear', desc: '击杀金币+2', mod: { goldAdd: 2 } },
+  crystal_boots: { name: '水晶靴', icon: '👢', price: 90, kind: 'gear', desc: '移动速度+25%', mod: { speed: 1.25 } },
+  mirror_cloak: { name: '镜面斗篷', icon: '🥻', price: 100, kind: 'gear', desc: '怪物减速 10%', mod: { slow: 0.1 } },
+  crystal_core: { name: '晶核', icon: '🔮', price: 130, kind: 'gear', desc: '最大血量+2', mod: { heart: 2 } },
+  light_tear: { name: '光之泪', icon: '💧', price: 140, kind: 'gear', desc: '回血速度×2', mod: { regen: 2 } },
+  prism_bracer: { name: '棱镜手环', icon: '🧤', price: 110, kind: 'gear', desc: '武器攻速+18%', mod: { haste: 0.18 } },
+  crystal_tattoo: { name: '晶化纹身', icon: '🐉', price: 150, kind: 'gear', desc: '血量≤2 颗时伤害×1.5', mod: { rage: 1.5 } },
+  mirror_shield: { name: '反光镜', icon: '🪞', price: 160, kind: 'gear', desc: '25% 概率完全格挡', mod: { block: 0.25 } },
+  focus_stone: { name: '聚光石', icon: '🪨', price: 135, kind: 'gear', desc: '伤害+2', mod: { dmgAdd: 2 } },
+  crystal_heart: { name: '水晶之心', icon: '💎', price: 170, kind: 'gear', desc: '最大血量+3', mod: { heart: 3 } },
+  undying_core: { name: '不灭晶核', icon: '🕯️', price: 220, kind: 'gear', desc: '每局一次：致命一击留 1 颗心', mod: { angel: 1 } },
+  light_wings: { name: '光翼', icon: '🪽', price: 190, kind: 'gear', desc: '移速+10%、伤害+1', mod: { speed: 1.1, dmgAdd: 1 } },
+  cave_map: { name: '晶洞地图', icon: '🗺️', price: 100, kind: 'gear', desc: '受伤后提前 1 秒开始回血', mod: { map: 1 } },
+  rainbow_stone: { name: '彩虹石', icon: '🌈', price: 150, kind: 'gear', desc: '击杀金币×1.5', mod: { goldMul: 1.5 } },
+  crystal_crown: { name: '水晶皇冠', icon: '👑', price: 320, kind: 'gear', desc: '伤害+1、最大血+2、移速+10%：洞窟毕业神装', mod: { heart: 2, dmgAdd: 1, speed: 1.1 } },
+};
+SKBOOKS[7] = [
+  ['sk7_spikeball', '晶刺球', '💠', 520, '技能：喷出晶刺球 12 伤+点燃（冷却 4 秒）'],
+  ['sk7_prismzap', '棱镜雷', '🌈', 540, '技能：彩虹雷劈最近的怪 14 伤（冷却 5 秒）'],
+  ['sk7_crystalfrost', '晶冻术', '❄️', 530, '技能：冻住周围怪物 2.5 秒（冷却 8 秒）'],
+  ['sk7_gemspin', '晶刃风暴', '🌪️', 560, '技能：360° 晶刃风暴 11 伤（冷却 6 秒）'],
+  ['sk7_lightcloud', '光雾术', '🌫️', 580, '技能：放光雾 4 秒持续掉血（冷却 9 秒）'],
+  ['sk7_gemmeteor', '晶陨术', '☄️', 640, '技能：砸晶陨 18 伤（冷却 10 秒）'],
+  ['sk7_prismrain', '棱光剑雨', '🗡️', 620, '技能：7 把光剑各 6 伤（冷却 9 秒）'],
+  ['sk7_pull', '引力晶', '🧲', 600, '技能：把怪吸过来 8 伤（冷却 8 秒）'],
+  ['sk7_chain', '折光链', '⚡', 610, '技能：光链劈 3 只各 9 伤（冷却 7 秒）'],
+  ['sk7_annihilate', '水晶湮灭', '💎', 900, '技能：毕业大招！一圈 34 伤（冷却 30 秒）'],
+];
+/* 🐾 宠物（七关各 10 只，出战帮你咬怪；宠物继承，过关不收回！最多 3 只出战） */
+const PETS = {
+  1: [ /* [key,名字,图标,价格,伤害,攻速秒,射程,特性] */
+    ['pet1_chick', '小鸡', '🐤', 30, 1, 1.0, 26, null], ['pet1_dog', '小狗', '🐶', 45, 1.5, 0.9, 28, null],
+    ['pet1_hedgehog', '刺猬', '🦔', 60, 1, 0.8, 26, 'knock'], ['pet1_frog', '青蛙', '🐸', 55, 1, 0.7, 40, null],
+    ['pet1_cat', '猫咪', '🐱', 70, 2, 1.1, 28, null], ['pet1_rabbit', '兔子', '🐰', 65, 1, 0.6, 26, null],
+    ['pet1_squirrel', '松鼠', '🐿️', 60, 1.5, 0.9, 28, 'crit'], ['pet1_bee', '蜜蜂', '🐝', 75, 1, 0.8, 30, 'dot'],
+    ['pet1_turtle', '乌龟', '🐢', 50, 2.5, 1.4, 26, null], ['pet1_wolf', '草原狼', '🐺', 120, 3, 0.8, 30, null] ],
+  2: [
+    ['pet2_snowrabbit', '雪兔', '🐇', 90, 2, 0.7, 28, null], ['pet2_penguin', '企鹅', '🐧', 100, 2.5, 1.0, 28, null],
+    ['pet2_snowfox', '雪狐', '🦊', 110, 2.5, 0.8, 30, null], ['pet2_owl', '猫头鹰', '🦉', 105, 2, 0.7, 36, null],
+    ['pet2_bear', '北极熊', '🐻‍❄️', 150, 3.5, 1.2, 30, null], ['pet2_seal', '海豹', '🦭', 95, 2, 0.9, 30, 'knock'],
+    ['pet2_deer', '驯鹿', '🦌', 115, 2.5, 0.9, 30, null], ['pet2_icewolf', '冰狼', '🐺', 130, 3, 0.8, 30, null],
+    ['pet2_leopard', '雪豹', '🐆', 140, 3, 0.7, 30, null], ['pet2_icedragon', '冰霜巨龙', '🐉', 200, 4.5, 0.8, 34, null] ],
+  3: [
+    ['pet3_bat', '蝙蝠', '🦇', 140, 3, 0.7, 30, null], ['pet3_blackcat', '黑猫', '🐈‍⬛', 150, 3.5, 0.9, 30, null],
+    ['pet3_crow', '乌鸦', '🐦‍⬛', 145, 3, 0.7, 34, null], ['pet3_scorpion', '蝎子', '🦂', 160, 3, 0.9, 28, 'dot'],
+    ['pet3_spider', '蜘蛛', '🕷️', 155, 3, 0.8, 30, 'slow'], ['pet3_ghostlet', '小幽灵', '👻', 170, 4, 1.0, 32, null],
+    ['pet3_snake', '小蛇', '🐍', 165, 3.5, 0.8, 30, 'dot'], ['pet3_hound', '冥犬', '🐕', 175, 4, 0.9, 32, null],
+    ['pet3_skullbird', '骷髅鸟', '🦅', 180, 4, 0.8, 36, null], ['pet3_wraithwolf', '幽魂狼', '🐺', 280, 6, 0.8, 34, null] ],
+  4: [
+    ['pet4_salamander', '火蜥蜴', '🦎', 190, 4, 0.8, 30, 'dot'], ['pet4_firefox', '火狐', '🦊', 200, 4.5, 0.8, 32, null],
+    ['pet4_lavaturtle', '岩浆龟', '🐢', 210, 5.5, 1.3, 30, null], ['pet4_firehawk', '火鹰', '🦅', 195, 4, 0.7, 36, null],
+    ['pet4_flamehorse', '烈焰马', '🐴', 215, 4.5, 0.8, 32, null], ['pet4_lavadog', '熔岩犬', '🐕', 205, 4.5, 0.9, 30, null],
+    ['pet4_firebee', '火蜂', '🐝', 200, 4, 0.7, 32, 'dot'], ['pet4_flamecat', '炎猫', '🐱', 210, 4.5, 0.8, 30, null],
+    ['pet4_phoenix', '凤凰', '🐦‍🔥', 260, 5, 0.7, 36, 'dot'], ['pet4_firedragon', '火龙', '🐉', 360, 7.5, 0.8, 36, null] ],
+  5: [
+    ['pet5_thunderbird', '雷鸟', '🦅', 240, 5, 0.7, 36, null], ['pet5_eel', '电鳗', '🐍', 245, 5, 0.8, 30, 'slow'],
+    ['pet5_voltfox', '电光狐', '🦊', 250, 5.5, 0.8, 32, null], ['pet5_stormcat', '雷云猫', '🐱', 255, 5.5, 0.8, 30, null],
+    ['pet5_thunderbear', '雷震熊', '🐻', 280, 7, 1.2, 32, null], ['pet5_sparkrabbit', '闪电兔', '🐰', 245, 5, 0.6, 30, null],
+    ['pet5_voltbee', '电蜂', '🐝', 250, 5, 0.7, 32, 'dot'], ['pet5_stormeagle', '风暴鹰', '🦅', 260, 5.5, 0.7, 38, null],
+    ['pet5_minithor', '小雷神', '⚡', 300, 6, 0.8, 34, 'knock'], ['pet5_thunderdragon', '雷龙', '🐲', 440, 9, 0.8, 38, null] ],
+  6: [
+    ['pet6_voidcat', '虚空猫', '🐈‍⬛', 300, 6, 0.8, 32, null], ['pet6_shadowbat', '影蝠', '🦇', 305, 6, 0.7, 34, null],
+    ['pet6_voidwolf', '虚空狼', '🐺', 320, 6.5, 0.8, 32, null], ['pet6_starabbit', '星尘兔', '🐇', 310, 6, 0.6, 30, null],
+    ['pet6_darkcrow', '暗鸦', '🐦‍⬛', 315, 6, 0.7, 36, null], ['pet6_voidbear', '虚空熊', '🐻', 340, 8, 1.2, 32, null],
+    ['pet6_shadowsnake', '影蛇', '🐍', 325, 6.5, 0.8, 30, 'dot'], ['pet6_voidowl', '星瞳猫头鹰', '🦉', 330, 6, 0.7, 40, null],
+    ['pet6_voiddragon', '虚空龙', '🐉', 380, 7.5, 0.8, 36, null], ['pet6_endshadow', '终焉之影', '🌑', 520, 11, 0.8, 38, null] ],
+  7: [
+    ['pet7_crystalbee', '水晶蜂', '🐝', 380, 7, 0.7, 34, 'dot'], ['pet7_gemturtle', '晶石龟', '🐢', 390, 9, 1.3, 30, null],
+    ['pet7_prismbird', '光棱鸟', '🐦', 400, 7, 0.7, 40, null], ['pet7_crystalfox', '水晶狐', '🦊', 410, 7.5, 0.8, 34, null],
+    ['pet7_diamonddog', '钻石犬', '🐕', 405, 7.5, 0.8, 32, null], ['pet7_gembat', '晶翼蝙蝠', '🦇', 395, 7, 0.7, 36, null],
+    ['pet7_leopard', '水晶豹', '🐆', 420, 8, 0.7, 34, null], ['pet7_lightdeer', '光之鹿', '🦌', 415, 7.5, 0.8, 34, 'knock'],
+    ['pet7_crystaldragon', '水晶龙', '🐉', 480, 9, 0.8, 38, null], ['pet7_prismphoenix', '棱镜凤凰', '🐦‍🔥', 650, 13, 0.8, 40, 'dot'] ],
+};
+/* ✨ 技能书+🐾 宠物并入七关商店 */
 {
-  const TBLS = { 1: SHOP, 2: SHOP2, 3: SHOP3, 4: SHOP4, 5: SHOP5, 6: SHOP6 };
-  for (const lv of [1, 2, 3, 4, 5, 6]) for (const [k, n, i, p, d] of SKBOOKS[lv]) TBLS[lv][k] = { name: n, icon: i, price: p, kind: 'skill', desc: d };
+  const TBLS = { 1: SHOP, 2: SHOP2, 3: SHOP3, 4: SHOP4, 5: SHOP5, 6: SHOP6, 7: SHOP7 };
+  const SPEC_TXT = { knock: '，把怪打飞', slow: '，让怪减速', dot: '，让怪中毒', crit: '，会暴击' };
+  for (const lv of [1, 2, 3, 4, 5, 6, 7]) for (const [k, n, i, p, d] of SKBOOKS[lv]) TBLS[lv][k] = { name: n, icon: i, price: p, kind: 'skill', desc: d };
+  for (const lv of [1, 2, 3, 4, 5, 6, 7]) for (const [k, n, i, p, dmg, cd, range, spec] of PETS[lv]) TBLS[lv][k] = { name: n, icon: i, price: p, kind: 'pet', desc: `宠物：帮你咬怪 ${dmg} 伤/${cd} 秒${SPEC_TXT[spec] || ''}（继承，过关不收回）`, pet: { dmg, cd, range, spec } };
 }
 /* ⛈️ 雷云精（第五关）：白云快飞，绕玩家 190 距离盘旋，直线射电光弹（比骷髅箭快） */
 const STORM = { hp: 7, r: 12, speed: 115, keepMin: 150, keepMax: 230, fireCd: 2, range: 460 };
@@ -676,4 +793,28 @@ function voidTick(v, p, dt, speedMul, rnd) {
   v.x = Math.max(20, Math.min(WORLD.w - 20, v.x)); v.y = Math.max(20, Math.min(WORLD.h - 20, v.y));
   return ev;
 }
-if (typeof module !== 'undefined') module.exports = { WORLD, PLAYER, ZOMBIE, SPAWN, ATTACK, HURT, REGEN, SHOP, SHOP2, SHOP3, SHOP4, SHOP5, SHOP6, SKBOOKS, BOSS, SKELETON, GHOST, LAVA, STORM, VOIDW, makePlayer, pickSpawn, spawnZombie, zombieStep, attackHit, lootGold, lootBounty, buyItem, regenTick, playerStep, touchHurt, difficulty, makeBoss, bossTick, makeSkeleton, skeletonTick, makeGhost, ghostTick, makeLava, lavaTick, makeStorm, stormTick, makeVoid, voidTick };
+/* 💠 激光怪（第七关·水晶洞窟）：晶亮小飞虫，远远地射飞快的激光 */
+const CRYSTAL = { hp: 12, r: 13, speed: 95, keepMin: 200, keepMax: 300, fireCd: 2.4, range: 560 };
+function makeCrystal(x, y, rnd) {
+  const r = rnd || Math.random;
+  return { x, y, hp: CRYSTAL.hp, r: CRYSTAL.r, crystal: true, dead: false, flash: 0, walkT: r() * 9, fireT: 1 + r() * 1.4,
+    keepMin: 190 + r() * 50, keepMax: 260 + r() * 80, orbitD: r() < 0.5 ? 1 : -1 };
+}
+function crystalTick(c, p, dt, speedMul, rnd) {
+  const ev = { bolt: null };
+  c.flash = Math.max(0, c.flash - dt); c.walkT += dt;
+  const dx = p.x - c.x, dy = p.y - c.y, d = Math.hypot(dx, dy) || 1;
+  const sp = CRYSTAL.speed * (speedMul || 1);
+  const kMin = c.keepMin || CRYSTAL.keepMin, kMax = c.keepMax || CRYSTAL.keepMax;
+  if (d > kMax) { c.x += dx / d * sp * dt; c.y += dy / d * sp * dt; }
+  else if (d < kMin) { c.x -= dx / d * sp * 0.9 * dt; c.y -= dy / d * sp * 0.9 * dt; }
+  else { c.x += -dy / d * sp * 0.6 * c.orbitD * dt; c.y += dx / d * sp * 0.6 * c.orbitD * dt; }   // 盘旋
+  c.x = Math.max(20, Math.min(WORLD.w - 20, c.x)); c.y = Math.max(20, Math.min(WORLD.h - 20, c.y));
+  c.fireT -= dt;
+  if (c.fireT <= 0 && d < CRYSTAL.range) {
+    c.fireT = CRYSTAL.fireCd + (rnd || Math.random)() * 0.6;
+    ev.bolt = { x: c.x, y: c.y - 6, dx: dx / d, dy: dy / d, laser: true };   // 💠 激光弹：飞得超快
+  }
+  return ev;
+}
+if (typeof module !== 'undefined') module.exports = { WORLD, PLAYER, ZOMBIE, SPAWN, ATTACK, HURT, REGEN, SHOP, SHOP2, SHOP3, SHOP4, SHOP5, SHOP6, SHOP7, SKBOOKS, PETS, BOSS, SKELETON, GHOST, LAVA, STORM, VOIDW, CRYSTAL, makePlayer, pickSpawn, spawnZombie, zombieStep, attackHit, lootGold, lootBounty, buyItem, regenTick, playerStep, touchHurt, difficulty, makeBoss, bossTick, makeSkeleton, skeletonTick, makeGhost, ghostTick, makeLava, lavaTick, makeStorm, stormTick, makeVoid, voidTick, makeCrystal, crystalTick };
