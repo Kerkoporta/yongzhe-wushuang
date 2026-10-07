@@ -775,7 +775,7 @@ function addPet(key) {
   if (pets.some(p => p.key === key)) { setBanner('🐾 ' + d.name + ' 已经在你身边啦！'); return; }
   if (pets.length >= 3) { setBanner('🎒 宠物位满啦，' + d.name + ' 在背包里等你召唤'); return; }
   setBanner('🐾 ' + d.name + ' 出战！');
-  pets.push({ key, name: d.name, icon: d.icon, dmg: d.dmg, cd: d.cd, range: d.range, spec: d.spec, x: player.x, y: player.y, atkT: 0, wagT: Math.random() * 9 });
+  pets.push({ key, name: d.name, icon: d.icon, dmg: d.dmg, cd: d.cd, range: d.range, spec: d.spec, x: player.x, y: player.y, atkT: 0, wagT: Math.random() * 9, animT: 0, state: 'wander', face: 1, restT: 0 });   // 🐾 出生就带齐动画字段：少一个都会把绘制循环炸停
   beep(600, 900, 0.12, 'sine', 0.12);
 }
 /* ================= 🐾 像素宠物工坊（程序生成像素模型：游荡/奔跑/攻击三种动画） ================= */
@@ -1190,7 +1190,7 @@ function applySave(s) {
     setBanner('👹 ' + LEVELS[level].bossName + '回来了！');
   }
   for (let i = 0; i < 3; i++) spawnEnemy();   // 小怪也先来三只，世界不空
-  pets = []; for (const k of s.pets || []) { const d = ALLPETS[k]; if (d) pets.push({ key: k, name: d.name, icon: d.icon, dmg: d.dmg, cd: d.cd, range: d.range, spec: d.spec, x: player.x, y: player.y, atkT: 0, wagT: Math.random() * 9 }); }   // 🐾 宠物回来
+  pets = []; for (const k of s.pets || []) { const d = ALLPETS[k]; if (d) pets.push({ key: k, name: d.name, icon: d.icon, dmg: d.dmg, cd: d.cd, range: d.range, spec: d.spec, x: player.x, y: player.y, atkT: 0, wagT: Math.random() * 9, animT: 0, state: 'wander', face: 1, restT: 0 }); }   // 🐾 宠物回来（动画字段也要带齐，不然读档第一帧就炸）
   skillSlots = (s.skillSlots || Object.keys(player.bought).filter(k => ALLKIND[k] === 'skill').slice(0, 5)).filter(k => player.bought[k]);   // ✨ 上阵技能回来（老存档默认前 5 本上阵）
   dexCounts = s.dex || {};   // 📖 图鉴回来
   coins = []; placePortal();   // 🕳️ 新一局刷个山洞
@@ -2359,8 +2359,8 @@ function loop(now) {
       document.getElementById('overScore').textContent = `🌀 无尽打到：第${endlessRound}遍·第${endlessWave}波（共击败 ${kills} 只）🏆 最佳：第${bst.round}遍·第${bst.wave}波`;
     }
   }
-  update(dt);
-  draw(); requestAnimationFrame(loop);
+  requestAnimationFrame(loop);   // 🛡️ 先排下一帧：哪怕这一帧出错，游戏也绝不定格（一帧的错不该杀死整个游戏）
+  try { update(dt); draw(); } catch (err) { console.error('[frame] 这一帧出错了，已跳过：', err); }
 }
 /* ================= 画面 ================= */
 /* 👹 BOSS 画法：举臂预警圈、陀螺旋转、受击闪白 */
@@ -2635,11 +2635,12 @@ function draw() {
   for (const pt of pets) {
     ctx.globalAlpha = 0.3; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.ellipse(pt.x, pt.y + 2, 8, 3.5, 0, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1;
     const art = petArt(pt.key);
-    const set = (pt.state === 'atk' && pt.animT < 0.3) ? art.atk : pt.state === 'run' ? art.run : art.wander;
-    const frame = set[Math.floor(pt.animT * (pt.state === 'run' ? 8 : 3)) % set.length];
+    const ptAnimT = pt.animT || 0;   // 🛡️ 兜底：animT 缺了/变 NaN 也不能让绘制炸掉
+    const set = (pt.state === 'atk' && ptAnimT < 0.3) ? art.atk : pt.state === 'run' ? art.run : art.wander;
+    const frame = set[Math.floor(ptAnimT * (pt.state === 'run' ? 8 : 3)) % set.length] || set[0];
     ctx.save(); ctx.translate(Math.round(pt.x), Math.round(pt.y));
     if ((pt.face || 1) < 0) ctx.scale(-1, 1);
-    ctx.drawImage(frame, -19, -30, 38, 32);
+    if (frame) ctx.drawImage(frame, -19, -30, 38, 32);
     ctx.restore();
   }
   // 🕳️ 神秘山洞（发光漩涡）+ 🪙 散落金币
