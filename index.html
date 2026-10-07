@@ -14,8 +14,14 @@
   #shopBtn{position:fixed;right:12px;top:94px;z-index:6;background:rgba(200,150,30,.92);color:#fff;border:3px solid #ffd24a;border-radius:14px;padding:7px 12px;font-weight:bold;font-size:15px;box-shadow:0 3px 8px rgba(0,0,0,.4);cursor:pointer}
   #helpBtn{position:fixed;right:12px;top:140px;z-index:6;background:rgba(40,110,160,.92);color:#fff;border:3px solid #6ab8f2;border-radius:14px;padding:7px 12px;font-weight:bold;font-size:15px;box-shadow:0 3px 8px rgba(0,0,0,.4);cursor:pointer}
   #gearBtn{position:fixed;right:12px;top:186px;z-index:6;background:rgba(70,70,84,.92);color:#fff;border:3px solid #b8b8c2;border-radius:50%;width:44px;height:44px;font-size:22px;box-shadow:0 3px 8px rgba(0,0,0,.4);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
-  #gear,#help{position:fixed;inset:0;z-index:9;display:none;align-items:center;justify-content:center;background:rgba(20,16,10,.7)}
-  #gearCard,#helpCard{background:#2e2414;border:4px solid #d8b87a;border-radius:18px;padding:20px 22px;color:#fff;font-family:sans-serif;width:min(340px,88vw);max-height:84vh;display:flex;flex-direction:column}
+  #gear,#help,#bag{position:fixed;inset:0;z-index:9;display:none;align-items:center;justify-content:center;background:rgba(20,16,10,.7)}
+  #gearCard,#helpCard,#bagCard{background:#2e2414;border:4px solid #d8b87a;border-radius:18px;padding:20px 22px;color:#fff;font-family:sans-serif;width:min(340px,88vw);max-height:84vh;display:flex;flex-direction:column}
+  .bagGrid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:4px 0 6px}
+  .bagIt{display:flex;flex-direction:column;align-items:center;gap:2px;background:#3a2e1a;border:3px solid #6a5638;border-radius:12px;padding:8px 4px;color:#fff;font-family:sans-serif;cursor:pointer;font-size:13px}
+  .bagIt .bi{font-size:22px}
+  .bagIt .bs{font-size:11px;opacity:.8}
+  .bagIt.on{border-color:#7ec850;background:#2a3a1a}
+  .bagIt.off{opacity:.75}
   #gearCard button{margin-top:8px}
   .hsec{font-weight:bold;color:#ffd24a;margin-top:8px}
   .htxt{font-size:14px;line-height:1.7;opacity:.92}
@@ -25,7 +31,7 @@
   #rot{position:fixed;inset:0}
   #rot.rot90{inset:auto;top:0;transform:rotate(90deg);transform-origin:top left}
   /* 🔄 旋转后的可用高度=设备宽度（vw），卡片按 vw 限高，关闭钮不会被顶出去；技能钮缩小防重叠 */
-  #rot.rot90 #shopCard, #rot.rot90 #homeCard, #rot.rot90 #dexCard, #rot.rot90 #gearCard, #rot.rot90 #helpCard{max-height:88vw}
+  #rot.rot90 #shopCard, #rot.rot90 #homeCard, #rot.rot90 #dexCard, #rot.rot90 #gearCard, #rot.rot90 #helpCard, #rot.rot90 #bagCard{max-height:88vw}
   #rot.rot90 #skills{gap:5px;bottom:118px;right:112px}
   #rot.rot90 .skl{width:38px;height:38px;font-size:15px;border-width:2px}
   #home{position:fixed;inset:0;z-index:20;display:none;align-items:center;justify-content:center;background:rgba(10,14,24,.86)}
@@ -74,6 +80,7 @@
 <button id="gearBtn">⚙️</button>
 <div id="gear"><div id="gearCard">
   <div style="font-size:22px;font-weight:bold;margin-bottom:8px">⚙️ 设置</div>
+  <button id="gearBag">🎒 背包</button>
   <button id="gearHome">🏠 主页 / 存档</button>
   <button id="gearDex">📖 击杀图鉴</button>
   <button id="gearMusic">🎵 音乐：开</button>
@@ -103,6 +110,12 @@
   <div style="font-size:13px;opacity:.85">杀过的怪都会点亮！未遇到的还是？？？</div>
   <div id="dexList" style="overflow-y:auto;flex:1;min-height:0"></div>
   <button id="dexClose" style="margin-top:10px">继续战斗 ⚔️</button>
+</div></div>
+<div id="bag"><div id="bagCard">
+  <div style="font-size:22px;font-weight:bold;margin-bottom:4px">🎒 背包</div>
+  <div style="font-size:13px;opacity:.85">点一下就能换装/换人：武器拿一把，装备随便装卸，技能上阵 5 个，宠物出战 3 只</div>
+  <div id="bagList" style="overflow-y:auto;flex:1;min-height:0"></div>
+  <button id="bagClose" style="margin-top:10px">继续战斗 ⚔️</button>
 </div></div>
 <div id="shop"><div id="shopCard">
   <div style="font-size:22px;font-weight:bold;margin-bottom:4px">🏪 勇者商店</div>
@@ -489,9 +502,9 @@ function bossUpdate(z, dt) {
     for (const l of ev.lasers) earrows.push({ x: l.x, y: l.y, vx: l.dx * 420, vy: l.dy * 420, t: 1.6, laser: true });
     setBanner('💎 棱光齐射！快找空隙！'); beep(900, 1400, 0.2, 'sawtooth', 0.14);
   }
-  if (ev.meteors) {   // ☄️ 熔岩魔王火雨：3 颗陨石定点预警 0.8 秒后砸下
-    for (const m of ev.meteors) meteors.push({ x: m.x, y: m.y, t: 0.8, landed: false });
-    setBanner('☄️ 火雨来了，离开红圈！'); beep(300, 80, 0.5, 'sawtooth', 0.2);
+  if (ev.puddles) {   // 🌋 火山喷发：4 池岩浆喷在周围，踩上烫脚
+    for (const p2 of ev.puddles) puddles.push({ x: p2.x, y: p2.y, t: 5 });
+    setBanner('🌋 火山喷发！离开岩浆！'); beep(200, 70, 0.5, 'sawtooth', 0.2);
   }
   if (ev.trail) {   // 🔥 冲锋犁出岩浆路
     z.trailAcc = (z.trailAcc || 0) + dt;
@@ -591,7 +604,7 @@ function bossUpdate(z, dt) {
 }
 function reset() {
   player = makePlayer(); zombies = []; kills = 0; spawnT = 1; summonT = 10; parts = []; gameOver = false;
-  pets = []; dexCounts = {}; coins = [];   // 🐾📖🪙 新冒险从零开始
+  pets = []; dexCounts = {}; coins = []; skillSlots = [];   // 🐾📖🪙✨ 新冒险从零开始
   bossAt = 100; banner = { txt: '', t: 0 }; shakeT = 0; slamFx = null;
   level = 1; earrows = []; parrows = [];
   autoOn = false; holdAtk = false; autoT = 0; autoBtn.classList.remove('on');
@@ -619,7 +632,7 @@ function renderShop() {
     h += `<div class="shopSec">${sec}</div>`;
     for (const key in TBL) {
       const it = TBL[key]; if (it.kind !== kind) continue;
-      const owned = !!player.owned[key];
+      const owned = !!player.bought[key];   // 🎒 买过=已拥有（卸下也算有）
       const disc = player.owned.charm ? 0.1 : 0;   // 🪙 金币护符全场 9 折
       const price = Math.ceil(it.price * (1 - disc));
       const priceTxt = disc ? `💰${price} <s style="opacity:.5;font-size:11px">${it.price}</s>` : `💰${price}`;
@@ -643,10 +656,14 @@ function buyFromShop(key) {
   const left = buyItem(player.gold, key, player.owned.charm ? 0.1 : 0, shopNow());   // 🪙 9 折
   if (left === null) { beep(160, 90, 0.15, 'square', 0.1); return; }
   player.gold = left;
-  player.owned[key] = true;
+  player.bought[key] = true; player.owned[key] = true;   // 🎒 买下=进背包；装备默认装上
   if (shopNow()[key].kind === 'weapon') player.weapon = key;   // 买武器直接上手
-  if (shopNow()[key].kind === 'skill') renderSkills();   // ✨ 技能书买完立刻出现按钮
-  if (shopNow()[key].kind === 'pet') addPet(key);   // 🐾 宠物立刻出战
+  if (shopNow()[key].kind === 'skill') {   // ✨ 技能位只有 5 个，满了进背包休息
+    if (skillSlots.length < 5 && !skillSlots.includes(key)) skillSlots.push(key);
+    else setBanner('✨ 技能位满啦，它在背包里休息（去背包换上）');
+    renderSkills();
+  }
+  if (shopNow()[key].kind === 'pet') addPet(key);   // 🐾 宠物位 3 个，满了进背包休息
   applyGear(); saveGame();   // 💾 买完立刻存档
   beep(660, 990, 0.14, 'square', 0.12); setTimeout(() => beep(880, 1320, 0.16, 'square', 0.1), 120);
   updateGold(); renderShop();
@@ -716,8 +733,8 @@ for (const lv of [1, 2, 3, 4, 5, 6, 7]) for (const [k, n, i, p, dmg, cd, range, 
 function addPet(key) {
   const d = ALLPETS[key]; if (!d) return;
   if (pets.some(p => p.key === key)) { setBanner('🐾 ' + d.name + ' 已经在你身边啦！'); return; }
-  if (pets.length >= 3) { const old = pets.shift(); setBanner('🐾 ' + d.name + ' 出战！' + old.name + ' 回家休息了'); }
-  else setBanner('🐾 ' + d.name + ' 出战！');
+  if (pets.length >= 3) { setBanner('🎒 宠物位满啦，' + d.name + ' 在背包里等你召唤'); return; }
+  setBanner('🐾 ' + d.name + ' 出战！');
   pets.push({ key, name: d.name, icon: d.icon, dmg: d.dmg, cd: d.cd, range: d.range, spec: d.spec, x: player.x, y: player.y, atkT: 0, wagT: Math.random() * 9 });
   beep(600, 900, 0.12, 'sine', 0.12);
 }
@@ -808,10 +825,11 @@ function packSave() {
   const boss = zombies.find(z => z.boss && !z.dead && !z.fake);
   return { kills, gold: player.gold, weapon: player.weapon, owned: player.owned, hearts: player.hearts, bossAt, level, music: musicOn ? 1 : 0, rot: rotated ? 1 : 0, when: Date.now(), sid: mySid,
     bossAlive: boss ? 1 : 0, bossHp: boss ? boss.hp : 0,
-    pets: pets.map(p => p.key), dex: dexCounts };   // 🐾宠物+📖图鉴也跟着存档走
+    pets: pets.map(p => p.key), dex: dexCounts, bought: player.bought, skillSlots };   // 🐾宠物+📖图鉴+🎒背包也跟着存档走
 }
 function applySave(s) {
   kills = s.kills || 0; player.gold = s.gold || 0; player.owned = s.owned || {};
+  player.bought = s.bought || Object.assign({}, player.owned);   // 🎒 老存档没有 bought：拿 owned 顶上
   if (s.music != null) { musicOn = !!s.music; document.getElementById('gearMusic').textContent = musicOn ? '🎵 音乐：开' : '🔇 音乐：关'; }
   if (!!s.rot !== rotated) toggleRotate();   // 🔄 转屏状态跟着存档走
   bossAt = s.bossAt || 100; level = (s.level >= 2 && s.level <= 7) ? s.level : 1;   // 先定关卡，再校验武器
@@ -828,6 +846,7 @@ function applySave(s) {
   }
   for (let i = 0; i < 3; i++) spawnEnemy();   // 小怪也先来三只，世界不空
   pets = []; for (const k of s.pets || []) { const d = ALLPETS[k]; if (d) pets.push({ key: k, name: d.name, icon: d.icon, dmg: d.dmg, cd: d.cd, range: d.range, spec: d.spec, x: player.x, y: player.y, atkT: 0, wagT: Math.random() * 9 }); }   // 🐾 宠物回来
+  skillSlots = (s.skillSlots || Object.keys(player.bought).filter(k => ALLKIND[k] === 'skill').slice(0, 5)).filter(k => player.bought[k]);   // ✨ 上阵技能回来（老存档默认前 5 本上阵）
   dexCounts = s.dex || {};   // 📖 图鉴回来
   coins = []; placePortal();   // 🕳️ 新一局刷个山洞
   renderSkills();   // ✨ 读档后技能按钮跟着来
@@ -1129,6 +1148,54 @@ function toggleHelp(force) {
 }
 document.getElementById('helpBtn').onclick = () => toggleHelp();
 document.getElementById('helpClose').onclick = () => toggleHelp(false);
+/* ================= 🎒 背包（武器换装/装备装卸/技能五上阵/宠物三出战） ================= */
+let skillSlots = [];   // ✨ 上阵技能（最多 5 个）
+const bagEl = document.getElementById('bag'), bagList = document.getElementById('bagList');
+let bagOpen = false;
+function toggleBag(force) {
+  bagOpen = force == null ? !bagOpen : force;
+  paused = bagOpen;
+  if (bagOpen) renderBag();
+  bagEl.style.display = bagOpen ? 'flex' : 'none';
+}
+document.getElementById('gearBag').onclick = () => { toggleGear(false); toggleBag(true); };
+document.getElementById('bagClose').onclick = () => toggleBag(false);
+function renderBag() {
+  const sec = (t, n) => `<div class="shopSec">${t}</div>`;
+  const btn = (k, it, state, on) => `<button class="bagIt ${on ? 'on' : 'off'}" data-bag="${k}"><span class="bi">${it.icon}</span><span class="bn">${it.name}</span><span class="bs">${state}</span></button>`;
+  const grid = arr => `<div class="bagGrid">${arr.join('')}</div>`;
+  let h = '';
+  const ws = Object.keys(player.bought).filter(k => ALLKIND[k] === 'weapon');
+  h += sec('🗡️ 武器（点一下拿手上，只能拿一把）');
+  h += ws.length ? grid(ws.map(k => btn(k, ALLITEMS[k], player.weapon === k ? '✅ 手上拿着' : '点我装备', player.weapon === k))) : '<div class="htxt">还没买过武器，去商店看看！</div>';
+  const gs = Object.keys(player.bought).filter(k => ALLKIND[k] === 'gear');
+  h += sec('🛡️ 装备（默认装着，点一下卸下/装上）');
+  h += gs.length ? grid(gs.map(k => btn(k, ALLITEMS[k], player.owned[k] ? '✅ 装着' : '💤 卸下了', !!player.owned[k]))) : '<div class="htxt">还没买过装备</div>';
+  const ss = Object.keys(player.bought).filter(k => ALLKIND[k] === 'skill');
+  h += sec(`✨ 技能（最多上阵 5 个：现在 ${skillSlots.length}/5）`);
+  h += ss.length ? grid(ss.map(k => btn(k, ALLITEMS[k], skillSlots.includes(k) ? '⚡ 上阵中' : '💤 休息中', skillSlots.includes(k)))) : '<div class="htxt">还没买过技能书</div>';
+  const ps = Object.keys(player.bought).filter(k => ALLKIND[k] === 'pet');
+  h += sec(`🐾 宠物（最多出战 3 只：现在 ${pets.length}/3）`);
+  h += ps.length ? grid(ps.map(k => { const act = pets.some(p => p.key === k); return btn(k, ALLPETS[k], act ? '🐾 出战中' : '💤 休息中', act); })) : '<div class="htxt">还没买过宠物</div>';
+  bagList.innerHTML = h;
+  for (const b of bagList.querySelectorAll('button[data-bag]')) b.onclick = () => bagTap(b.dataset.bag);
+}
+function bagTap(k) {
+  const kind = ALLKIND[k];
+  if (kind === 'weapon') { player.weapon = player.weapon === k ? null : k; beep(700, 900, 0.08, 'square', 0.1); }
+  else if (kind === 'gear') { player.owned[k] = !player.owned[k]; applyGear(); player.hearts = Math.min(player.hearts, player.maxHearts); beep(500, 700, 0.08, 'square', 0.1); }
+  else if (kind === 'skill') {
+    if (skillSlots.includes(k)) skillSlots = skillSlots.filter(s => s !== k);
+    else if (skillSlots.length < 5) skillSlots.push(k);
+    else { setBanner('✨ 最多上阵 5 个技能，先卸一个！'); beep(160, 90, 0.15, 'square', 0.1); renderBag(); return; }
+    renderSkills(); beep(600, 900, 0.08, 'square', 0.1);
+  } else if (kind === 'pet') {
+    if (pets.some(p => p.key === k)) { pets = pets.filter(p => p.key !== k); beep(400, 300, 0.08, 'square', 0.1); }
+    else if (pets.length < 3) addPet(k);
+    else { setBanner('🐾 最多 3 只出战，先让一只下场！'); beep(160, 90, 0.15, 'square', 0.1); renderBag(); return; }
+  }
+  saveGame(); renderBag();
+}
 /* ================= 音效（振荡器现煮） ================= */
 let AC = null;
 function beep(f0, f1, dur, type, vol) {
@@ -1141,15 +1208,15 @@ function beep(f0, f1, dur, type, vol) {
   } catch (e) {}
 }
 /* ================= ✨ 技能书系统（贵但高伤，带冷却，特效拉满） ================= */
-/* 类型: ball=飞行球 zap=劈最近 freeze=范围冻结 spin=360°爆发 cloud=毒雾 meteor=陨石 rain=剑雨 pull=引力 chain=连环电 */
+/* 类型: ball=飞行球 zap=劈最近 freeze=范围冻结 spin=360°爆发 cloud=毒雾 pull=引力 chain=连环电（陨石/剑雨太卡已删除） */
 const SKILL_FX = {
-  sk1_fireball: ['ball', 6, 4, '#ff9a3d', { burn: 1 }], sk1_zap: ['zap', 8, 5, '#ffe84a'], sk1_frost: ['freeze', 0, 8, '#a8e8ff', { r: 150, dur: 2 }], sk1_spin: ['spin', 5, 6, '#e8f4ff', { r: 95 }], sk1_cloud: ['cloud', 1, 9, '#7ee85a', { dur: 4, r: 70 }], sk1_meteor: ['meteor', 10, 10, '#a08050'], sk1_rain: ['rain', 3, 9, '#c8ccd4'], sk1_pull: ['pull', 3, 8, '#b48af2', { r: 220 }], sk1_chain: ['chain', 4, 7, '#ffe84a'], sk1_holy: ['spin', 12, 15, '#fff2b0', { r: 130 }],
-  sk2_iceball: ['ball', 8, 4, '#a8f2ff', { freeze: 1 }], sk2_icezap: ['zap', 10, 5, '#a8e8ff'], sk2_blizzard: ['freeze', 0, 8, '#c8f4ff', { r: 180, dur: 2.5 }], sk2_icespin: ['spin', 7, 6, '#c8f4ff', { r: 95 }], sk2_coldcloud: ['cloud', 1, 9, '#a8e8ff', { dur: 4.5, r: 70 }], sk2_icemeteor: ['meteor', 14, 10, '#a8e8ff'], sk2_icerain: ['rain', 4, 9, '#c8f4ff'], sk2_frostpull: ['pull', 4, 8, '#a8e8ff', { r: 220 }], sk2_icechain: ['chain', 5, 7, '#a8e8ff'], sk2_winter: ['spin', 16, 15, '#8fd8ff', { r: 130 }],
-  sk3_soulball: ['ball', 10, 4, '#8ff2ea', { burn: 1 }], sk3_hellzap: ['zap', 12, 5, '#8ff2ea'], sk3_soulfreeze: ['freeze', 0, 8, '#8ff2ea', { r: 180, dur: 2.5 }], sk3_wraithspin: ['spin', 9, 6, '#8ff2ea', { r: 95 }], sk3_hellcloud: ['cloud', 1, 9, '#4ac8c0', { dur: 5, r: 75 }], sk3_ghostmeteor: ['meteor', 18, 10, '#8ff2ea'], sk3_soulrain: ['rain', 5, 9, '#8ff2ea'], sk3_soulpull: ['pull', 5, 8, '#8ff2ea', { r: 220 }], sk3_hellchain: ['chain', 6, 7, '#8ff2ea'], sk3_banshee: ['spin', 20, 15, '#8ff2ea', { r: 130 }],
-  sk4_fireball: ['ball', 12, 4, '#ff7a2a', { burn: 1 }], sk4_skyfire: ['zap', 14, 5, '#ffb03d'], sk4_lavaroot: ['freeze', 0, 8, '#ff9a3d', { r: 180, dur: 2.5 }], sk4_firedragon: ['spin', 11, 6, '#ff7a2a', { r: 95 }], sk4_sulfurcloud: ['cloud', 1, 9, '#d8d84a', { dur: 5, r: 75 }], sk4_volcmeteor: ['meteor', 22, 10, '#ff7a2a'], sk4_firerain: ['rain', 6, 9, '#ff9a3d'], sk4_magmapull: ['pull', 6, 8, '#ff7a2a', { r: 220 }], sk4_firechain: ['chain', 7, 7, '#ffb03d'], sk4_inferno: ['spin', 24, 15, '#ff6a2a', { r: 130 }],
-  sk5_voltball: ['ball', 14, 4, '#ffe84a', { zapx: 1 }], sk5_truezap: ['zap', 16, 5, '#ffe84a'], sk5_stormfreeze: ['freeze', 0, 8, '#ffe84a', { r: 190, dur: 3 }], sk5_voltspin: ['spin', 13, 6, '#ffe84a', { r: 95 }], sk5_eleccloud: ['cloud', 1, 9, '#fff29a', { dur: 5.5, r: 80 }], sk5_skymeteor: ['meteor', 26, 10, '#ffe84a'], sk5_voltrain: ['rain', 7, 9, '#ffe84a'], sk5_magpull: ['pull', 7, 8, '#ffe84a', { r: 230 }], sk5_megachain: ['chain', 8, 7, '#ffe84a'], sk5_thundergod: ['spin', 28, 15, '#fff29a', { r: 135 }],
-  sk6_voidball: ['ball', 16, 4, '#b48af2', { zapx: 1 }], sk6_oblivionzap: ['zap', 18, 5, '#b48af2'], sk6_voidfreeze: ['freeze', 0, 8, '#b48af2', { r: 190, dur: 3 }], sk6_voidspin: ['spin', 15, 6, '#b48af2', { r: 95 }], sk6_darkcloud: ['cloud', 1, 9, '#8a5ac8', { dur: 6, r: 80 }], sk6_voidmeteor: ['meteor', 30, 10, '#b48af2'], sk6_oblivionrain: ['rain', 8, 9, '#b48af2'], sk6_singularpull: ['pull', 8, 8, '#b48af2', { r: 230 }], sk6_voidchain: ['chain', 9, 7, '#b48af2'], sk6_bigbang: ['spin', 32, 15, '#d0b0ff', { r: 140 }],
-  sk7_spikeball: ['ball', 12, 4, '#a8f2ff', { burn: 1 }], sk7_prismzap: ['zap', 14, 5, '#d0b0ff'], sk7_crystalfrost: ['freeze', 0, 8, '#c8f4ff', { r: 180, dur: 2.5 }], sk7_gemspin: ['spin', 11, 6, '#a8f2ff', { r: 95 }], sk7_lightcloud: ['cloud', 1, 9, '#d0f2ff', { dur: 5, r: 75 }], sk7_gemmeteor: ['meteor', 18, 10, '#a8f2ff'], sk7_prismrain: ['rain', 6, 9, '#d0b0ff'], sk7_pull: ['pull', 8, 8, '#b48af2', { r: 220 }], sk7_chain: ['chain', 9, 7, '#d0b0ff'], sk7_annihilate: ['spin', 34, 30, '#eaf8ff', { r: 140 }],
+  sk1_fireball: ['ball', 6, 4, '#ff9a3d', { burn: 1 }], sk1_zap: ['zap', 8, 5, '#ffe84a'], sk1_frost: ['freeze', 0, 8, '#a8e8ff', { r: 150, dur: 2 }], sk1_spin: ['spin', 5, 6, '#e8f4ff', { r: 95 }], sk1_cloud: ['cloud', 1, 9, '#7ee85a', { dur: 4, r: 70 }], sk1_meteor: ['zap', 10, 10, '#ffe84a'], sk1_rain: ['chain', 5, 9, '#7ee85a'], sk1_pull: ['pull', 3, 8, '#b48af2', { r: 220 }], sk1_chain: ['chain', 4, 7, '#ffe84a'], sk1_holy: ['spin', 12, 15, '#fff2b0', { r: 130 }],
+  sk2_iceball: ['ball', 8, 4, '#a8f2ff', { freeze: 1 }], sk2_icezap: ['zap', 10, 5, '#a8e8ff'], sk2_blizzard: ['freeze', 0, 8, '#c8f4ff', { r: 180, dur: 2.5 }], sk2_icespin: ['spin', 7, 6, '#c8f4ff', { r: 95 }], sk2_coldcloud: ['cloud', 1, 9, '#a8e8ff', { dur: 4.5, r: 70 }], sk2_icemeteor: ['zap', 14, 10, '#a8e8ff'], sk2_icerain: ['chain', 6, 9, '#c8f4ff'], sk2_frostpull: ['pull', 4, 8, '#a8e8ff', { r: 220 }], sk2_icechain: ['chain', 5, 7, '#a8e8ff'], sk2_winter: ['spin', 16, 15, '#8fd8ff', { r: 130 }],
+  sk3_soulball: ['ball', 10, 4, '#8ff2ea', { burn: 1 }], sk3_hellzap: ['zap', 12, 5, '#8ff2ea'], sk3_soulfreeze: ['freeze', 0, 8, '#8ff2ea', { r: 180, dur: 2.5 }], sk3_wraithspin: ['spin', 9, 6, '#8ff2ea', { r: 95 }], sk3_hellcloud: ['cloud', 1, 9, '#4ac8c0', { dur: 5, r: 75 }], sk3_ghostmeteor: ['zap', 18, 10, '#8ff2ea'], sk3_soulrain: ['chain', 7, 9, '#8ff2ea'], sk3_soulpull: ['pull', 5, 8, '#8ff2ea', { r: 220 }], sk3_hellchain: ['chain', 6, 7, '#8ff2ea'], sk3_banshee: ['spin', 20, 15, '#8ff2ea', { r: 130 }],
+  sk4_fireball: ['ball', 12, 4, '#ff7a2a', { burn: 1 }], sk4_skyfire: ['zap', 14, 5, '#ffb03d'], sk4_lavaroot: ['freeze', 0, 8, '#ff9a3d', { r: 180, dur: 2.5 }], sk4_firedragon: ['spin', 11, 6, '#ff7a2a', { r: 95 }], sk4_sulfurcloud: ['cloud', 1, 9, '#d8d84a', { dur: 5, r: 75 }], sk4_volcmeteor: ['zap', 22, 10, '#ff7a2a'], sk4_firerain: ['chain', 8, 9, '#ff9a3d'], sk4_magmapull: ['pull', 6, 8, '#ff7a2a', { r: 220 }], sk4_firechain: ['chain', 7, 7, '#ffb03d'], sk4_inferno: ['spin', 24, 15, '#ff6a2a', { r: 130 }],
+  sk5_voltball: ['ball', 14, 4, '#ffe84a', { zapx: 1 }], sk5_truezap: ['zap', 16, 5, '#ffe84a'], sk5_stormfreeze: ['freeze', 0, 8, '#ffe84a', { r: 190, dur: 3 }], sk5_voltspin: ['spin', 13, 6, '#ffe84a', { r: 95 }], sk5_eleccloud: ['cloud', 1, 9, '#fff29a', { dur: 5.5, r: 80 }], sk5_skymeteor: ['zap', 26, 10, '#ffe84a'], sk5_voltrain: ['chain', 9, 9, '#ffe84a'], sk5_magpull: ['pull', 7, 8, '#ffe84a', { r: 230 }], sk5_megachain: ['chain', 8, 7, '#ffe84a'], sk5_thundergod: ['spin', 28, 15, '#fff29a', { r: 135 }],
+  sk6_voidball: ['ball', 16, 4, '#b48af2', { zapx: 1 }], sk6_oblivionzap: ['zap', 18, 5, '#b48af2'], sk6_voidfreeze: ['freeze', 0, 8, '#b48af2', { r: 190, dur: 3 }], sk6_voidspin: ['spin', 15, 6, '#b48af2', { r: 95 }], sk6_darkcloud: ['cloud', 1, 9, '#8a5ac8', { dur: 6, r: 80 }], sk6_voidmeteor: ['zap', 30, 10, '#b48af2'], sk6_oblivionrain: ['chain', 10, 9, '#b48af2'], sk6_singularpull: ['pull', 8, 8, '#b48af2', { r: 230 }], sk6_voidchain: ['chain', 9, 7, '#b48af2'], sk6_bigbang: ['spin', 32, 15, '#d0b0ff', { r: 140 }],
+  sk7_spikeball: ['ball', 12, 4, '#a8f2ff', { burn: 1 }], sk7_prismzap: ['zap', 14, 5, '#d0b0ff'], sk7_crystalfrost: ['freeze', 0, 8, '#c8f4ff', { r: 180, dur: 2.5 }], sk7_gemspin: ['spin', 11, 6, '#a8f2ff', { r: 95 }], sk7_lightcloud: ['cloud', 1, 9, '#d0f2ff', { dur: 5, r: 75 }], sk7_gemmeteor: ['zap', 18, 10, '#a8f2ff'], sk7_prismrain: ['chain', 8, 9, '#d0b0ff'], sk7_pull: ['pull', 8, 8, '#b48af2', { r: 220 }], sk7_chain: ['chain', 9, 7, '#d0b0ff'], sk7_annihilate: ['spin', 34, 30, '#eaf8ff', { r: 140 }],
 };
 function zMaxHp(z) { return z.boss ? BOSS.hp : z.voidw ? VOIDW.hp : z.storm ? STORM.hp : z.lava ? LAVA.hp : z.ghost ? GHOST.hp : z.skel ? SKELETON.hp : z.crystal ? CRYSTAL.hp : ZOMBIE.hp; }
 function dotDmg(z) { return z.boss ? 1 : Math.max(1, Math.ceil(zMaxHp(z) * 0.1)); }   // 🩸 持续伤害：每 0.1 秒掉十分之一血（BOSS 固定 1）
@@ -1210,16 +1277,6 @@ function castSkill(key) {
     for (let i = 0; i < 9; i++) c.blobs.push({ a: Math.random() * 6.28, d: Math.random() * o.r * 0.72, r: 20 + Math.random() * 18, spin: (Math.random() - 0.5) * 1.1, bob: Math.random() * 6.28 });
     clouds.push(c);
     burst(player.x, player.y, color, 10);
-  } else if (type === 'meteor') {
-    const t = nearestZ(600) || { x: player.x + 60, y: player.y };
-    meteors.push({ x: t.x, y: t.y, t: 0.7, landed: false, dmg: Math.ceil(dmg / 8), r: 60, color });
-    beep(200, 90, 0.3, 'sawtooth', 0.16);
-  } else if (type === 'rain') {
-    const alive = zombies.filter(z => !z.dead && Math.hypot(z.x - player.x, z.y - player.y) < 450);
-    const n = Math.min(5, alive.length);
-    for (let i = 0; i < n; i++) { const t = alive[Math.floor(Math.random() * alive.length)]; fxLines.push({ x1: t.x + 50, y1: t.y - 160, x2: t.x, y2: t.y, t: 0.3, color, w: 8 }); hurtZ(t, dmg, color); }
-    if (!n) player.skillCds[key] = 1;
-    beep(1000, 1500, 0.2, 'sine', 0.12);
   } else if (type === 'pull') {
     for (const z of zombies) if (!z.dead && Math.hypot(z.x - player.x, z.y - player.y) < o.r) {
       const a = Math.atan2(player.y - z.y, player.x - z.x);
@@ -1245,7 +1302,7 @@ function castSkill(key) {
 const skillsEl = document.getElementById('skills');
 let skillRefs = [];
 const ALLITEMS = {}; for (const t of [SHOP, SHOP2, SHOP3, SHOP4, SHOP5, SHOP6, SHOP7]) for (const k in t) ALLITEMS[k] = t[k];   // 全关卡物品表（继承的技能跨关也能用）
-function ownedSkills() { return Object.keys(player.owned).filter(k => player.owned[k] && ALLKIND[k] === 'skill'); }   // ✨ 继承的技能跨关也在
+function ownedSkills() { return skillSlots.filter(k => player.bought[k] && ALLKIND[k] === 'skill'); }   // ✨ 只有上阵的 5 个技能显示按钮
 function renderSkills() {
   const keys = ownedSkills(), s = ALLITEMS;
   skillsEl.innerHTML = ''; skillRefs = [];
@@ -1314,8 +1371,10 @@ function killZombie(z) {
       for (const o of zombies) if (o !== z) o.dead = true;   // 清场进新关
       earrows = []; parrows = []; garrows = []; meteors = []; puddles = []; skillShots = []; clouds = []; fxLines = []; netOrbs = null; shocks = [];
       /* 🗺️ 过关：金币继承！✨技能书和🐾宠物也继承！装备清零，满血出发 */
-      const keep = {}; for (const k in player.owned) if (ALLKIND[k] === 'skill' || ALLKIND[k] === 'pet') keep[k] = true;
-      player.owned = keep; player.weapon = null; player.angelUsed = false; player.skillCds = {};
+      const keep = {}, keepB = {};
+      for (const k in player.bought) if (ALLKIND[k] === 'skill' || ALLKIND[k] === 'pet') { keepB[k] = true; keep[k] = true; }
+      player.owned = keep; player.bought = keepB; player.weapon = null; player.angelUsed = false; player.skillCds = {};
+      skillSlots = skillSlots.filter(k => keepB[k]);   // 上阵技能继续上阵
       applyGear(); renderSkills();
       player.hearts = player.maxHearts;   // 满血出发
       updateGold();
@@ -2144,7 +2203,7 @@ function draw() {
 window.G = { get player() { return player; }, get zombies() { return zombies; }, get kills() { return kills; }, get gameOver() { return gameOver; }, get paused() { return paused; }, get autoOn() { return autoOn; }, get holdAtk() { return holdAtk; }, get level() { return level; }, get earrows() { return earrows; }, get parrows() { return parrows; }, get garrows() { return garrows; }, get meteors() { return meteors; }, get puddles() { return puddles; }, doAttack, reset, keys, update, toggleShop, buyFromShop, spawnBoss, spawnEnemy,
   setKills: v => { kills = v; updateScore(); }, setLevel: v => { level = v; updateScore(); renderSkills(); }, setAuto: v => { autoOn = v; autoBtn.classList.toggle('on', v); if (v) autoT = 0; }, setHold: v => { holdAtk = v; if (v) autoT = 0; },
   get skillShots() { return skillShots; }, get clouds() { return clouds; }, get fxLines() { return fxLines; }, get netOrbs() { return netOrbs; }, get shocks() { return shocks; },
-  get pets() { return pets; }, get dexCounts() { return dexCounts; }, get coins() { return coins; }, get portal() { return portal; }, addPet, toggleDex,
+  get pets() { return pets; }, get dexCounts() { return dexCounts; }, get coins() { return coins; }, get portal() { return portal; }, addPet, toggleDex, toggleBag, get skillSlots() { return skillSlots; },
   castSkill, renderSkills, ownedSkills, spawnStorm: () => { const z = makeStorm(player.x + 150, player.y, Math.random); zombies.push(z); }, spawnVoid: () => { const z = makeVoid(player.x + 150, player.y, Math.random); zombies.push(z); } };
 reset(); if (loadGame()) setBanner('💾 存档已读取，接着玩！');
 showHome();   // 🏠 开机先进主页选存档
