@@ -1766,7 +1766,7 @@ function update(dt) {
       if (z.crystal) {   // 💠 激光怪：远远盘旋+飞快激光；近身被抓=半心
         const cev = crystalTick(z, player, dt, diff.speedMul * cloakMul * slowF, Math.random);
         if (cev.bolt) {
-          earrows.push({ x: cev.bolt.x, y: cev.bolt.y, vx: cev.bolt.dx * 400, vy: cev.bolt.dy * 400, t: 0.4, laser: true });
+          earrows.push({ x: cev.bolt.x, y: cev.bolt.y, vx: cev.bolt.dx * 400, vy: cev.bolt.dy * 400, t: 1.5, laser: true });
           burst(z.x, z.y - 8, '#a8f2ff', 4); beep(1300, 1000, 0.05, 'square', 0.05);
         }
         const dmgC = rollDmg(0.5);
@@ -1779,7 +1779,7 @@ function update(dt) {
       if (z.storm) {   // ⛈️ 雷云精：盘旋+直线电光弹；近身被抓=半心
         const sev = stormTick(z, player, dt, diff.speedMul * cloakMul * slowF, Math.random);
         if (sev.bolt) {
-          earrows.push({ x: sev.bolt.x, y: sev.bolt.y, vx: sev.bolt.dx * 340, vy: sev.bolt.dy * 340, t: 0.47, volt: true });
+          earrows.push({ x: sev.bolt.x, y: sev.bolt.y, vx: sev.bolt.dx * 340, vy: sev.bolt.dy * 340, t: 1.5, volt: true });
           burst(z.x, z.y - 8, '#ffe84a', 4); beep(1100, 880, 0.06, 'square', 0.06);
         }
         const dmgT = rollDmg(0.5);
@@ -1820,7 +1820,7 @@ function update(dt) {
       if (z.skel) {   // 💀 骷髅弓手：游走+直线射箭；近身被抓=半心
         const sev = skeletonTick(z, player, dt, diff.speedMul * cloakMul * slowF, Math.random);
         if (sev.arrow) {
-          earrows.push({ x: sev.arrow.x, y: sev.arrow.y, vx: sev.arrow.dx * 240, vy: sev.arrow.dy * 240, t: 0.66 });
+          earrows.push({ x: sev.arrow.x, y: sev.arrow.y, vx: sev.arrow.dx * 240, vy: sev.arrow.dy * 240, t: 1.8 });
           burst(z.x, z.y - 8, '#f0e6b0', 4); beep(880, 660, 0.08, 'square', 0.07);   // 弓弦响
         }
         const dmgS = rollDmg(0.5);

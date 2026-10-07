@@ -8,7 +8,7 @@ const WORLD = { w: 2400, h: 2400 };          // 世界大小（像素）
 const PLAYER = { speed: 120, hearts: 5, r: 10 };   // 玩家：速度/血量/碰撞半径
 const ZOMBIE = { speed: 52, hp: 4, r: 10 };          // 僵尸：速度/4 下才死/半径
 const SPAWN = { ringMin: 300, ringMax: 460, interval: 2.0, capBase: 6 };   // 在人物周围一圈生成
-const ATTACK = { range: 160, arc: Math.PI * 0.7, swing: 0.18, cd: 0.32, knock: 70 };  // 攻击：前扇形
+const ATTACK = { range: 38, arc: Math.PI * 0.7, swing: 0.18, cd: 0.32, knock: 70 };  // 攻击：前扇形
 const HURT = { invincible: 0.9, knock: 120 };        // 被抓后无敌时间+弹开
 const REGEN = { delay: 4, every: 2, amount: 0.5 };   // ❤️ 回血：4 秒不受伤，之后每 2 秒回半颗心
 const SHOP = {
@@ -333,7 +333,7 @@ function bossTick(b, p, dt, zspeed) {
   return ev;
 }
 /* 💀 骷髅弓手（第二关）：骨白色，保持 150~230 距离游走，直线射箭（箭射出后不改方向，玩家移动就能躲开） */
-const SKELETON = { hp: 3, r: 12, speed: ZOMBIE.speed * 0.85, keepMin: 90, keepMax: 150, fireCd: 2.5, range: 160 };
+const SKELETON = { hp: 3, r: 12, speed: ZOMBIE.speed * 0.85, keepMin: 150, keepMax: 230, fireCd: 2.5, range: 420 };
 function makeSkeleton(x, y, rnd) {
   const r = rnd || Math.random;
   return { x, y, hp: SKELETON.hp, r: SKELETON.r, skel: true, dead: false, flash: 0, walkT: r() * 9, fireT: 1.2 + r() * 1.5,
@@ -746,7 +746,7 @@ const PETS = {
   for (const lv of [1, 2, 3, 4, 5, 6, 7]) for (const [k, n, i, p, dmg, cd, range, spec] of PETS[lv]) TBLS[lv][k] = { name: n, icon: i, price: p, kind: 'pet', desc: `宠物：帮你咬怪 ${dmg} 伤/${cd} 秒${SPEC_TXT[spec] || ''}（继承，过关不收回）`, pet: { dmg, cd, range, spec } };
 }
 /* ⛈️ 雷云精（第五关）：白云快飞，绕玩家 190 距离盘旋，直线射电光弹（比骷髅箭快） */
-const STORM = { hp: 7, r: 12, speed: 115, keepMin: 90, keepMax: 150, fireCd: 2, range: 160 };
+const STORM = { hp: 7, r: 12, speed: 115, keepMin: 150, keepMax: 230, fireCd: 2, range: 460 };
 function makeStorm(x, y, rnd) {
   const r = rnd || Math.random;
   return { x, y, hp: STORM.hp, r: STORM.r, storm: true, dead: false, flash: 0, walkT: r() * 9, fireT: 0.8 + r() * 1.2,
@@ -794,7 +794,7 @@ function voidTick(v, p, dt, speedMul, rnd) {
   return ev;
 }
 /* 💠 激光怪（第七关·水晶洞窟）：晶亮小飞虫，远远地射飞快的激光 */
-const CRYSTAL = { hp: 12, r: 13, speed: 95, keepMin: 90, keepMax: 150, fireCd: 2.4, range: 160 };
+const CRYSTAL = { hp: 12, r: 13, speed: 95, keepMin: 200, keepMax: 300, fireCd: 2.4, range: 560 };
 function makeCrystal(x, y, rnd) {
   const r = rnd || Math.random;
   return { x, y, hp: CRYSTAL.hp, r: CRYSTAL.r, crystal: true, dead: false, flash: 0, walkT: r() * 9, fireT: 1 + r() * 1.4,
