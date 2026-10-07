@@ -763,17 +763,305 @@ function addPet(key) {
   pets.push({ key, name: d.name, icon: d.icon, dmg: d.dmg, cd: d.cd, range: d.range, spec: d.spec, x: player.x, y: player.y, atkT: 0, wagT: Math.random() * 9 });
   beep(600, 900, 0.12, 'sine', 0.12);
 }
+/* ================= 🐾 像素宠物工坊（程序生成像素模型：游荡/奔跑/攻击三种动画） ================= */
+function pxR(g, x, y, w, h, c) { g.fillStyle = c; g.fillRect(x, y, w, h); }
+const PET_DRAW = {
+  /* 🐕 四足族：狗/狼/狐/猫/熊/豹/马/鹿/松鼠（耳朵/尾巴/吻长参数化） */
+  quad(g, p, mode, ph, o) {
+    const run = mode === 'run', atk = mode === 'atk';
+    const bob = mode === 'wander' ? ph : 0, bx = atk ? 2 : 0;
+    if (o.tail === 'big') { pxR(g, 2 - (run ? ph : 0), 6 + bob, 5, 8, p.d); pxR(g, 2, 5 + bob, 4, 3, p.l); }
+    else if (o.tail === 'curl') { pxR(g, 3, 8 + bob - ph, 2, 5, p.d); pxR(g, 4, 7 + bob - ph, 2, 2, p.d); }
+    else if (o.tail === 'thin') pxR(g, 5, 10 + bob - (run ? ph * 2 : 0), 3, 2, p.d);
+    else if (o.tail === 'puff') pxR(g, 5, 11 + bob, 3, 3, p.l);
+    pxR(g, 7, 10 + bob, o.w || 10, o.h || 6, p.b);
+    if (o.belly !== false) pxR(g, 8, 13 + bob, (o.w || 10) - 3, 3, p.l);
+    if (o.spots) { pxR(g, 9, 11 + bob, 1, 1, p.d); pxR(g, 12, 12 + bob, 1, 1, p.d); pxR(g, 14, 11 + bob, 1, 1, p.d); }
+    const l1 = run ? ph * 2 : 0, l2 = run ? (1 - ph) * 2 : 0;
+    pxR(g, 8 + l1, 16 + bob, 2, 4 - bob, p.d); pxR(g, 13 + l2, 16 + bob, 2, 4 - bob, p.d);
+    const hx = 16 + bx, hy = 6 + bob - (atk ? 1 : 0);
+    pxR(g, hx, hy, 6, 6, p.b);
+    if (o.ear === 'point') { pxR(g, hx + 1, hy - 2, 2, 2, p.d); pxR(g, hx + 4, hy - 2, 2, 2, p.d); }
+    else if (o.ear === 'round') { pxR(g, hx, hy - 2, 3, 3, p.d); pxR(g, hx + 4, hy - 2, 3, 3, p.d); }
+    else if (o.ear === 'long') { pxR(g, hx + 1, hy - 5 - ph, 2, 5, p.b); pxR(g, hx + 3, hy - 5 + ph, 2, 5, p.d); }
+    if (o.antler) { pxR(g, hx, hy - 4, 1, 4, p.a); pxR(g, hx + 5, hy - 4, 1, 4, p.a); pxR(g, hx - 1, hy - 4, 3, 1, p.a); pxR(g, hx + 4, hy - 4, 3, 1, p.a); }
+    if (o.mane) pxR(g, hx - 2, hy - 1, 2, 6, p.a);
+    pxR(g, hx + 5, hy + 3, o.snout || 2, 2, p.d);
+    if (atk) pxR(g, hx + 5, hy + 4, o.snout || 2, 1, '#a83a3a');   // 张嘴咬
+    pxR(g, hx + 4, hy + 2, 1, 1, '#1a1a1a');
+  },
+  dog(g, p, m, ph) { PET_DRAW.quad(g, p, m, ph, { ear: 'point', tail: 'thin', snout: 2 }); },
+  wolf(g, p, m, ph) { PET_DRAW.quad(g, p, m, ph, { ear: 'point', tail: 'thin', snout: 3, w: 11 }); },
+  fox(g, p, m, ph) { PET_DRAW.quad(g, p, m, ph, { ear: 'point', tail: 'big', snout: 3 }); },
+  cat(g, p, m, ph) { PET_DRAW.quad(g, p, m, ph, { ear: 'point', tail: 'curl', snout: 1, w: 9 }); },
+  bear(g, p, m, ph) { PET_DRAW.quad(g, p, m, ph, { ear: 'round', tail: 'none', snout: 2, w: 12, h: 7 }); },
+  leopard(g, p, m, ph) { PET_DRAW.quad(g, p, m, ph, { ear: 'point', tail: 'thin', snout: 1, spots: 1 }); },
+  horse(g, p, m, ph) { PET_DRAW.quad(g, p, m, ph, { ear: 'point', tail: 'thin', snout: 3, w: 12, h: 7, mane: 1, belly: false }); },
+  deer(g, p, m, ph) { PET_DRAW.quad(g, p, m, ph, { ear: 'point', tail: 'puff', snout: 2, antler: 1 }); },
+  squirrel(g, p, m, ph) { PET_DRAW.quad(g, p, m, ph, { ear: 'point', tail: 'big', snout: 1, w: 8 }); },
+  /* 🐰 兔：蹦跳 */
+  rabbit(g, p, mode, ph) {
+    const hop = mode === 'run' ? ph * 2 : (mode === 'wander' ? ph : 0), atk = mode === 'atk';
+    pxR(g, 5, 12, 3, 3, p.l);   // 绒尾
+    pxR(g, 7, 10 - hop, 9, 7, p.b); pxR(g, 8, 13 - hop, 6, 4, p.l);
+    pxR(g, 8, 17 - (mode === 'run' ? (1 - ph) * 2 : 0), 3, 3, p.d); pxR(g, 12, 17 - (mode === 'run' ? ph * 2 : 0), 3, 3, p.d);   // 弹簧腿
+    const hx = 15 + (atk ? 2 : 0), hy = 6 - hop;
+    pxR(g, hx, hy, 6, 6, p.b);
+    pxR(g, hx + 1, hy - 5 - (mode !== 'wander' ? ph : 0), 2, 5, p.b); pxR(g, hx + 3, hy - 4 + (mode !== 'wander' ? ph : 0), 2, 4, p.d);   // 长耳
+    pxR(g, hx + 5, hy + 3, 2, 2, p.l); if (atk) pxR(g, hx + 5, hy + 4, 2, 1, '#a83a3a');
+    pxR(g, hx + 4, hy + 2, 1, 1, '#1a1a1a');
+  },
+  /* 🦔 刺猬：尖刺 dome */
+  hedgehog(g, p, mode, ph) {
+    const bob = mode === 'wander' ? ph : 0, atk = mode === 'atk';
+    for (let i = 0; i < 6; i++) pxR(g, 6 + i * 2, 8 + bob - (i % 2), 1, 3, p.d);   // 尖刺
+    pxR(g, 6, 11 + bob, 12, 6, p.d); pxR(g, 7, 13 + bob, 10, 4, p.b);
+    pxR(g, 8, 17 + bob, 2, 3 - bob, p.b); pxR(g, 13, 17 + bob, 2, 3 - bob, p.b);
+    const hx = 17 + (atk ? 2 : 0);
+    pxR(g, hx, 12 + bob, 4, 4, p.b); pxR(g, hx + 3, 14 + bob, 2, 1, p.d);
+    pxR(g, hx + 2, 13 + bob, 1, 1, '#1a1a1a');
+  },
+  /* 🐦 鸟族：鸡/猫头鹰/鸟/鸦/凤凰（耳羽/长尾巴参数化） */
+  bird(g, p, mode, ph, o) {
+    o = o || {};   // 直接当造型用时给默认
+    const atk = mode === 'atk', run = mode === 'run';
+    const bob = mode === 'wander' ? ph : 0, flap = mode !== 'wander' ? ph : 0, bx = atk ? 2 : 0;
+    if (o.tailLong) { pxR(g, 4, 14 + bob + flap, 4, 2, p.a); pxR(g, 3, 16 + bob - flap, 4, 2, p.a); pxR(g, 5, 12 + bob, 4, 2, p.d); }
+    else pxR(g, 6, 12 + bob, 4, 2, p.d);
+    pxR(g, 9, 8 + bob, 8, 8, p.b); pxR(g, 11, 12 + bob, 4, 4, p.l);
+    pxR(g, 8, flap ? 6 + bob : 11 + bob, 5, 4, p.d);   // 扇翅
+    const hx = 13 + bx, hy = 4 + bob;
+    pxR(g, hx, hy, 6, 6, p.b);
+    if (o.tuft) { pxR(g, hx, hy - 2, 2, 2, p.d); pxR(g, hx + 4, hy - 2, 2, 2, p.d); }
+    if (o.crest) pxR(g, hx + 2, hy - 3, 2, 3, p.a);
+    pxR(g, hx + 6, hy + 3, 3, atk ? 2 : 1, p.a);
+    if (o.bigEye) { pxR(g, hx + 1, hy + 1, 2, 2, '#fff'); pxR(g, hx + 4, hy + 1, 2, 2, '#fff'); pxR(g, hx + 2, hy + 2, 1, 1, '#1a1a1a'); pxR(g, hx + 4, hy + 2, 1, 1, '#1a1a1a'); }
+    else pxR(g, hx + 3, hy + 2, 1, 1, '#1a1a1a');
+    pxR(g, 11, 17, 2, 3 - bob, p.a); pxR(g, 14, 17, 2, 3 - bob, p.a);
+  },
+  chick(g, p, m, ph) { PET_DRAW.bird(g, p, m, ph, {}); },
+  owl(g, p, m, ph) { PET_DRAW.bird(g, p, m, ph, { tuft: 1, bigEye: 1 }); },
+  crow(g, p, m, ph) { PET_DRAW.bird(g, p, m, ph, {}); },
+  phoenix(g, p, m, ph) { PET_DRAW.bird(g, p, m, ph, { tailLong: 1, crest: 1 }); },
+  /* 🐧 企鹅：直立摇摆 */
+  penguin(g, p, mode, ph) {
+    const wob = mode !== 'atk' ? ph : 0, atk = mode === 'atk';
+    pxR(g, 8, 17, 3, 3, p.a); pxR(g, 13, 17, 3, 3, p.a);
+    pxR(g, 8 + wob, 5, 8, 13, p.b); pxR(g, 10 + wob, 8, 4, 9, p.l);
+    pxR(g, 7 + wob, 9 + ph, 2, 5, p.d); pxR(g, 15 + wob, 9 + (1 - ph), 2, 5, p.d);   // 鳍翅
+    pxR(g, 9 + wob + (atk ? 1 : 0), 3, 6, 5, p.b);
+    pxR(g, 12 + wob + (atk ? 1 : 0), 5, 1, 1, '#1a1a1a'); pxR(g, 14 + wob + (atk ? 1 : 0), 6, 3, atk ? 2 : 1, p.a);
+  },
+  /* 🦇 蝙蝠：大翅膀扇动 */
+  bat(g, p, mode, ph) {
+    const flap = mode === 'wander' ? ph * 2 : ph * 4, atk = mode === 'atk';
+    pxR(g, 3, 8 - flap, 6, 3, p.d); pxR(g, 2, 10 - flap, 5, 3, p.d);   // 左翅
+    pxR(g, 15, 8 - flap, 6, 3, p.d); pxR(g, 17, 10 - flap, 5, 3, p.d); // 右翅
+    pxR(g, 9, 8, 6, 6, p.b);
+    pxR(g, 10 + (atk ? 1 : 0), 5, 4, 4, p.b);
+    pxR(g, 10, 3, 1, 2, p.d); pxR(g, 13, 3, 1, 2, p.d);   // 耳
+    pxR(g, 11 + (atk ? 1 : 0), 6, 1, 1, '#ff4a4a');
+    if (atk) pxR(g, 12 + 1, 8, 2, 1, '#fff');   // 獠牙
+  },
+  /* 🐝 蜂：条纹+抖翅 */
+  bee(g, p, mode, ph) {
+    const atk = mode === 'atk', bx = atk ? 2 : 0;
+    pxR(g, 9, 5 - ph, 4, 3, '#ffffffaa'); pxR(g, 13, 5 - (1 - ph), 4, 3, '#ffffffaa');   // 翅膀
+    pxR(g, 7, 9, 11, 6, p.b);
+    pxR(g, 10, 9, 2, 6, p.d); pxR(g, 14, 9, 2, 6, p.d);   // 条纹
+    pxR(g, 5, 11, 2, 2, p.d);   // 尾刺
+    pxR(g, 17 + bx, 10, 4, 4, p.b);
+    pxR(g, 19 + bx, 11, 1, 1, '#1a1a1a');
+  },
+  /* 🕷️ 蜘蛛：八腿交替 */
+  spider(g, p, mode, ph) {
+    const atk = mode === 'atk';
+    for (let i = 0; i < 4; i++) {   // 八条腿（相位交替）
+      const lp = (i % 2 === ph % 2 && mode !== 'wander') ? 1 : 0;
+      pxR(g, 4, 6 + i * 3, 4, 1, p.d); pxR(g, 4 - lp, 6 + i * 3 - 1, 1, 3, p.d);
+      pxR(g, 16, 6 + i * 3, 4, 1, p.d); pxR(g, 20 + lp, 6 + i * 3 - 1, 1, 3, p.d);
+    }
+    pxR(g, 8, 8, 8, 8, p.b);
+    pxR(g, 15 + (atk ? 1 : 0), 10, 5, 5, p.d);
+    pxR(g, 16 + (atk ? 1 : 0), 11, 1, 1, '#ff4a4a'); pxR(g, 18 + (atk ? 1 : 0), 11, 1, 1, '#ff4a4a');
+  },
+  /* 🦂 蝎子：钳子+翘尾刺 */
+  scorpion(g, p, mode, ph) {
+    const atk = mode === 'atk';
+    pxR(g, 7, 12, 10, 4, p.b);
+    pxR(g, 8, 16, 2, 3, p.d); pxR(g, 13, 16, 2, 3, p.d);
+    pxR(g, 17, 11, 3, 2, p.d); pxR(g, 19, 10 - (atk ? 1 : 0), 3, 3, p.d);   // 钳
+    if (atk) { pxR(g, 6, 5, 2, 7, p.d); pxR(g, 6, 4, 3, 2, p.a); }   // 尾刺扎下
+    else { pxR(g, 4, 7, 2, 6, p.d); pxR(g, 3, 5 + ph, 3, 2, p.a); }   // 翘尾
+    pxR(g, 18, 12, 1, 1, '#1a1a1a');
+  },
+  /* 🐍 蛇：S 形滑行吐信 */
+  snake(g, p, mode, ph) {
+    const atk = mode === 'atk';
+    pxR(g, 4, 14, 5, 3, p.d); pxR(g, 8, 11 + ph, 5, 3, p.b); pxR(g, 12, 14, 4, 3, p.d);   // S 身
+    pxR(g, 8, 12 + ph, 4, 1, p.l);
+    const hx = 15 + (atk ? 3 : 0);
+    pxR(g, hx, 11, 5, 5, p.b);
+    pxR(g, hx + 3, 12, 1, 1, '#1a1a1a');
+    if (atk || ph) pxR(g, hx + 5, 13, 3, 1, '#ff4a4a');   // 吐信
+  },
+  /* 🦎 蜥蜴/海豹：长身+腿 */
+  lizard(g, p, mode, ph) {
+    const run = mode === 'run', atk = mode === 'atk';
+    pxR(g, 3, 11 + (run ? ph : 0), 5, 2, p.d);   // 尾
+    pxR(g, 7, 10, 10, 5, p.b); pxR(g, 8, 13, 8, 2, p.l);
+    pxR(g, 8 + (run ? ph : 0), 15, 2, 3, p.d); pxR(g, 13 + (run ? 1 - ph : 0), 15, 2, 3, p.d);
+    const hx = 16 + (atk ? 2 : 0);
+    pxR(g, hx, 9, 5, 4, p.b);
+    pxR(g, hx + 3, 10, 1, 1, '#1a1a1a');
+    if (atk) pxR(g, hx + 5, 11, 3, 1, '#ff9a4a');   // 吐舌
+  },
+  seal(g, p, mode, ph) {
+    const bob = mode === 'wander' ? ph : 0;
+    pxR(g, 3, 13 + bob - (mode === 'run' ? ph : 0), 4, 3, p.d);   // 尾鳍
+    pxR(g, 6, 10 + bob, 12, 7, p.b); pxR(g, 7, 13 + bob, 10, 4, p.l);
+    pxR(g, 9, 16 + bob, 3, 2, p.d);   // 前鳍
+    pxR(g, 15, 6 + bob - (mode === 'atk' ? 1 : 0), 6, 6, p.b);
+    pxR(g, 19, 8 + bob, 1, 1, '#1a1a1a'); pxR(g, 20, 10 + bob, 2, 1, p.d);
+  },
+  /* 🐢 龟：壳+探头 */
+  turtle(g, p, mode, ph) {
+    const atk = mode === 'atk', run = mode === 'run';
+    pxR(g, 7, 9, 11, 7, p.d); pxR(g, 8, 10, 9, 5, p.a);   // 壳
+    pxR(g, 10, 11, 2, 2, p.b); pxR(g, 13, 12, 2, 2, p.b);   // 壳纹
+    pxR(g, 8 + (run ? ph : 0), 16, 2, 3, p.b); pxR(g, 14 + (run ? 1 - ph : 0), 16, 2, 3, p.b);
+    pxR(g, 5, 13, 2, 2, p.b);   // 尾
+    pxR(g, 17 + (atk ? 2 : 0), 10, 4, 4, p.b);   // 头（攻击时伸更长）
+    pxR(g, 19 + (atk ? 2 : 0), 11, 1, 1, '#1a1a1a');
+  },
+  /* 👻 幽灵系：漂浮波浪尾（小幽灵/小雷神/终焉之影） */
+  ghost(g, p, mode, ph) {
+    const bob = ph, atk = mode === 'atk';
+    pxR(g, 7, 5 + bob, 10, 9, p.b);
+    for (let i = 0; i < 4; i++) pxR(g, 7 + i * 3, 14 + bob - ((i + ph) % 2), 2, 3, p.b);   // 波浪裙摆
+    pxR(g, 7, 4 + bob, 10, 3, p.b);
+    pxR(g, 10 + (atk ? 1 : 0), 8 + bob, 2, 2, '#1a1a1a'); pxR(g, 14 + (atk ? 1 : 0), 8 + bob, 2, 2, '#1a1a1a');
+    if (atk) pxR(g, 12, 11 + bob, 3, 2, '#a83a3a'); else pxR(g, 12, 11 + bob, 3, 1, '#1a1a1a');
+    pxR(g, 6, 7 + bob, 2, 4, p.b); pxR(g, 16, 7 + bob + (atk ? 1 : 0), 2, 4, p.b);   // 小手
+  },
+  /* 🐸 青蛙：大眼+弹跳 */
+  frog(g, p, mode, ph) {
+    const hop = mode === 'run' ? ph * 3 : 0, atk = mode === 'atk';
+    pxR(g, 5, 16 - (mode === 'run' ? (1 - ph) * 2 : 0), 4, 4, p.d);   // 后腿
+    pxR(g, 7, 11 - hop, 11, 6, p.b); pxR(g, 8, 14 - hop, 9, 3, p.l);
+    pxR(g, 9, 6 - hop, 3, 4, p.b); pxR(g, 14, 6 - hop, 3, 4, p.b);   // 眼座
+    pxR(g, 10, 7 - hop, 1, 2, '#1a1a1a'); pxR(g, 15, 7 - hop, 1, 2, '#1a1a1a');
+    if (atk) pxR(g, 18, 12 - hop, 5, 1, '#ff6a6a');   // 长舌弹出
+    else pxR(g, 14, 13 - hop, 3, 1, p.d);
+    pxR(g, 10, 17, 3, 3, p.d);
+  },
+  /* 🐉 龙：有翼有角大个子（独占 24×20 全幅） */
+  dragon(g, p, mode, ph) {
+    const run = mode === 'run', atk = mode === 'atk', bob = mode === 'wander' ? ph : 0;
+    pxR(g, 1, 10 + bob - (run ? ph : 0), 6, 3, p.d); pxR(g, 0, 9 + bob, 2, 2, p.d);   // 尾+尾鳍
+    pxR(g, 5, 8 + bob, 11, 8, p.b); pxR(g, 6, 13 + bob, 9, 3, p.l);
+    pxR(g, 6, 4 + bob - (mode !== 'wander' ? ph * 2 : 0), 8, 5, p.d); pxR(g, 8, 6 + bob - (mode !== 'wander' ? ph * 2 : 0), 5, 3, p.a);   // 翅膀
+    pxR(g, 7 + (run ? ph : 0), 16 + bob, 2, 4 - bob, p.d); pxR(g, 12 + (run ? 1 - ph : 0), 16 + bob, 2, 4 - bob, p.d);
+    const hx = 15 + (atk ? 2 : 0), hy = 5 + bob - (atk ? 1 : 0);
+    pxR(g, hx, hy, 7, 6, p.b);
+    pxR(g, hx + 1, hy - 2, 2, 2, p.a); pxR(g, hx + 4, hy - 2, 2, 2, p.a);   // 角
+    pxR(g, hx + 6, hy + 3, 3, 2, p.d);   // 吻
+    if (atk) { pxR(g, hx + 8, hy + 3, 3, 1, p.a); pxR(g, hx + 9, hy + 4, 2, 1, '#ff7a2a'); }   // 喷息
+    pxR(g, hx + 4, hy + 2, 1, 1, '#1a1a1a');
+  },
+};
+/* 🎨 70 只宠物配色表（sp=造型，b=主色，d=深色，l=浅色，a=点缀） */
+const PET_PAL = {
+  pet1_chick: { sp: 'chick', b: '#ffd24a', d: '#d8a02a', l: '#fff0b8', a: '#ff9a2a' },
+  pet1_dog: { sp: 'dog', b: '#c8985a', d: '#8a6238', l: '#ecd0a0', a: '#8a6238' },
+  pet1_hedgehog: { sp: 'hedgehog', b: '#c8a06a', d: '#6a4a2a', l: '#ecd0a0', a: '#6a4a2a' },
+  pet1_frog: { sp: 'frog', b: '#6ac84a', d: '#3a8a2a', l: '#d8f0b8', a: '#3a8a2a' },
+  pet1_cat: { sp: 'cat', b: '#e8a85a', d: '#b87838', l: '#f8e0b8', a: '#b87838' },
+  pet1_rabbit: { sp: 'rabbit', b: '#c8b8a8', d: '#9a8a7a', l: '#f0e8e0', a: '#9a8a7a' },
+  pet1_squirrel: { sp: 'squirrel', b: '#b87838', d: '#8a5428', l: '#f0d0a8', a: '#8a5428' },
+  pet1_bee: { sp: 'bee', b: '#ffd24a', d: '#3a3a3a', l: '#fff0b8', a: '#ff9a2a' },
+  pet1_turtle: { sp: 'turtle', b: '#5a9a4a', d: '#6a4a2a', l: '#d8f0b8', a: '#8a6a3a' },
+  pet1_wolf: { sp: 'wolf', b: '#8a8a9a', d: '#5a5a6a', l: '#c8c8d8', a: '#5a5a6a' },
+  pet2_snowrabbit: { sp: 'rabbit', b: '#f0f0f0', d: '#c0c0d0', l: '#ffffff', a: '#c0c0d0' },
+  pet2_penguin: { sp: 'penguin', b: '#3a4a5a', d: '#22303c', l: '#f0f4f8', a: '#ff9a2a' },
+  pet2_snowfox: { sp: 'fox', b: '#eef4f8', d: '#a8bcc8', l: '#ffffff', a: '#a8bcc8' },
+  pet2_owl: { sp: 'owl', b: '#d8d8e0', d: '#a0a0b0', l: '#f4f4f8', a: '#e8b82a' },
+  pet2_bear: { sp: 'bear', b: '#eef4f8', d: '#b0c0cc', l: '#ffffff', a: '#b0c0cc' },
+  pet2_seal: { sp: 'seal', b: '#c0d4e4', d: '#8aa4bc', l: '#eef6fc', a: '#8aa4bc' },
+  pet2_deer: { sp: 'deer', b: '#b89a7a', d: '#8a705a', l: '#e8d8c0', a: '#e8dcc8' },
+  pet2_icewolf: { sp: 'wolf', b: '#b0d4e4', d: '#7aa8c0', l: '#e4f4fc', a: '#7aa8c0' },
+  pet2_leopard: { sp: 'leopard', b: '#e4e8ec', d: '#7a8a9a', l: '#f8fafc', a: '#7a8a9a' },
+  pet2_icedragon: { sp: 'dragon', b: '#8ad4e4', d: '#4a94b0', l: '#e0f4fc', a: '#c0ecf8' },
+  pet3_bat: { sp: 'bat', b: '#4a3a5c', d: '#2a2038', l: '#6a5480', a: '#2a2038' },
+  pet3_blackcat: { sp: 'cat', b: '#3c3c48', d: '#1c1c24', l: '#5c5c6c', a: '#e8b82a' },
+  pet3_crow: { sp: 'crow', b: '#2c2c38', d: '#14141c', l: '#484858', a: '#5a5a6a' },
+  pet3_scorpion: { sp: 'scorpion', b: '#5c3c4c', d: '#3a2430', l: '#7c5468', a: '#e84a6a' },
+  pet3_spider: { sp: 'spider', b: '#3c2c3c', d: '#241a24', l: '#584458', a: '#241a24' },
+  pet3_ghostlet: { sp: 'ghost', b: '#d0d0ec', d: '#9c9cc8', l: '#f4f4ff', a: '#9c9cc8' },
+  pet3_snake: { sp: 'snake', b: '#5c4c6c', d: '#3a3048', l: '#8474a0', a: '#3a3048' },
+  pet3_hound: { sp: 'dog', b: '#4c3c3c', d: '#2a2020', l: '#6c5454', a: '#e84a4a' },
+  pet3_skullbird: { sp: 'crow', b: '#e0d8c8', d: '#a89c88', l: '#f8f4e8', a: '#8a7c68' },
+  pet3_wraithwolf: { sp: 'wolf', b: '#5c6c8c', d: '#3a4868', l: '#8ca0c0', a: '#8fe8ea' },
+  pet4_salamander: { sp: 'lizard', b: '#e85c2c', d: '#b03a18', l: '#f8a86a', a: '#ffd24a' },
+  pet4_firefox: { sp: 'fox', b: '#e87a2a', d: '#b04a18', l: '#f8c88a', a: '#ffd24a' },
+  pet4_lavaturtle: { sp: 'turtle', b: '#6c4c3c', d: '#382420', l: '#a87c5c', a: '#ff7a2a' },
+  pet4_firehawk: { sp: 'bird', b: '#d84a2a', d: '#a02818', l: '#f89878', a: '#ffd24a' },
+  pet4_flamehorse: { sp: 'horse', b: '#c04c2c', d: '#882818', l: '#e88a5c', a: '#ffb03d' },
+  pet4_lavadog: { sp: 'dog', b: '#7c4c3c', d: '#4a2820', l: '#a8785c', a: '#ff7a2a' },
+  pet4_firebee: { sp: 'bee', b: '#ff9a2a', d: '#38181a', l: '#ffd88a', a: '#ff4a2a' },
+  pet4_flamecat: { sp: 'cat', b: '#d86c3c', d: '#a04420', l: '#f8b88a', a: '#ffd24a' },
+  pet4_phoenix: { sp: 'phoenix', b: '#ff8a2a', d: '#c85018', l: '#ffd88a', a: '#ffe84a' },
+  pet4_firedragon: { sp: 'dragon', b: '#c83c2c', d: '#882014', l: '#ffb03d', a: '#ff7a2a' },
+  pet5_thunderbird: { sp: 'bird', b: '#4a8af2', d: '#2a56b8', l: '#a8ccf8', a: '#ffe84a' },
+  pet5_eel: { sp: 'snake', b: '#4c6c9c', d: '#2a4468', l: '#ffe84a', a: '#2a4468' },
+  pet5_voltfox: { sp: 'fox', b: '#8ab8f2', d: '#5688c8', l: '#d8e8fc', a: '#ffe84a' },
+  pet5_stormcat: { sp: 'cat', b: '#6a8ab8', d: '#466292', l: '#b0c8e8', a: '#ffe84a' },
+  pet5_thunderbear: { sp: 'bear', b: '#7a6c9c', d: '#544878', l: '#b0a4cc', a: '#ffe84a' },
+  pet5_sparkrabbit: { sp: 'rabbit', b: '#b8c8f0', d: '#889ad8', l: '#e8f0ff', a: '#ffe84a' },
+  pet5_voltbee: { sp: 'bee', b: '#ffe84a', d: '#3a3a3a', l: '#fff8b8', a: '#4a8af2' },
+  pet5_stormeagle: { sp: 'bird', b: '#5c7cc8', d: '#38539c', l: '#acc0ec', a: '#ffe84a' },
+  pet5_minithor: { sp: 'ghost', b: '#ffe84a', d: '#d8a82a', l: '#fff8b8', a: '#4a8af2' },
+  pet5_thunderdragon: { sp: 'dragon', b: '#5c8ce8', d: '#3856b8', l: '#ffe84a', a: '#ffe84a' },
+  pet6_voidcat: { sp: 'cat', b: '#3a2c4c', d: '#221830', l: '#584470', a: '#8a5ac8' },
+  pet6_shadowbat: { sp: 'bat', b: '#2c1c38', d: '#180e22', l: '#48305c', a: '#8a5ac8' },
+  pet6_voidwolf: { sp: 'wolf', b: '#4a3a5e', d: '#2c2238', l: '#6c5488', a: '#b48af2' },
+  pet6_starabbit: { sp: 'rabbit', b: '#8c7cb8', d: '#645592', l: '#e8e0ff', a: '#ffd8f2' },
+  pet6_darkcrow: { sp: 'crow', b: '#1e1626', d: '#100a16', l: '#382a48', a: '#8a5ac8' },
+  pet6_voidbear: { sp: 'bear', b: '#3e2e4e', d: '#281e36', l: '#5c4870', a: '#b48af2' },
+  pet6_shadowsnake: { sp: 'snake', b: '#4e3a5e', d: '#322344', l: '#8a5ac8', a: '#322344' },
+  pet6_voidowl: { sp: 'owl', b: '#5c4a78', d: '#3c3052', l: '#b48af2', a: '#e8d8ff' },
+  pet6_voiddragon: { sp: 'dragon', b: '#5c3c78', d: '#38244e', l: '#8a5ac8', a: '#b48af2' },
+  pet6_endshadow: { sp: 'ghost', b: '#2c1c3c', d: '#180e24', l: '#4c3264', a: '#b48af2' },
+  pet7_crystalbee: { sp: 'bee', b: '#8cd8e8', d: '#38889c', l: '#e0f8ff', a: '#ffb8f2' },
+  pet7_gemturtle: { sp: 'turtle', b: '#6ab8c8', d: '#408896', l: '#c8f0f8', a: '#e0f8ff' },
+  pet7_prismbird: { sp: 'bird', b: '#a8e8f0', d: '#68b4c4', l: '#e8fcff', a: '#ffb8f2' },
+  pet7_crystalfox: { sp: 'fox', b: '#b8ecf4', d: '#84c4d4', l: '#ffffff', a: '#ffb8f2' },
+  pet7_diamonddog: { sp: 'dog', b: '#c8f0f8', d: '#90ccd8', l: '#ffffff', a: '#e0f8ff' },
+  pet7_gembat: { sp: 'bat', b: '#7ac8dc', d: '#4894a8', l: '#c0ecf8', a: '#ffb8f2' },
+  pet7_leopard: { sp: 'leopard', b: '#c8ecf4', d: '#64aec4', l: '#f0fcff', a: '#64aec4' },
+  pet7_lightdeer: { sp: 'deer', b: '#d8f4f0', d: '#9ccccc', l: '#ffffff', a: '#fff8d8' },
+  pet7_crystaldragon: { sp: 'dragon', b: '#8ce0e8', d: '#48a4b4', l: '#e0fcff', a: '#ffb8f2' },
+  pet7_prismphoenix: { sp: 'phoenix', b: '#a8f0f8', d: '#68bcd0', l: '#ffffff', a: '#ffb8e8' },
+};
+const PET_FRAME_CACHE = {};
+function petArt(key) {
+  if (PET_FRAME_CACHE[key]) return PET_FRAME_CACHE[key];
+  const p = PET_PAL[key] || { sp: 'dog', b: '#c8985a', d: '#8a6238', l: '#ecd0a0', a: '#8a6238' };
+  const mk = (mode, ph) => { const c = document.createElement('canvas'); c.width = 24; c.height = 20; PET_DRAW[p.sp](c.getContext('2d'), p, mode, ph); return c; };
+  return PET_FRAME_CACHE[key] = { wander: [mk('wander', 0), mk('wander', 1)], run: [mk('run', 0), mk('run', 1)], atk: [mk('atk', 0), mk('atk', 1)] };
+}
 function petsTick(dt) {
   for (let i = 0; i < pets.length; i++) {
-    const pt = pets[i]; pt.wagT += dt; pt.atkT = Math.max(0, pt.atkT - dt);
+    const pt = pets[i]; pt.wagT += dt; pt.atkT = Math.max(0, pt.atkT - dt); pt.animT = (pt.animT || 0) + dt;
     let tgt = null, bd = 220;
     for (const z of zombies) { if (z.dead) continue; const dd = Math.hypot(z.x - player.x, z.y - player.y); if (dd < bd) { bd = dd; tgt = z; } }
     if (tgt) {
       const dx = tgt.x - pt.x, dy = tgt.y - pt.y, d = Math.hypot(dx, dy) || 1;
       const reach = pt.range + (tgt.r || 10);
-      if (d > reach) { pt.x += dx / d * 145 * dt; pt.y += dy / d * 145 * dt; }
+      pt.face = dx < -0.5 ? -1 : dx > 0.5 ? 1 : (pt.face || 1);
+      if (d > reach) { pt.x += dx / d * 145 * dt; pt.y += dy / d * 145 * dt; if (pt.animT > 0.3) pt.state = 'run'; }
       else if (pt.atkT <= 0) {
-        pt.atkT = pt.cd;
+        pt.atkT = pt.cd; pt.state = 'atk'; pt.animT = 0;   // 🗡️ 攻击动画 0.3 秒
         let dmg = pt.dmg;
         if (pt.spec === 'crit' && Math.random() < 0.25) dmg *= 2;
         tgt.hp -= dmg; tgt.flash = 0.12;
@@ -783,12 +1071,23 @@ function petsTick(dt) {
         if (pt.spec === 'dot') { tgt.burnT = 2; tgt.burnAcc = 0; }
         if (tgt.hp <= 0) killZombie(tgt);
         beep(500 + i * 120, 700, 0.05, 'square', 0.04);
+      } else if (pt.animT > 0.3) pt.state = 'wander';
+    } else {
+      /* 🏞️ 没怪：在主人身边 4×4 格（±64px）里随机游荡；主人跑远（>140）就狂奔追 */
+      const pd = Math.hypot(player.x - pt.x, player.y - pt.y);
+      if (pd > 140) { pt.wanderX = player.x + (Math.random() - 0.5) * 40; pt.wanderY = player.y + (Math.random() - 0.5) * 40; pt.restT = 0; }
+      else if (pt.wanderX == null || (Math.abs(pt.x - pt.wanderX) < 4 && Math.abs(pt.y - pt.wanderY) < 4)) {
+        pt.restT = (pt.restT == null ? 0 : pt.restT) - dt;
+        if (pt.restT <= 0) { pt.wanderX = player.x + (Math.random() - 0.5) * 128; pt.wanderY = player.y + (Math.random() - 0.5) * 128; pt.restT = 1 + Math.random() * 2; }   // 歇 1~3 秒再溜达
       }
-    } else {   // 没怪：跟在人身后排排走
-      const a = player.dir + Math.PI + (i - (pets.length - 1) / 2) * 0.7;
-      const hx = player.x + Math.cos(a) * 34, hy = player.y + Math.sin(a) * 34;
-      const dx = hx - pt.x, dy = hy - pt.y, d = Math.hypot(dx, dy) || 1;
-      if (d > 6) { const sp = Math.min(160, d * 6); pt.x += dx / d * sp * dt; pt.y += dy / d * sp * dt; }
+      const dx = pt.wanderX - pt.x, dy = pt.wanderY - pt.y, d = Math.hypot(dx, dy) || 1;
+      if (d > 4) {
+        const sp = pd > 140 ? 150 : 55;   // 追主人=奔跑，游荡=慢慢走
+        pt.x += dx / d * sp * dt; pt.y += dy / d * sp * dt;
+        pt.face = dx < -0.5 ? -1 : dx > 0.5 ? 1 : (pt.face || 1);
+        pt.state = pd > 140 ? 'run' : 'wander';
+      } else pt.state = 'wander';
+      pt.x = Math.max(16, Math.min(WORLD.w - 16, pt.x)); pt.y = Math.max(16, Math.min(WORLD.h - 16, pt.y));
     }
   }
 }
@@ -1196,7 +1495,7 @@ document.getElementById('bagClose').onclick = () => toggleBag(false);
 function renderBag() {
   const sec = (t, n) => `<div class="shopSec">${t}</div>`;
   const tierOf = k => { const b = invB(k); return b ? `<span style="color:${TIERS[b.t].c}">·${TIERS[b.t].n}</span>` : ''; };
-  const btn = (k, it, state, on) => `<button class="bagIt ${on ? 'on' : 'off'}" data-bag="${k}"><span class="bi">${it.icon}</span><span class="bn">${it.name}${tierOf(k)}</span><span class="bs">${state}</span>${(() => { const b = invB(k); return b && b.w >= 2 && b.t < 8 ? `<span class="bs" data-synth="${k}" style="background:#7a5ac8;border-radius:8px;padding:2px 6px">🔧 合成（材料×${b.w}）</span>` : ''; })()}</button>`;
+  const btn = (k, it, state, on) => { const b2 = invB(k); return `<button class="bagIt ${on ? 'on' : 'off'}" data-bag="${k}"><span class="bi">${it.icon}</span><span class="bn">${it.name}${tierOf(k)}</span><span class="bs">${state}</span>${b2 && b2.w >= 2 && b2.t < 8 ? `<span class="bs" data-synth="${k}" style="background:#7a5ac8;border-radius:8px;padding:2px 6px">🔧 合成（材料×${b2.w}）</span>` : ''}${b2 ? `<span class="bs" data-sell="${k}" style="background:#8a6a3a;border-radius:8px;padding:2px 6px">💰卖${Math.round(ALLITEMS[k].price * (b2.t + 1) * 0.5)}</span>` : ''}</button>`; };
   const grid = arr => `<div class="bagGrid">${arr.join('')}</div>`;
   let h = '';
   const ws = Object.keys(player.bought).filter(k => ALLKIND[k] === 'weapon');
@@ -1212,12 +1511,24 @@ function renderBag() {
   h += sec(`🐾 宠物（最多出战 3 只：现在 ${pets.length}/3）`);
   h += ps.length ? grid(ps.map(k => { const act = pets.some(p => p.key === k); return btn(k, ALLPETS[k], act ? '🐾 出战中' : '💤 休息中', act); })) : '<div class="htxt">还没买过宠物</div>';
   bagList.innerHTML = h;
-  bagList.onclick = e => {   // 🔧 合成优先，其次换装（事件委托）
+  bagList.onclick = e => {   // 💰卖钱优先，🔧合成其次，最后换装（事件委托）
+    const se = e.target.closest('[data-sell]');
+    if (se) { sellItem(se.dataset.sell); renderBag(); return; }
     const sy = e.target.closest('[data-synth]');
     if (sy) { synth(sy.dataset.synth); renderBag(); return; }
     const b = e.target.closest('[data-bag]');
     if (b) bagTap(b.dataset.bag);
   };
+}
+/* 💰 卖装备：按（品质+1）×半价回收 */
+function sellItem(k) {
+  const b = invB(k); if (!b) return;
+  const price = Math.round(ALLITEMS[k].price * (b.t + 1) * 0.5);
+  player.gold += price; delete player.bought[k]; delete player.owned[k];
+  if (player.weapon === k) player.weapon = null;
+  applyGear(); updateGold();
+  setBanner(`💰 卖掉了 ${ALLITEMS[k].name}，+${price} 金币！`);
+  beep(900, 1300, 0.1, 'sine', 0.12); saveGame();
 }
 function bagTap(k) {
   const kind = ALLKIND[k];
@@ -2232,11 +2543,16 @@ function draw() {
       ctx.globalAlpha = 1;
     }
   }
-  // 🐾 宠物（跟随作战的小家伙们）
+  // 🐾 宠物（像素模型：游荡/奔跑/攻击三种动画，朝哪边跑就朝哪边）
   for (const pt of pets) {
     ctx.globalAlpha = 0.3; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.ellipse(pt.x, pt.y + 2, 8, 3.5, 0, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1;
-    ctx.font = '18px sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText(pt.icon, pt.x, pt.y - 4 + Math.sin(pt.wagT * 6) * 1.5); ctx.textAlign = 'left';
+    const art = petArt(pt.key);
+    const set = (pt.state === 'atk' && pt.animT < 0.3) ? art.atk : pt.state === 'run' ? art.run : art.wander;
+    const frame = set[Math.floor(pt.animT * (pt.state === 'run' ? 8 : 3)) % set.length];
+    ctx.save(); ctx.translate(Math.round(pt.x), Math.round(pt.y));
+    if ((pt.face || 1) < 0) ctx.scale(-1, 1);
+    ctx.drawImage(frame, -19, -30, 38, 32);
+    ctx.restore();
   }
   // 🕳️ 神秘山洞（发光漩涡）+ 🪙 散落金币
   if (portal) {
