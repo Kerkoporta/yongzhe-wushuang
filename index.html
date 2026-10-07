@@ -18,8 +18,11 @@
   #zoomBtn{position:fixed;left:12px;top:184px;z-index:6;background:rgba(40,90,60,.92);color:#fff;border:3px solid #7ec850;border-radius:14px;padding:5px 10px;font-weight:bold;font-size:14px;box-shadow:0 3px 8px rgba(0,0,0,.4);cursor:pointer}
   #enterBtn{position:fixed;left:150px;bottom:48px;z-index:6;display:none;background:rgba(200,150,30,.95);color:#fff;border:3px solid #ffd24a;border-radius:14px;padding:10px 16px;font-weight:bold;font-size:16px;box-shadow:0 3px 8px rgba(0,0,0,.4);cursor:pointer}
   /* 🔄 转屏联动：小地图/倍数镜/进入钮都在 #rot 外壳里，跟着一起转，不会和别的按钮重叠 */
-  #gear,#help,#bag{position:fixed;inset:0;z-index:9;display:none;align-items:center;justify-content:center;background:rgba(20,16,10,.7)}
-  #gearCard,#helpCard,#bagCard{background:#2e2414;border:4px solid #d8b87a;border-radius:18px;padding:20px 22px;color:#fff;font-family:sans-serif;width:min(340px,88vw);max-height:84vh;display:flex;flex-direction:column}
+  #gear,#help,#bag,#chest{position:fixed;inset:0;z-index:9;display:none;align-items:center;justify-content:center;background:rgba(20,16,10,.7)}
+  #gearCard,#helpCard,#bagCard,#chestCard{background:#2e2414;border:4px solid #d8b87a;border-radius:18px;padding:20px 22px;color:#fff;font-family:sans-serif;width:min(340px,88vw);max-height:84vh;display:flex;flex-direction:column}
+  #chestCard{width:min(420px,92vw)}
+  .chestIt{background:#4a3a22;border:3px solid #d8b87a;border-radius:12px;padding:8px 6px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;color:#fff;font-family:sans-serif}
+  .chestIt:active{transform:scale(.95)}
   .bagGrid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:4px 0 6px}
   .bagIt{display:flex;flex-direction:column;align-items:center;gap:2px;background:#3a2e1a;border:3px solid #6a5638;border-radius:12px;padding:8px 4px;color:#fff;font-family:sans-serif;cursor:pointer;font-size:13px}
   .bagIt .bi{font-size:22px}
@@ -35,7 +38,7 @@
   #rot{position:fixed;inset:0}
   #rot.rot90{inset:auto;top:0;transform:rotate(90deg);transform-origin:top left}
   /* 🔄 旋转后的可用高度=设备宽度（vw），卡片按 vw 限高，关闭钮不会被顶出去；技能钮缩小防重叠 */
-  #rot.rot90 #shopCard, #rot.rot90 #homeCard, #rot.rot90 #dexCard, #rot.rot90 #gearCard, #rot.rot90 #helpCard, #rot.rot90 #bagCard{max-height:88vw}
+  #rot.rot90 #shopCard, #rot.rot90 #homeCard, #rot.rot90 #dexCard, #rot.rot90 #gearCard, #rot.rot90 #helpCard, #rot.rot90 #bagCard, #rot.rot90 #chestCard{max-height:88vw}
   #rot.rot90 #skills{gap:5px;bottom:118px;right:112px}
   #rot.rot90 .skl{width:38px;height:38px;font-size:15px;border-width:2px}
   #home{position:fixed;inset:0;z-index:20;display:none;align-items:center;justify-content:center;background:rgba(10,14,24,.86)}
@@ -87,6 +90,7 @@
 <div id="gear"><div id="gearCard">
   <div style="font-size:22px;font-weight:bold;margin-bottom:8px">⚙️ 设置</div>
   <button id="gearBag">🎒 背包</button>
+  <button id="gearNext" style="display:none">🗺️ 前往下一关</button>
   <button id="gearHome">🏠 主页 / 存档</button>
   <button id="gearDex">📖 击杀图鉴</button>
   <button id="gearMusic">🎵 音乐：开</button>
@@ -123,6 +127,16 @@
   <div style="font-size:13px;opacity:.85">点一下就能换装/换人：武器拿一把，装备随便装卸，技能上阵 5 个，宠物出战 3 只</div>
   <div id="bagList" style="overflow-y:auto;flex:1;min-height:0"></div>
   <button id="bagClose" style="margin-top:10px">继续战斗 ⚔️</button>
+</div></div>
+<div id="chest"><div id="chestCard">
+  <div style="font-size:22px;font-weight:bold;margin-bottom:4px">🎁 BOSS 宝箱</div>
+  <div id="chestHint" style="font-size:13px;opacity:.85;margin-bottom:8px">三选一！点一张拿走</div>
+  <div id="chestLoot" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px"></div>
+  <div id="chestNext" style="display:none;text-align:center;margin-top:10px">
+    <div style="font-size:16px;font-weight:bold;margin-bottom:8px">要进入下一关吗？</div>
+    <button id="chestGo">🗺️ 进入下一关！</button>
+    <button id="chestStay" style="margin-top:6px;opacity:.9">🎒 再逛逛</button>
+  </div>
 </div></div>
 <div id="shop"><div id="shopCard">
   <div id="shopTitle" style="font-size:22px;font-weight:bold;margin-bottom:4px">🏪 勇者商店</div>
@@ -627,6 +641,7 @@ function reset() {
   player = makePlayer(); zombies = []; kills = 0; spawnT = 1; summonT = 10; parts = []; gameOver = false;
   pets = []; dexCounts = {}; coins = []; skillSlots = [];   // 🐾📖🪙✨ 新冒险从零开始
   endlessRound = 1; endlessWave = 1; waveKills = 0; overRecorded = false;   // 🌀 无尽从零开始
+  chest = null; pendingNext = null;   // 🎁 宝箱清空
   bossAt = 100; banner = { txt: '', t: 0 }; shakeT = 0; slamFx = null;
   level = 1; earrows = []; parrows = [];
   autoOn = false; holdAtk = false; autoT = 0; autoBtn.classList.remove('on');
@@ -1150,7 +1165,8 @@ function packSave() {
   return { kills, gold: player.gold, weapon: player.weapon, owned: player.owned, hearts: player.hearts, bossAt, level, music: musicOn ? 1 : 0, rot: rotated ? 1 : 0, when: Date.now(), sid: mySid,
     bossAlive: boss ? 1 : 0, bossHp: boss ? boss.hp : 0,
     pets: pets.map(p => p.key), dex: dexCounts, bought: player.bought, skillSlots,
-    mapShops, endlessRound, endlessWave, waveKills };   // 🏪商店+🌀无尽也跟着存档走
+    mapShops, endlessRound, endlessWave, waveKills,
+    chest: chest && { x: chest.x, y: chest.y, taken: chest.taken }, pendingNext };   // 🎁宝箱+下一关也跟着存档走
 }
 function applySave(s) {
   kills = s.kills || 0; player.gold = s.gold || 0; player.owned = s.owned || {};
@@ -1160,6 +1176,7 @@ function applySave(s) {
   bossAt = s.bossAt || 100; level = (s.level >= 2 && s.level <= 8) ? s.level : 1;   // 先定关卡，再校验武器
   fixOldBought();   // 🌈 老存档的武器/装备升级成白级
   endlessRound = s.endlessRound || 1; endlessWave = s.endlessWave || 1; waveKills = s.waveKills || 0;   // 🌀 无尽进度回来
+  chest = s.chest || null; pendingNext = s.pendingNext || null;   // 🎁 没开的宝箱回来
   if (Array.isArray(s.mapShops) && s.mapShops.length === 2) mapShops = s.mapShops;   // 🏪 商店原样回来（下面没有就重摆）
   player.weapon = (s.weapon && ALLITEMS[s.weapon]) ? s.weapon : null;   // 🌈 武器全继承：读全物品表
   applyGear();
@@ -1466,7 +1483,7 @@ document.getElementById('gearMusic').onclick = () => { toggleMusic(); };
 let gearOpen = false;
 function toggleGear(force) {
   gearOpen = force == null ? !gearOpen : force;
-  paused = gearOpen;
+  paused = gearOpen; if (gearOpen) document.getElementById('gearNext').style.display = pendingNext ? 'block' : 'none';   // 🗺️ 有下一关可去就亮出来
   document.getElementById('gear').style.display = gearOpen ? 'flex' : 'none';
 }
 document.getElementById('gearBtn').onclick = () => toggleGear();
@@ -1492,6 +1509,9 @@ function toggleBag(force) {
 }
 document.getElementById('gearBag').onclick = () => { toggleGear(false); toggleBag(true); };
 document.getElementById('bagClose').onclick = () => toggleBag(false);
+document.getElementById('chestGo').onclick = () => { closeChest(); goNextLevel(); };
+document.getElementById('chestStay').onclick = () => closeChest();
+document.getElementById('gearNext').onclick = () => { toggleGear(false); goNextLevel(); };
 function renderBag() {
   const sec = (t, n) => `<div class="shopSec">${t}</div>`;
   const tierOf = k => { const b = invB(k); return b ? `<span style="color:${TIERS[b.t].c}">·${TIERS[b.t].n}</span>` : ''; };
@@ -1546,7 +1566,78 @@ function bagTap(k) {
   }
   saveGame(); renderBag();
 }
-/* ================= 🌈 品质系统（白灰黑蓝黄红紫金彩，九级；2 个白材料合 1 级） ================= */
+/* ================= 🎁 BOSS 宝箱（走近自动开：三选一；开完问要不要进下一关） ================= */
+let chest = null, pendingNext = null;   // chest={x,y,taken}；pendingNext='level'|'endless'
+function rollLoot() {
+  const out = [], used = {};
+  const kinds = ['weapon', 'gear', 'skill', 'pet'];
+  let guard = 0;
+  while (out.length < 3 && guard++ < 60) {
+    const kind = kinds[Math.floor(Math.random() * kinds.length)];
+    const pool = Object.keys(ALLITEMS).filter(k => ALLKIND[k] === kind && !used[k] && (kind === 'weapon' || kind === 'gear' ? !invB(k) : !player.bought[k]));
+    if (!pool.length) continue;
+    const key = pool[Math.floor(Math.random() * pool.length)]; used[key] = true;
+    let tier = 0;
+    if (kind === 'weapon' || kind === 'gear') { const r = Math.random(); tier = r < 0.6 ? 0 : r < 0.9 ? 1 : 2; }   // 白 60% 灰 30% 黑 10%
+    out.push({ key, tier });
+  }
+  return out;
+}
+function openChest() {
+  chest.loot = rollLoot(); chest.taken = true; paused = true;
+  document.getElementById('chest').style.display = 'flex';
+  document.getElementById('chestNext').style.display = 'none';
+  document.getElementById('chestHint').textContent = '三选一！点一张拿走';
+  const lo = document.getElementById('chestLoot'); lo.style.display = 'grid';
+  lo.innerHTML = chest.loot.map((L, i) => {
+    const d = ALLITEMS[L.key], kind = ALLKIND[L.key];
+    const tb = (kind === 'weapon' || kind === 'gear') ? `<div style="color:${TIERS[L.tier].c};font-weight:bold">［${TIERS[L.tier].n}级］</div>` : '';
+    const kn = { weapon: '🗡️武器', gear: '🛡️装备', skill: '✨技能', pet: '🐾宠物' }[kind];
+    return `<button class="chestIt" data-loot="${i}"><div style="font-size:34px">${d.icon}</div><div style="font-weight:bold;font-size:13px">${d.name}</div>${tb}<div style="font-size:10px;opacity:.7">${kn}</div><div style="font-size:11px;opacity:.85">${d.desc}</div></button>`;
+  }).join('');
+  for (const b of lo.querySelectorAll('button[data-loot]')) b.onclick = () => takeLoot(+b.dataset.loot);
+  beep(700, 1100, 0.3, 'sine', 0.18);
+}
+function takeLoot(i) {
+  const L = chest.loot && chest.loot[i]; if (!L) return;
+  const kind = ALLKIND[L.key];
+  if (kind === 'weapon' || kind === 'gear') addToInv(L.key, L.tier);
+  else if (kind === 'skill') { player.bought[L.key] = true; player.owned[L.key] = true; if (skillSlots.length < 5 && !skillSlots.includes(L.key)) skillSlots.push(L.key); else setBanner('✨ 技能位满啦，它在背包里休息'); renderSkills(); }
+  else if (kind === 'pet') { player.bought[L.key] = true; player.owned[L.key] = true; addPet(L.key); }
+  setBanner('🎁 拿到 ' + ALLITEMS[L.key].name + '！');
+  beep(880, 1320, 0.2, 'square', 0.14);
+  chest.loot = null;
+  document.getElementById('chestLoot').style.display = 'none';
+  document.getElementById('chestHint').textContent = '拿好啦！';
+  saveGame();
+  if (pendingNext) document.getElementById('chestNext').style.display = 'block';   // 🗺️ 问要不要进下一关
+  else closeChest();
+}
+function askNext() {   // 宝箱开过了但还没走：再靠近只问下一关
+  paused = true;
+  document.getElementById('chest').style.display = 'flex';
+  document.getElementById('chestLoot').style.display = 'none';
+  document.getElementById('chestHint').textContent = '宝箱开过了';
+  document.getElementById('chestNext').style.display = 'block';
+}
+function closeChest() { document.getElementById('chest').style.display = 'none'; paused = false; }
+function goNextLevel() {   // 🗺️ 真正过关（旧自动过渡搬到这里）
+  if (!pendingNext) return;
+  const what = pendingNext; pendingNext = null; chest = null;
+  if (what === 'level') {
+    level++;
+    setBanner((level === 2 ? '❄️ 第二关：骷髅雪原！' : level === 3 ? '👻 第三关：鬼魂地狱！' : level === 4 ? '🌋 第四关：熔岩火山！' : level === 5 ? '⛈️ 第五关：天空雷域！' : level === 6 ? '🕳️ 第六关：虚空之境！' : '💎 第七关：水晶洞窟！') + '全部家当都继承，商店已刷新！');
+  } else {
+    level = 8; endlessRound = 1; endlessWave = 1; waveKills = 0;
+    setBanner('🏆 通关！🌀 无尽模式开启：第 1 波僵尸来了！');
+  }
+  for (const o of zombies) o.dead = true;
+  earrows = []; parrows = []; garrows = []; meteors = []; puddles = []; skillShots = []; clouds = []; fxLines = []; netOrbs = null; shocks = [];
+  player.angelUsed = false; player.skillCds = {}; applyGear(); renderSkills();
+  player.hearts = player.maxHearts; updateGold();
+  placePortal(); placeShops(); updateScore();
+  beep(600, 1200, 0.5, 'sine', 0.2); saveGame();
+}
 const TIERS = [
   { n: '白', c: '#e8e8e8', mul: 1 }, { n: '灰', c: '#9a9a9a', mul: 1.5 }, { n: '黑', c: '#585858', mul: 2 },
   { n: '蓝', c: '#4a8af2', mul: 2.6 }, { n: '黄', c: '#ffd24a', mul: 3.3 }, { n: '红', c: '#e84a4a', mul: 4.1 },
@@ -1826,32 +1917,20 @@ function killZombie(z) {
   if (z.boss) {   // 👹 BOSS 赏金 50 起、每关+25（越难的 BOSS 越值钱）；第一关 BOSS 死了→进入第二关！
     g = 50 + (level - 1) * 25; shakeT = 0.5;
     for (let i = 0; i < 26; i++) burst(z.x + (Math.random() - 0.5) * 100, z.y + (Math.random() - 0.5) * 100, ['#ffd24a', '#7ec850', '#ff8a5a'][i % 3]);
-    if (LEVELS[level].endless) {   // 🌀 无尽模式：BOSS 倒下→下一波/下一遍+商店刷新
+    if (LEVELS[level].endless) {   // 🌀 无尽模式：BOSS 倒下→下一波/下一遍+商店刷新+宝箱
       g = 0;
       endlessBossDown(z);
-    } else if (level < 7) {
-      level++;
-      for (const o of zombies) if (o !== z) o.dead = true;   // 清场进新关
-      earrows = []; parrows = []; garrows = []; meteors = []; puddles = []; skillShots = []; clouds = []; fxLines = []; netOrbs = null; shocks = [];
-      /* 🗺️ 过关：金币/装备/武器/技能书/宠物全继承！满血出发，商店刷新 */
-      player.angelUsed = false; player.skillCds = {};
-      applyGear(); renderSkills();
-      player.hearts = player.maxHearts;   // 满血出发
-      updateGold();
-      placePortal();   // 🕳️ 新关卡刷一个神秘山洞
-      placeShops();   // 🏪 新关卡摆两个新商店
-      setBanner((level === 2 ? '❄️ 第二关：骷髅雪原！' : level === 3 ? '👻 第三关：鬼魂地狱！' : level === 4 ? '🌋 第四关：熔岩火山！' : level === 5 ? '⛈️ 第五关：天空雷域！' : level === 6 ? '🕳️ 第六关：虚空之境！' : '💎 第七关：水晶洞窟！') + '全部家当都继承，商店已刷新！');
-      beep(600, 1200, 0.5, 'sine', 0.2);
+      chest = { x: z.x, y: z.y, taken: false };
+      setBanner('🌀 BOSS 倒下！宝箱掉下来啦，走过去打开！');
+    } else if (level < 7) {   // 🎁 普通关：掉宝箱，开完问要不要进下一关
+      pendingNext = 'level'; chest = { x: z.x, y: z.y, taken: false };
+      setBanner('👑 BOSS 倒下！宝箱掉下来了，走过去打开！');
       saveGame();
-    } else {   // 🏆 第七关 BOSS 倒了：通关庆典→🌀 无尽模式开启！
+    } else {   // 🏆 第七关 BOSS 倒了：掉宝箱，开完问要不要进无尽模式
       player.gold += 500; updateGold();
       for (let i = 0; i < 40; i++) burst(player.x + (Math.random() - 0.5) * 300, player.y + (Math.random() - 0.5) * 300, ['#ffd24a', '#a8f2ff', '#ff8af2', '#7ec850'][i % 4]);
-      level = 8; endlessRound = 1; endlessWave = 1; waveKills = 0;
-      for (const o of zombies) if (o !== z) o.dead = true;
-      earrows = []; parrows = []; garrows = []; meteors = []; puddles = []; skillShots = []; clouds = []; fxLines = []; netOrbs = null; shocks = [];
-      placeShops(); placePortal();
-      updateScore();
-      setBanner('🏆 通关！🌀 无尽模式开启：第 1 波僵尸来了！');
+      pendingNext = 'endless'; chest = { x: z.x, y: z.y, taken: false };
+      setBanner('🏆 水晶魔王倒下！宝箱掉下来了，走过去打开！');
       beep(600, 1200, 0.6, 'sine', 0.2); setTimeout(() => beep(800, 1600, 0.6, 'sine', 0.2), 250);
       saveGame();
     }
@@ -2040,6 +2119,7 @@ function update(dt) {
     fxLines = fxLines.filter(f => f.t > 0);
     if (!document.hidden) { saveT -= dt; if (saveT <= 0) { saveT = 2; saveGame(); } }   // 💾 每 2 秒自动存档（只有前台页面才写，后台旧页面不许盖）
     document.getElementById('enterBtn').style.display = (!gameOver && nearShop() >= 0) ? 'block' : 'none';   // 🚪 靠近商店才出现
+    if (chest && !paused && !gameOver && Math.hypot(player.x - chest.x, player.y - chest.y) < 64) { if (!chest.taken) openChest(); else if (pendingNext) askNext(); }   // 🎁 走近宝箱自动开
     player.cd = Math.max(0, player.cd - dt); player.atkT = Math.max(0, player.atkT - dt); player.inv = Math.max(0, player.inv - dt); player.critT = Math.max(0, (player.critT || 0) - dt);
     player.frozenT = Math.max(0, (player.frozenT || 0) - dt);   // ❄️ 骷髅王寒冰
     player.bowCd = Math.max(0, (player.bowCd || 0) - dt);       // 🏹 弓 1 秒一支
@@ -2382,6 +2462,14 @@ function draw() {
     if (si === nearI) { ctx.fillStyle = '#ffd24a'; ctx.font = 'bold 12px sans-serif'; ctx.fillText('按 B / 点「进入」', s.x, s.y - 32); }
     ctx.textAlign = 'left';
   }
+  // 🎁 BOSS 宝箱（金光闪闪的小木箱）
+  if (chest) {
+    if (!chest.taken) { ctx.globalAlpha = 0.35 + Math.sin(performance.now() / 300) * 0.2; ctx.fillStyle = '#ffd24a'; ctx.beginPath(); ctx.arc(chest.x, chest.y - 2, 22, 0, 6.3); ctx.fill(); ctx.globalAlpha = 1; }
+    ctx.fillStyle = '#8a5a2a'; ctx.fillRect(chest.x - 12, chest.y - 8, 24, 16);   // 箱身
+    ctx.fillStyle = '#6a3f1a'; ctx.fillRect(chest.x - 12, chest.y - 8, 24, 6);    // 箱盖
+    ctx.fillStyle = '#ffd24a'; ctx.fillRect(chest.x - 2, chest.y - 8, 4, 16);     // 金箍
+    ctx.fillStyle = '#ffe84a'; ctx.fillRect(chest.x - 2, chest.y - 2, 4, 4);      // 锁
+  }
   // 僵尸
   for (const z of zombies) {
     if (z.boss) { drawBoss(z); continue; }   // 👹 BOSS 专属画法
@@ -2709,7 +2797,7 @@ function draw() {
 window.G = { get player() { return player; }, get zombies() { return zombies; }, get kills() { return kills; }, get gameOver() { return gameOver; }, get paused() { return paused; }, get autoOn() { return autoOn; }, get holdAtk() { return holdAtk; }, get level() { return level; }, get earrows() { return earrows; }, get parrows() { return parrows; }, get garrows() { return garrows; }, get meteors() { return meteors; }, get puddles() { return puddles; }, doAttack, reset, keys, update, toggleShop, buyFromShop, spawnBoss, spawnEnemy,
   setKills: v => { kills = v; updateScore(); }, setLevel: v => { level = v; updateScore(); renderSkills(); }, setAuto: v => { autoOn = v; autoBtn.classList.toggle('on', v); if (v) autoT = 0; }, setHold: v => { holdAtk = v; if (v) autoT = 0; },
   get skillShots() { return skillShots; }, get clouds() { return clouds; }, get fxLines() { return fxLines; }, get netOrbs() { return netOrbs; }, get shocks() { return shocks; },
-  get pets() { return pets; }, get dexCounts() { return dexCounts; }, get coins() { return coins; }, get portal() { return portal; }, addPet, toggleDex, toggleBag, get skillSlots() { return skillSlots; },
+  get pets() { return pets; }, get dexCounts() { return dexCounts; }, get coins() { return coins; }, get portal() { return portal; }, addPet, toggleDex, toggleBag, get skillSlots() { return skillSlots; }, get chest() { return chest; }, goNextLevel, openChest,
   castSkill, renderSkills, ownedSkills, spawnStorm: () => { const z = makeStorm(player.x + 150, player.y, Math.random); zombies.push(z); }, spawnVoid: () => { const z = makeVoid(player.x + 150, player.y, Math.random); zombies.push(z); } };
 reset(); if (loadGame()) setBanner('💾 存档已读取，接着玩！');
 showHome();   // 🏠 开机先进主页选存档
