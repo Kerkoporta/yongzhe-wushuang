@@ -352,7 +352,7 @@ function toggleRotate() {
 }
 document.getElementById('rotBtn').onclick = () => toggleRotate();
 
-let player, zombies, kills, spawnT, parts, gameOver, deco;
+let player, zombies, kills, spawnT, summonT, parts, gameOver, deco;
 let bossAt = 100, banner = { txt: '', t: 0 }, shakeT = 0, slamFx = null;
 /* 🗺️ 关卡：第一关僵尸草原 → 打败 BOSS 进第二关骷髅雪原 */
 const LEVELS = {
@@ -371,6 +371,8 @@ function spawnEnemy() {   // 按关卡出怪
 function setBanner(t) { banner = { txt: t, t: 2.6 }; }
 /* 👹 BOSS 登场：击杀满 100（之后每 100 一只） */
 function spawnBoss() {
+  for (const z of zombies) if (!z.boss) z.dead = true;   // 👹 BOSS 出场清场：场上只有 BOSS（小怪赏金照拿过的）
+  summonT = 10;   // ⏱️ 10 秒后开始第一波召唤
   const pos = pickSpawn(player, Math.random);
   const b = makeBoss(pos.x, pos.y);
   b.skelBoss = level === 2;    // 💀 第二关出骷髅王（巨箭+寒冰）
@@ -487,7 +489,7 @@ function bossUpdate(z, dt) {
   }
 }
 function reset() {
-  player = makePlayer(); zombies = []; kills = 0; spawnT = 1; parts = []; gameOver = false;
+  player = makePlayer(); zombies = []; kills = 0; spawnT = 1; summonT = 10; parts = []; gameOver = false;
   bossAt = 100; banner = { txt: '', t: 0 }; shakeT = 0; slamFx = null;
   level = 1; earrows = []; parrows = [];
   autoOn = false; holdAtk = false; autoT = 0; autoBtn.classList.remove('on');
@@ -1241,7 +1243,17 @@ function update(dt) {
     spawnT -= dt;
     const SPAWN_MUL = [0, 1, 1.1, 0.9, 0.78, 0.7, 0.62];   // 🌡️ 难度爬坡：每关刷怪间隔倍率（越往后越密：2s/2.2s/1.8s/1.6s/1.4s/1.24s）
     const cap = diff.cap + (level - 1) * 2;                 // 🌡️ 同屏上限每关+2（越往后越围攻）
-    if (spawnT <= 0 && zombies.filter(z => !z.dead).length < cap) { spawnT = SPAWN.interval * (SPAWN_MUL[level] || 1); spawnEnemy(); }
+    const bossAlive = zombies.some(z => z.boss && !z.dead);
+    if (bossAlive) {   // 👹 BOSS 战：小怪停止刷新，每 10 秒 BOSS 召唤 3 只（受上限保护）
+      summonT -= dt;
+      if (summonT <= 0) {
+        summonT = 10;
+        const room = cap - zombies.filter(z => !z.dead && !z.boss).length;
+        const n = Math.min(3, Math.max(0, room));
+        for (let i = 0; i < n; i++) spawnEnemy();
+        if (n > 0) { const bb = zombies.find(z => z.boss && !z.dead); if (bb) burst(bb.x, bb.y, '#b48af2', 12); setBanner('👹 BOSS 召唤了小怪！'); beep(180, 320, 0.25, 'sawtooth', 0.15); }
+      }
+    } else if (spawnT <= 0 && zombies.filter(z => !z.dead).length < cap) { spawnT = SPAWN.interval * (SPAWN_MUL[level] || 1); spawnEnemy(); }
     if (kills >= bossAt) { bossAt += 100; spawnBoss(); }   // 👹 每满 100 杀出一只 BOSS
     for (const z of zombies) { if (z.dead) continue;
       if (z.boss) { bossUpdate(z, dt); continue; }   // 👹 BOSS 有自己的大脑
