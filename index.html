@@ -742,9 +742,15 @@ function buyFromShop(key) {
 /* 💎 水晶装备通用加成读取器（mod 字段，读全物品表——装备继承到哪关都生效；数值乘品质倍率） */
 function modVal(name) { let v = 0; for (const k in player.owned) { if (!player.owned[k]) continue; const m = (ALLITEMS[k] || {}).mod; if (m && m[name]) v += m[name] * T(k); } return v; }
 function modMul(name) { let v = 1; for (const k in player.owned) { if (!player.owned[k]) continue; const m = (ALLITEMS[k] || {}).mod; if (m && m[name]) v *= 1 + (m[name] - 1) * T(k); } return v; }
-/* 🎒 装备加成重算（全部数值乘品质倍率 T(k)：灰的更强、彩的最强） */
+/* 🎒 装备加成重算（全部数值乘品质倍率 T(k)：灰的更强、彩的最强；🏡小镇里装备全部失效） */
 function applyGear() {
   const o = player.owned;
+  if (townMode) {   // 🏡 小镇是和平区：装备不生效
+    player.maxHearts = PLAYER.hearts; player.regenDelay = REGEN.delay; player.regenEvery = REGEN.every;
+    player.speedMul = 1; player.dmgAdd = 0; player.cdMulGear = 1; player.armor = false;
+    player.hearts = Math.min(player.hearts, player.maxHearts);
+    return;
+  }
   const g = (k, x) => o[k] ? x * T(k) : 0;         // 加法项×品质
   const m = (k, x) => o[k] ? 1 + (x - 1) * T(k) : 1;   // 乘法项×品质
   player.maxHearts = PLAYER.hearts + g('hat', 1) + g('crown', 1) + g('chestplate', 2) + g('belt', 1) + g('bone_helm', 1) + g('snowman_apron', 2) + g('ice_crown', 1) + g('soul_lantern', 1) + g('soul_heart', 1) + g('ghost_crown', 2) + g('obsidian_helm', 1) + g('volcano_stone', 2) + g('obsidian_heart', 3) + g('lava_crown', 2)
@@ -1706,20 +1712,55 @@ function enterTown() {
   for (const z of zombies) z.dead = true;
   earrows = []; parrows = []; garrows = []; meteors = []; puddles = []; skillShots = []; clouds = []; fxLines = []; netOrbs = null; shocks = []; chest = null;
   player.x = WORLD.w / 2; player.y = WORLD.h / 2 - 200;
-  placeTownShops(); updateScore();
-  setBanner('🏡 宁静小镇：随便逛！马路两边全是商店'); saveGame();
+  placeTownShops(); spawnTownNpcs(); applyGear(); updateScore();   // 🏡 装备失效+村民上街
+  setBanner('🏡 宁静小镇：随便逛！马路两边全是商店（小镇里装备会休息哦）'); saveGame();
 }
 function exitTown() {   // ⚔️ 继续刷怪：回到无尽进度（遍/波原样）
   townMode = false; inRoom = false; paused = false;
   for (const z of zombies) z.dead = true;
   earrows = []; parrows = []; garrows = []; meteors = []; puddles = []; skillShots = []; clouds = []; fxLines = []; netOrbs = null; shocks = [];
   player.x = WORLD.w / 2; player.y = WORLD.h / 2;
-  placeShops(); placePortal(); updateScore();
+  placeShops(); placePortal(); applyGear(); updateScore();   // ⚔️ 回来装备重新生效
   setBanner('🌀 回到无尽回廊：第' + endlessRound + '遍·第' + endlessWave + '波，接着刷！');
   saveGame();
 }
 document.getElementById('gearFight').onclick = () => { toggleGear(false); exitTown(); };
 document.getElementById('gearTown').onclick = () => { toggleGear(false); enterTown(); };
+/* 🧑‍🤝‍🧑 小镇村民（CPU：在家附近溜达的像素小人） */
+let npcs = [];
+function spawnTownNpcs() {
+  npcs = [];
+  const spots = [[700, 1090], [900, 1310], [1400, 1080], [1700, 1300], [1050, 950], [2000, 1180]];
+  const colors = ['#e84a4a', '#4a8af2', '#ffd24a', '#8a5ac8', '#5ac85a', '#ff8af2'];
+  const skins = ['#f0c8a0', '#e8b88a', '#d8a878'];
+  for (let i = 0; i < spots.length; i++) npcs.push({ x: spots[i][0], y: spots[i][1], hx: spots[i][0], hy: spots[i][1], c: colors[i], skin: skins[i % 3], tx: null, ty: null, restT: Math.random() * 2, walkT: Math.random() * 9, face: 1 });
+}
+function npcsTick(dt) {
+  for (const n of npcs) {
+    n.walkT += dt;
+    if (n.tx == null || (Math.abs(n.x - n.tx) < 4 && Math.abs(n.y - n.ty) < 4)) {
+      n.restT -= dt;
+      if (n.restT <= 0) { n.tx = n.hx + (Math.random() - 0.5) * 320; n.ty = n.hy + (Math.random() - 0.5) * 220; n.restT = 1.5 + Math.random() * 3; }
+    } else {
+      const dx = n.tx - n.x, dy = n.ty - n.y, d = Math.hypot(dx, dy) || 1;
+      n.x += dx / d * 60 * dt; n.y += dy / d * 60 * dt;
+      n.face = dx < -0.5 ? -1 : 1;
+    }
+  }
+}
+function drawVillager(n) {   // 像素小人：腿交替+手臂摆动
+  const moving = n.tx != null && (Math.abs(n.x - n.tx) > 4 || Math.abs(n.y - n.ty) > 4);
+  const step = moving ? Math.sin(n.walkT * 8) : 0;
+  ctx.globalAlpha = 0.3; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.ellipse(n.x, n.y + 1, 7, 3, 0, 0, 6.3); ctx.fill(); ctx.globalAlpha = 1;
+  ctx.save(); ctx.translate(Math.round(n.x), Math.round(n.y)); if (n.face < 0) ctx.scale(-1, 1);
+  ctx.fillStyle = '#3a3a4a'; ctx.fillRect(-5 + (step > 0 ? 1 : -1), -8, 4, 8); ctx.fillRect(1 + (step > 0 ? -1 : 1), -8, 4, 8);   // 腿
+  ctx.fillStyle = n.c; ctx.fillRect(-7, -18, 14, 11);   // 衣服
+  ctx.fillRect(-9, -17 + (step > 0 ? 1 : -1), 3, 8); ctx.fillRect(6, -17 + (step > 0 ? -1 : 1), 3, 8);   // 手臂
+  ctx.fillStyle = n.skin; ctx.fillRect(-5, -27, 10, 10);   // 头
+  ctx.fillStyle = '#5a4632'; ctx.fillRect(-5, -29, 10, 4);   // 头发
+  ctx.fillStyle = '#1a1a1a'; ctx.fillRect(1, -23, 2, 2);   // 眼
+  ctx.restore();
+}
 function placeTownShops() {   // 🛣️ 马路两边排排坐：8 家店 + 房产中介
   mapShops = [];
   const specs = [['weapon', '🗡️ 武器店'], ['gear', '🛡️ 装备店'], ['skill', '✨ 法术店'], ['pet', '🐾 宠物店'], ['weapon', '🗡️ 武器店·二店'], ['gear', '🛡️ 装备店·二店'], ['skill', '✨ 法术店·二店'], ['pet', '🐾 宠物店·二店']];
@@ -2448,6 +2489,7 @@ function update(dt) {
     } else player.lavaAcc = 0;
     zombies = zombies.filter(z => !z.dead);
     petsTick(dt);     // 🐾 宠物出击
+    if (townMode && !inRoom) npcsTick(dt);   // 🧑‍🤝‍🧑 村民溜达
     portalTick(dt);   // 🕳️ 山洞/金币
     /* ➹ 骷髅的箭：直线飞，玩家移动就能躲开；命中=半心（盔甲可挡） */
     for (const a of earrows) {
@@ -2813,6 +2855,7 @@ function draw() {
     if (frame) ctx.drawImage(frame, -19, -30, 38, 32);
     ctx.restore();
   }
+  if (townMode && !inRoom) for (const n of npcs) drawVillager(n);   // 🧑‍🤝‍🧑 村民逛街
   // 🕳️ 神秘山洞（发光漩涡）+ 🪙 散落金币
   if (portal) {
     const pt2 = performance.now() / 1000;
