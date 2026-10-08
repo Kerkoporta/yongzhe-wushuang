@@ -672,7 +672,7 @@ function reset() {
   player = makePlayer(); zombies = []; kills = 0; spawnT = 1; summonT = 10; parts = []; gameOver = false;
   pets = []; dexCounts = {}; coins = []; skillSlots = [];   // 🐾📖🪙✨ 新冒险从零开始
   endlessRound = 1; endlessWave = 1; waveKills = 0; overRecorded = false;   // 🌀 无尽从零开始
-  chest = null; pendingNext = null; chestLatch = false; roomLatch = false;   // 🎁 宝箱清空
+  chest = null; pendingNext = null; chestLatch = false; roomLatch = false; plazaSeen = false;   // 🎁 宝箱清空
   faintDone = false; townMode = false; townUnlocked = false; ownedHouse = false; inRoom = false; storage = {};   // 💉🏡 剧情小镇清零
   document.getElementById('faint').style.display = 'none'; document.getElementById('bed').style.display = 'none'; storeEl.style.display = 'none';
   bossAt = 100; banner = { txt: '', t: 0 }; shakeT = 0; slamFx = null;
@@ -1613,7 +1613,7 @@ function bagTap(k) {
 }
 /* ================= 🎁 BOSS 宝箱（走近自动开：三选一；开完问要不要进下一关） ================= */
 let chest = null, pendingNext = null;   // chest={x,y,taken}；pendingNext='level'|'endless'
-let chestLatch = false, roomLatch = false;   // 🎁🏠 面板重触发闩锁
+let chestLatch = false, roomLatch = false, plazaSeen = false;   // 🎁🏠⛲ 触发闩锁与发现标记
 function rollLoot() {
   const out = [], used = {};
   const kinds = ['weapon', 'gear', 'skill', 'pet'];
@@ -1760,6 +1760,26 @@ function drawVillager(n) {   // 像素小人：腿交替+手臂摆动
   ctx.fillStyle = '#5a4632'; ctx.fillRect(-5, -29, 10, 4);   // 头发
   ctx.fillStyle = '#1a1a1a'; ctx.fillRect(1, -23, 2, 2);   // 眼
   ctx.restore();
+}
+function drawBush(x, y) {   // 🌿 广场草丛：三团绿
+  ctx.fillStyle = '#2e6a2e'; ctx.beginPath(); ctx.arc(x, y, 26, 0, 6.3); ctx.fill();
+  ctx.fillStyle = '#3f8a3f'; ctx.beginPath(); ctx.arc(x - 8, y - 6, 16, 0, 6.3); ctx.arc(x + 10, y - 4, 14, 0, 6.3); ctx.fill();
+  ctx.fillStyle = '#54a854'; ctx.beginPath(); ctx.arc(x - 4, y - 10, 8, 0, 6.3); ctx.fill();
+}
+function drawFountain(x, y) {   // ⛲ 喷泉：石沿+水面波光+石柱+跳动水珠
+  const t = performance.now() / 1000;
+  ctx.fillStyle = '#b8b8c0'; ctx.beginPath(); ctx.arc(x, y, 46, 0, 6.3); ctx.fill();
+  ctx.fillStyle = '#8a8a94'; ctx.beginPath(); ctx.arc(x, y, 40, 0, 6.3); ctx.fill();
+  ctx.fillStyle = '#4ab8f0'; ctx.beginPath(); ctx.arc(x, y, 34, 0, 6.3); ctx.fill();
+  ctx.fillStyle = '#a8e4ff';
+  for (let i = 0; i < 3; i++) { const a = t * 1.2 + i * 2.1; ctx.beginPath(); ctx.arc(x + Math.cos(a) * 16, y + Math.sin(a) * 12, 3, 0, 6.3); ctx.fill(); }
+  ctx.fillStyle = '#b8b8c0'; ctx.fillRect(x - 8, y - 22, 16, 24);
+  ctx.fillStyle = '#8a8a94'; ctx.fillRect(x - 10, y - 26, 20, 6);
+  for (let i = 0; i < 5; i++) {   // 水珠跳上跳下
+    const ph = (t * 2 + i * 0.4) % 1;
+    ctx.fillStyle = ph < 0.5 ? '#d8f4ff' : '#8ad8ff';
+    ctx.fillRect(x + (i - 2) * 5 - 1.5, y - 26 - ph * 26, 3, 3);
+  }
 }
 function placeTownShops() {   // 🛣️ 马路两边排排坐：8 家店 + 房产中介
   mapShops = [];
@@ -2281,6 +2301,11 @@ function update(dt) {
     fxLines = fxLines.filter(f => f.t > 0);
     if (!document.hidden) { saveT -= dt; if (saveT <= 0) { saveT = 2; saveGame(); } }   // 💾 每 2 秒自动存档（只有前台页面才写，后台旧页面不许盖）
     document.getElementById('enterBtn').style.display = (!gameOver && nearShop() >= 0) ? 'block' : 'none';   // 🚪 靠近商店才出现
+    if (townMode && !inRoom) {
+      const fd = Math.hypot(player.x - 1200, player.y - 1840);   // ⛲ 喷泉挡路，绕圈走
+      if (fd < 52 && fd > 0) { const fa = Math.atan2(player.y - 1840, player.x - 1200); player.x = 1200 + Math.cos(fa) * 52; player.y = 1840 + Math.sin(fa) * 52; }
+      if (!plazaSeen && player.x > 920 && player.x < 1480 && player.y > 1560 && player.y < 2120) { plazaSeen = true; setBanner('⛲ 发现小镇广场！喷泉好凉快~'); }
+    }
     if (chest && !paused && !gameOver && !townMode) {   // 🎁 走近宝箱自动开（🔧 修复：离开 90px 才解锁，点「再逛逛」不会瞬间又弹出来）
       const cd = Math.hypot(player.x - chest.x, player.y - chest.y);
       if (cd > 90) chestLatch = false;
@@ -2652,6 +2677,15 @@ function draw() {
         ctx.fillStyle = '#6a4a2a'; ctx.fillRect(1182, 660, 36, 40);   // 门
         ctx.fillStyle = '#ffd24a'; ctx.fillRect(1208, 678, 5, 5);     // 门把
       }
+      // ⛲ 南边大广场：灰色环路+石砖地+四角草丛+中央喷泉
+      ctx.fillStyle = '#4a4a52';   // 环路
+      ctx.fillRect(872, 1512, 656, 48); ctx.fillRect(872, 2120, 656, 48); ctx.fillRect(872, 1512, 48, 656); ctx.fillRect(1480, 1512, 48, 656);
+      ctx.fillStyle = '#9a9aa2'; ctx.fillRect(920, 1560, 560, 560);   // 石砖广场
+      ctx.strokeStyle = '#83838c'; ctx.lineWidth = 2;
+      for (let gx = 976; gx < 1480; gx += 56) { ctx.beginPath(); ctx.moveTo(gx, 1560); ctx.lineTo(gx, 2120); ctx.stroke(); }
+      for (let gy = 1616; gy < 2120; gy += 56) { ctx.beginPath(); ctx.moveTo(920, gy); ctx.lineTo(1480, gy); ctx.stroke(); }
+      for (const bpos of [[968, 1608], [1432, 1608], [968, 2072], [1432, 2072]]) drawBush(bpos[0], bpos[1]);   // 四角草丛
+      drawFountain(1200, 1840);   // ⛲ 中央喷泉
     }
   } else {
     ctx.fillStyle = groundPattern(); ctx.fillRect(camX, camY, VW, VH);
@@ -3001,6 +3035,7 @@ function draw() {
   const msc = 112 / WORLD.w;
   mm.save();
   if (rotated) { mm.translate(56, 56); mm.rotate(-Math.PI / 2); mm.translate(-56, -56); }   // 🔄 转屏联动
+  if (townMode) { mm.fillStyle = '#9a9aa2'; mm.fillRect(920 * msc, 1560 * msc, 560 * msc, 560 * msc); mm.fillStyle = '#4ab8f0'; mm.beginPath(); mm.arc(1200 * msc, 1840 * msc, 2.5, 0, 6.3); mm.fill(); }   // ⛲ 广场灰块+喷泉蓝点
   for (const s of mapShops) { mm.fillStyle = '#ffd24a'; mm.fillRect(s.x * msc - 2, s.y * msc - 2, 4, 4); }   // 商店金方块
   if (portal) { mm.fillStyle = '#b48af2'; mm.beginPath(); mm.arc(portal.x * msc, portal.y * msc, 2.5, 0, 6.3); mm.fill(); }   // 山洞紫点
   for (const z of zombies) { if (z.dead) continue; if (z.boss) { mm.fillStyle = '#ff2a2a'; mm.fillRect(z.x * msc - 2, z.y * msc - 2, 4, 4); } else { mm.fillStyle = '#e88a8a'; mm.fillRect(z.x * msc - 0.75, z.y * msc - 0.75, 1.5, 1.5); } }
