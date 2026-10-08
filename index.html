@@ -18,8 +18,14 @@
   #zoomBtn{position:fixed;left:12px;top:184px;z-index:6;background:rgba(40,90,60,.92);color:#fff;border:3px solid #7ec850;border-radius:14px;padding:5px 10px;font-weight:bold;font-size:14px;box-shadow:0 3px 8px rgba(0,0,0,.4);cursor:pointer}
   #enterBtn{position:fixed;left:150px;bottom:48px;z-index:6;display:none;background:rgba(200,150,30,.95);color:#fff;border:3px solid #ffd24a;border-radius:14px;padding:10px 16px;font-weight:bold;font-size:16px;box-shadow:0 3px 8px rgba(0,0,0,.4);cursor:pointer}
   /* 🔄 转屏联动：小地图/倍数镜/进入钮都在 #rot 外壳里，跟着一起转，不会和别的按钮重叠 */
-  #gear,#help,#bag,#chest{position:fixed;inset:0;z-index:9;display:none;align-items:center;justify-content:center;background:rgba(20,16,10,.7)}
-  #gearCard,#helpCard,#bagCard,#chestCard{background:#2e2414;border:4px solid #d8b87a;border-radius:18px;padding:20px 22px;color:#fff;font-family:sans-serif;width:min(340px,88vw);max-height:84vh;display:flex;flex-direction:column}
+  #gear,#help,#bag,#chest,#bed,#store{position:fixed;inset:0;z-index:9;display:none;align-items:center;justify-content:center;background:rgba(20,16,10,.7)}
+  #gearCard,#helpCard,#bagCard,#chestCard,#bedCard,#storeCard{background:#2e2414;border:4px solid #d8b87a;border-radius:18px;padding:20px 22px;color:#fff;font-family:sans-serif;width:min(340px,88vw);max-height:84vh;display:flex;flex-direction:column}
+  #storeCard{width:min(460px,94vw)}
+  #faint{position:fixed;inset:0;z-index:30;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0);transition:background 1.2s}
+  #faintTxt{color:#fff;font-size:34px;font-weight:bold;font-family:sans-serif;text-shadow:0 3px 8px #000;transition:opacity .8s}
+  #faintNpc{position:fixed;right:18px;bottom:18px;width:96px;border:3px solid #d8b87a;border-radius:10px;display:none;z-index:31}
+  #faintDlg{position:fixed;right:126px;bottom:36px;display:none;flex-direction:column;background:#2e2414;border:4px solid #d8b87a;border-radius:14px;padding:14px 16px;color:#fff;max-width:min(320px,80vw);z-index:31;font-family:sans-serif}
+  #faintDlg button,#bedCard button,#storeCard button{background:#c8961e;border:3px solid #ffd24a;border-radius:12px;padding:8px;font-weight:bold;font-size:15px;color:#fff;cursor:pointer}
   #chestCard{width:min(420px,92vw)}
   .chestIt{background:#4a3a22;border:3px solid #d8b87a;border-radius:12px;padding:8px 6px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;color:#fff;font-family:sans-serif}
   .chestIt:active{transform:scale(.95)}
@@ -91,6 +97,8 @@
   <div style="font-size:22px;font-weight:bold;margin-bottom:8px">⚙️ 设置</div>
   <button id="gearBag">🎒 背包</button>
   <button id="gearNext" style="display:none">🗺️ 前往下一关</button>
+  <button id="gearFight" style="display:none">⚔️ 继续刷怪</button>
+  <button id="gearTown" style="display:none">🏡 回到小镇</button>
   <button id="gearHome">🏠 主页 / 存档</button>
   <button id="gearDex">📖 击杀图鉴</button>
   <button id="gearMusic">🎵 音乐：开</button>
@@ -127,6 +135,29 @@
   <div style="font-size:13px;opacity:.85">点一下就能换装/换人：武器拿一把，装备随便装卸，技能上阵 5 个，宠物出战 3 只</div>
   <div id="bagList" style="overflow-y:auto;flex:1;min-height:0"></div>
   <button id="bagClose" style="margin-top:10px">继续战斗 ⚔️</button>
+</div></div>
+<div id="faint">
+  <div id="faintTxt"></div>
+  <img id="faintNpc" src="data:image/jpeg;base64,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" alt="">
+  <div id="faintDlg">
+    <div style="font-size:18px;font-weight:bold;margin-bottom:8px">你醒了？</div>
+    <button id="faintRun">🏃 跑掉，继续去杀怪！</button>
+    <button id="faintStay" style="margin-top:6px">🏡 留在这里</button>
+  </div>
+</div>
+<div id="bed"><div id="bedCard">
+  <div style="font-size:18px;font-weight:bold;margin-bottom:8px">🛏️ 要睡一觉吗？（回满血+存档）</div>
+  <button id="bedYes">😴 睡觉</button>
+  <button id="bedNo" style="margin-top:6px;opacity:.9">不了</button>
+</div></div>
+<div id="store"><div id="storeCard">
+  <div style="font-size:20px;font-weight:bold;margin-bottom:4px">🗄️ 大柜子</div>
+  <div style="font-size:13px;opacity:.85;margin-bottom:6px">点一下，东西就在背包和柜子之间搬家</div>
+  <div style="display:flex;gap:10px;flex:1;min-height:0">
+    <div style="flex:1;overflow-y:auto"><div class="shopSec">🎒 背包</div><div id="storeBag" class="bagGrid" style="grid-template-columns:1fr"></div></div>
+    <div style="flex:1;overflow-y:auto"><div class="shopSec">🗄️ 柜子</div><div id="storeBox" class="bagGrid" style="grid-template-columns:1fr"></div></div>
+  </div>
+  <button id="storeClose" style="margin-top:10px">关上柜门</button>
 </div></div>
 <div id="chest"><div id="chestCard">
   <div style="font-size:22px;font-weight:bold;margin-bottom:4px">🎁 BOSS 宝箱</div>
@@ -641,7 +672,9 @@ function reset() {
   player = makePlayer(); zombies = []; kills = 0; spawnT = 1; summonT = 10; parts = []; gameOver = false;
   pets = []; dexCounts = {}; coins = []; skillSlots = [];   // 🐾📖🪙✨ 新冒险从零开始
   endlessRound = 1; endlessWave = 1; waveKills = 0; overRecorded = false;   // 🌀 无尽从零开始
-  chest = null; pendingNext = null;   // 🎁 宝箱清空
+  chest = null; pendingNext = null; chestLatch = false; roomLatch = false;   // 🎁 宝箱清空
+  faintDone = false; townMode = false; townUnlocked = false; ownedHouse = false; inRoom = false; storage = {};   // 💉🏡 剧情小镇清零
+  document.getElementById('faint').style.display = 'none'; document.getElementById('bed').style.display = 'none'; storeEl.style.display = 'none';
   bossAt = 100; banner = { txt: '', t: 0 }; shakeT = 0; slamFx = null;
   level = 1; earrows = []; parrows = [];
   autoOn = false; holdAtk = false; autoT = 0; autoBtn.classList.remove('on');
@@ -654,7 +687,7 @@ function reset() {
   placePortal();   // 🕳️ 这关的山洞在哪呢
   placeShops();   // 🏪 地图上摆两个商店
 }
-function updateScore() { document.getElementById('score').textContent = '⚔️ 击败 ' + kills; document.getElementById('levelTag').textContent = level === 8 ? `🌀无尽 第${endlessRound}遍·第${endlessWave}波` : '🗺️ 第' + level + '关·' + LEVELS[level].name; }
+function updateScore() { document.getElementById('score').textContent = '⚔️ 击败 ' + kills; document.getElementById('levelTag').textContent = townMode ? '🏡 宁静小镇' : level === 8 ? `🌀无尽 第${endlessRound}遍·第${endlessWave}波` : '🗺️ 第' + level + '关·' + LEVELS[level].name; }
 function updateGold() { document.getElementById('gold').textContent = '💰 ' + player.gold; }
 /* ================= 🏪 商店（买东西时游戏暂停） ================= */
 let paused = false;
@@ -1166,7 +1199,8 @@ function packSave() {
     bossAlive: boss ? 1 : 0, bossHp: boss ? boss.hp : 0,
     pets: pets.map(p => p.key), dex: dexCounts, bought: player.bought, skillSlots,
     mapShops, endlessRound, endlessWave, waveKills,
-    chest: chest && { x: chest.x, y: chest.y, taken: chest.taken }, pendingNext };   // 🎁宝箱+下一关也跟着存档走
+    chest: chest && { x: chest.x, y: chest.y, taken: chest.taken }, pendingNext,
+    faintDone: faintDone ? 1 : 0, townMode: townMode ? 1 : 0, townUnlocked: townUnlocked ? 1 : 0, ownedHouse: ownedHouse ? 1 : 0, storage };   // 💉🏡剧情小镇也跟着存档走
 }
 function applySave(s) {
   kills = s.kills || 0; player.gold = s.gold || 0; player.owned = s.owned || {};
@@ -1177,7 +1211,8 @@ function applySave(s) {
   fixOldBought();   // 🌈 老存档的武器/装备升级成白级
   endlessRound = s.endlessRound || 1; endlessWave = s.endlessWave || 1; waveKills = s.waveKills || 0;   // 🌀 无尽进度回来
   chest = s.chest || null; pendingNext = s.pendingNext || null;   // 🎁 没开的宝箱回来
-  if (Array.isArray(s.mapShops) && s.mapShops.length === 2) mapShops = s.mapShops;   // 🏪 商店原样回来（下面没有就重摆）
+  faintDone = !!s.faintDone; townMode = !!s.townMode; townUnlocked = !!s.townUnlocked; ownedHouse = !!s.ownedHouse; storage = s.storage || {}; inRoom = false;   // 💉🏡 剧情进度回来（进门状态不存）
+  if (townMode) placeTownShops(); else if (Array.isArray(s.mapShops) && s.mapShops.length === 2) mapShops = s.mapShops;   // 🏪 小镇摆商店街，冒险用存档商店
   player.weapon = (s.weapon && ALLITEMS[s.weapon]) ? s.weapon : null;   // 🌈 武器全继承：读全物品表
   applyGear();
   player.hearts = Math.min(player.maxHearts, Math.max(1, s.hearts || player.maxHearts));
@@ -1194,7 +1229,7 @@ function applySave(s) {
   skillSlots = (s.skillSlots || Object.keys(player.bought).filter(k => ALLKIND[k] === 'skill').slice(0, 5)).filter(k => player.bought[k]);   // ✨ 上阵技能回来（老存档默认前 5 本上阵）
   dexCounts = s.dex || {};   // 📖 图鉴回来
   coins = []; placePortal();   // 🕳️ 新一局刷个山洞
-  if (!Array.isArray(s.mapShops) || s.mapShops.length !== 2) placeShops();   // 🏪 存档没商店就重摆
+  if (!Array.isArray(s.mapShops) || (s.mapShops.length !== 2 && !townMode)) { if (!townMode) placeShops(); }   // 🏪 存档没商店就重摆
   renderSkills();   // ✨ 读档后技能按钮跟着来
   updateScore(); updateGold();
 }
@@ -1483,7 +1518,11 @@ document.getElementById('gearMusic').onclick = () => { toggleMusic(); };
 let gearOpen = false;
 function toggleGear(force) {
   gearOpen = force == null ? !gearOpen : force;
-  paused = gearOpen; if (gearOpen) document.getElementById('gearNext').style.display = pendingNext ? 'block' : 'none';   // 🗺️ 有下一关可去就亮出来
+  paused = gearOpen; if (gearOpen) {
+    document.getElementById('gearNext').style.display = pendingNext ? 'block' : 'none';   // 🗺️ 有下一关可去就亮出来
+    document.getElementById('gearFight').style.display = townMode ? 'block' : 'none';   // ⚔️ 小镇里能回去刷怪
+    document.getElementById('gearTown').style.display = (townUnlocked && !townMode) ? 'block' : 'none';   // 🏡 刷怪时能回小镇
+  }
   document.getElementById('gear').style.display = gearOpen ? 'flex' : 'none';
 }
 document.getElementById('gearBtn').onclick = () => toggleGear();
@@ -1568,6 +1607,7 @@ function bagTap(k) {
 }
 /* ================= 🎁 BOSS 宝箱（走近自动开：三选一；开完问要不要进下一关） ================= */
 let chest = null, pendingNext = null;   // chest={x,y,taken}；pendingNext='level'|'endless'
+let chestLatch = false, roomLatch = false;   // 🎁🏠 面板重触发闩锁
 function rollLoot() {
   const out = [], used = {};
   const kinds = ['weapon', 'gear', 'skill', 'pet'];
@@ -1638,6 +1678,82 @@ function goNextLevel() {   // 🗺️ 真正过关（旧自动过渡搬到这里
   placePortal(); placeShops(); updateScore();
   beep(600, 1200, 0.5, 'sine', 0.2); saveGame();
 }
+/* ================= 💉 无尽第 8 遍剧情：毒针→晕倒→神秘人→小镇 ================= */
+let faintDone = false, townMode = false, townUnlocked = false, ownedHouse = false, inRoom = false, storage = {};
+function startFaint() {
+  if (faintDone) return; faintDone = true; paused = true; saveGame();
+  const el = document.getElementById('faint'), txt = document.getElementById('faintTxt'), npc = document.getElementById('faintNpc'), dlg = document.getElementById('faintDlg');
+  el.style.display = 'flex'; el.style.background = 'rgba(0,0,0,0)';
+  txt.style.opacity = 1; txt.textContent = '💉 毒针！你中毒了…';
+  npc.style.display = 'none'; dlg.style.display = 'none';
+  beep(800, 200, 0.6, 'sawtooth', 0.2);
+  setTimeout(() => { el.style.background = 'rgba(0,0,0,1)'; txt.textContent = '你晕过去了…'; }, 1500);
+  setTimeout(() => { el.style.background = 'rgba(20,16,10,.94)'; txt.style.opacity = 0; npc.style.display = 'block'; dlg.style.display = 'flex'; beep(400, 700, 0.3, 'sine', 0.15); }, 3400);
+}
+document.getElementById('faintRun').onclick = () => {   // ① 跑掉继续杀怪：进度原样
+  document.getElementById('faint').style.display = 'none'; paused = false;
+  setBanner('🏃 你跑回了无尽回廊！第' + endlessRound + '遍·第' + endlessWave + '波，接着刷！');
+  saveGame();
+};
+document.getElementById('faintStay').onclick = () => {   // ② 留在这里：神秘人走了，进小镇
+  const npc = document.getElementById('faintNpc');
+  npc.style.transition = 'transform 1s, opacity 1s'; npc.style.transform = 'translateX(140px)'; npc.style.opacity = '0';
+  setTimeout(() => { document.getElementById('faint').style.display = 'none'; npc.style.cssText = ''; enterTown(); }, 1000);
+};
+/* ================= 🏡 宁静小镇（马路+商店街+小家） ================= */
+function enterTown() {
+  townMode = true; townUnlocked = true; inRoom = false; paused = false;
+  for (const z of zombies) z.dead = true;
+  earrows = []; parrows = []; garrows = []; meteors = []; puddles = []; skillShots = []; clouds = []; fxLines = []; netOrbs = null; shocks = []; chest = null;
+  player.x = WORLD.w / 2; player.y = WORLD.h / 2 - 200;
+  placeTownShops(); updateScore();
+  setBanner('🏡 宁静小镇：随便逛！马路两边全是商店'); saveGame();
+}
+function exitTown() {   // ⚔️ 继续刷怪：回到无尽进度（遍/波原样）
+  townMode = false; inRoom = false; paused = false;
+  for (const z of zombies) z.dead = true;
+  earrows = []; parrows = []; garrows = []; meteors = []; puddles = []; skillShots = []; clouds = []; fxLines = []; netOrbs = null; shocks = [];
+  player.x = WORLD.w / 2; player.y = WORLD.h / 2;
+  placeShops(); placePortal(); updateScore();
+  setBanner('🌀 回到无尽回廊：第' + endlessRound + '遍·第' + endlessWave + '波，接着刷！');
+  saveGame();
+}
+document.getElementById('gearFight').onclick = () => { toggleGear(false); exitTown(); };
+document.getElementById('gearTown').onclick = () => { toggleGear(false); enterTown(); };
+function placeTownShops() {   // 🛣️ 马路两边排排坐：8 家店 + 房产中介
+  mapShops = [];
+  const specs = [['weapon', '🗡️ 武器店'], ['gear', '🛡️ 装备店'], ['skill', '✨ 法术店'], ['pet', '🐾 宠物店'], ['weapon', '🗡️ 武器店·二店'], ['gear', '🛡️ 装备店·二店'], ['skill', '✨ 法术店·二店'], ['pet', '🐾 宠物店·二店']];
+  for (let i = 0; i < specs.length; i++) {
+    const [kind, label] = specs[i];
+    mapShops.push({ x: 480 + i * 205, y: 1200 + (i % 2 ? -110 : 110), kind, label, items: rollShopItems(kind) });
+  }
+  mapShops.push({ x: 2150, y: 1200 - 110, kind: 'house', label: '🏠 房产中介', items: [] });
+}
+function buyHouse() {
+  if (ownedHouse || player.gold < 10000) { beep(160, 90, 0.15, 'square', 0.1); return; }
+  player.gold -= 10000; ownedHouse = true; updateGold(); saveGame();
+  setBanner('🏡 买到小家啦！北边那栋蓝房子就是你的：床=睡觉回满血，柜子=存宝贝');
+  beep(660, 990, 0.2, 'square', 0.14); renderMapShop();
+}
+/* 🗄️ 大柜子：背包⇆柜子存取（武器/装备） */
+const storeEl = document.getElementById('store');
+function openStore() { paused = true; renderStore(); storeEl.style.display = 'flex'; }
+function renderStore() {
+  const sb = document.getElementById('storeBag'), sx = document.getElementById('storeBox');
+  const it = (k, act, src) => { const d = ALLITEMS[k], b = src[k]; return `<button class="bagIt off" data-${act}="${k}"><span class="bi">${d.icon}</span><span class="bn">${d.name}<span style="color:${TIERS[b.t].c}">·${TIERS[b.t].n}</span></span><span class="bs">${act === 'put' ? '🗄️ 存进去' : '🎒 拿出来'}</span></button>`; };
+  const bagKeys = Object.keys(player.bought).filter(k => invB(k));
+  sb.innerHTML = bagKeys.length ? bagKeys.map(k => it(k, 'put', player.bought)).join('') : '<div class="htxt">背包空空的</div>';
+  const boxKeys = Object.keys(storage);
+  sx.innerHTML = boxKeys.length ? boxKeys.map(k => it(k, 'take', storage)).join('') : '<div class="htxt">柜子空空的</div>';
+  for (const b of sb.querySelectorAll('button[data-put]')) b.onclick = () => { const k = b.dataset.put; storage[k] = player.bought[k]; delete player.bought[k]; delete player.owned[k]; if (player.weapon === k) player.weapon = null; applyGear(); saveGame(); renderStore(); beep(500, 700, 0.08, 'square', 0.1); };
+  for (const b of sx.querySelectorAll('button[data-take]')) b.onclick = () => { const k = b.dataset.take; player.bought[k] = storage[k]; delete storage[k]; player.owned[k] = true; applyGear(); saveGame(); renderStore(); beep(700, 900, 0.08, 'square', 0.1); };
+}
+document.getElementById('storeClose').onclick = () => { storeEl.style.display = 'none'; paused = false; };
+/* 🛏️ 床：睡觉回满血+存档 */
+const bedEl = document.getElementById('bed');
+function askBed() { paused = true; bedEl.style.display = 'flex'; }
+document.getElementById('bedYes').onclick = () => { player.hearts = player.maxHearts; saveGame(); bedEl.style.display = 'none'; paused = false; setBanner('😴 睡得真香！血全满了（已存档）'); beep(400, 800, 0.4, 'sine', 0.14); };
+document.getElementById('bedNo').onclick = () => { bedEl.style.display = 'none'; paused = false; };
 const TIERS = [
   { n: '白', c: '#e8e8e8', mul: 1 }, { n: '灰', c: '#9a9a9a', mul: 1.5 }, { n: '黑', c: '#585858', mul: 2 },
   { n: '蓝', c: '#4a8af2', mul: 2.6 }, { n: '黄', c: '#ffd24a', mul: 3.3 }, { n: '红', c: '#e84a4a', mul: 4.1 },
@@ -1691,8 +1807,12 @@ function nearShop() { for (let i = 0; i < mapShops.length; i++) if (Math.hypot(p
 function openMapShop(i) { if (i < 0) return; curShop = i; paused = true; renderMapShop(); shopEl.style.display = 'flex'; beep(500, 700, 0.1, 'sine', 0.1); }
 function renderMapShop() {
   const s = mapShops[curShop]; if (!s) return;
-  document.getElementById('shopTitle').textContent = s.label + '（打败 BOSS 刷新）';
+  document.getElementById('shopTitle').textContent = s.label;
   let h = '';
+  if (s.kind === 'house') {   // 🏠 房产中介：一万买小家
+    h = ownedHouse ? '<div class="htxt">你已经有自己的小家啦！北边那栋蓝房子就是</div>'
+      : `<div class="shopIt"><div class="ic">🏡</div><div><div class="nm">温馨小房间</div><div class="ds">有床有柜子！床能睡觉回满血+存档，柜子能存背包里的宝贝</div></div>${player.gold >= 10000 ? '<button data-house="1">💰10000</button>' : `<button disabled>💰10000（差${10000 - player.gold}）</button>`}</div>`;
+  } else if (!s.items.length) h = '<div class="htxt">货架空空啦，打死 BOSS 或过关会补货！</div>';
   for (let i = 0; i < s.items.length; i++) {
     const it = s.items[i], d = ALLITEMS[it.key];
     const tb = (s.kind === 'weapon' || s.kind === 'gear') ? `<span style="color:${TIERS[it.tier].c};font-weight:bold">［${TIERS[it.tier].n}级］</span>` : '';
@@ -1701,6 +1821,7 @@ function renderMapShop() {
     h += `<div class="shopIt"><div class="ic">${d.icon}</div><div><div class="nm">${d.name}${tb}</div><div class="ds">${d.desc}</div></div>${btn}</div>`;
   }
   shopItems.innerHTML = h;
+  const hb = shopItems.querySelector('button[data-house]'); if (hb) hb.onclick = buyHouse;
   for (const b of shopItems.querySelectorAll('button[data-ms]')) b.onclick = () => buyFromMapShop(+b.dataset.ms);
 }
 function buyFromMapShop(i) {
@@ -1735,7 +1856,7 @@ function endlessBossDown(z) {
   earrows = []; parrows = []; garrows = []; meteors = []; puddles = []; skillShots = []; clouds = []; fxLines = []; netOrbs = null; shocks = [];
   refreshShops();   // 🏪 每打败一次 BOSS，两个商店都刷新
   waveKills = 0; endlessWave++;
-  if (endlessWave > 7) { endlessWave = 1; endlessRound++; setBanner(`🌀 第 ${endlessRound} 遍开始！BOSS 又变强了！商店已刷新`); }
+  if (endlessWave > 7) { endlessWave = 1; endlessRound++; setBanner(`🌀 第 ${endlessRound} 遍开始！BOSS 又变强了！商店已刷新`); if (endlessRound >= 8 && !faintDone) setTimeout(startFaint, 1600); }   // 💉 第八遍剧情
   else setBanner(`🌀 第 ${endlessWave} 波：${LEVELS[endlessWave].name}的怪来了！商店已刷新`);
   player.hearts = player.maxHearts; placePortal();
   beep(600, 1200, 0.5, 'sine', 0.2); saveGame(); updateScore();
@@ -2119,7 +2240,23 @@ function update(dt) {
     fxLines = fxLines.filter(f => f.t > 0);
     if (!document.hidden) { saveT -= dt; if (saveT <= 0) { saveT = 2; saveGame(); } }   // 💾 每 2 秒自动存档（只有前台页面才写，后台旧页面不许盖）
     document.getElementById('enterBtn').style.display = (!gameOver && nearShop() >= 0) ? 'block' : 'none';   // 🚪 靠近商店才出现
-    if (chest && !paused && !gameOver && Math.hypot(player.x - chest.x, player.y - chest.y) < 64) { if (!chest.taken) openChest(); else if (pendingNext) askNext(); }   // 🎁 走近宝箱自动开
+    if (chest && !paused && !gameOver && !townMode) {   // 🎁 走近宝箱自动开（🔧 修复：离开 90px 才解锁，点「再逛逛」不会瞬间又弹出来）
+      const cd = Math.hypot(player.x - chest.x, player.y - chest.y);
+      if (cd > 90) chestLatch = false;
+      else if (cd < 64 && !chestLatch) { chestLatch = true; if (!chest.taken) openChest(); else if (pendingNext) askNext(); }
+    }
+    if (townMode && !paused && !gameOver) {   // 🏡 小镇里的家：门/床/柜子
+      if (ownedHouse && !inRoom && Math.hypot(player.x - 1200, player.y - 700) < 40) { inRoom = true; player.x = 1200; player.y = 1380; setBanner('🏠 到家啦！'); }
+      else if (inRoom) {
+        if (player.y > 1470) { inRoom = false; player.x = 1200; player.y = 760; }
+        else {
+          const dBed = Math.hypot(player.x - 1050, player.y - 1150), dCab = Math.hypot(player.x - 1360, player.y - 1150);
+          if (dBed > 70 && dCab > 70) roomLatch = '';
+          if (dBed < 48 && roomLatch !== 'bed') { roomLatch = 'bed'; askBed(); }
+          else if (dCab < 48 && roomLatch !== 'cab') { roomLatch = 'cab'; openStore(); }
+        }
+      }
+    }
     player.cd = Math.max(0, player.cd - dt); player.atkT = Math.max(0, player.atkT - dt); player.inv = Math.max(0, player.inv - dt); player.critT = Math.max(0, (player.critT || 0) - dt);
     player.frozenT = Math.max(0, (player.frozenT || 0) - dt);   // ❄️ 骷髅王寒冰
     player.bowCd = Math.max(0, (player.bowCd || 0) - dt);       // 🏹 弓 1 秒一支
@@ -2138,8 +2275,8 @@ function update(dt) {
         for (let i = 0; i < n; i++) spawnEnemy();
         if (n > 0) { const bb = zombies.find(z => z.boss && !z.dead); if (bb) burst(bb.x, bb.y, '#b48af2', 12); setBanner('👹 BOSS 召唤了小怪！'); beep(180, 320, 0.25, 'sawtooth', 0.15); }
       }
-    } else if (spawnT <= 0 && zombies.filter(z => !z.dead).length < cap) { spawnT = SPAWN.interval * (SPAWN_MUL[level] || 1); spawnEnemy(); }
-    if (kills >= bossAt) { bossAt += 100; spawnBoss(); }   // 👹 每满 100 杀出一只 BOSS
+    } else if (!townMode && spawnT <= 0 && zombies.filter(z => !z.dead).length < cap) { spawnT = SPAWN.interval * (SPAWN_MUL[level] || 1); spawnEnemy(); }
+    if (!townMode && kills >= bossAt) { bossAt += 100; spawnBoss(); }   // 👹 每满 100 杀出一只 BOSS
     for (const z of zombies) { if (z.dead) continue;
       if (z.boss) { bossUpdate(z, dt); continue; }   // 👹 BOSS 有自己的大脑
       z.flash = Math.max(0, z.flash - dt); z.walkT += dt; z.zapT = Math.max(0, (z.zapT || 0) - dt);
@@ -2445,14 +2582,46 @@ function draw() {
   const camY = Math.max(0, Math.min(WORLD.h - VH / Z, player.y - VH / Z / 2));
   const shx = shakeT > 0 ? (Math.random() - 0.5) * 9 : 0, shy = shakeT > 0 ? (Math.random() - 0.5) * 9 : 0;   // 💥 砸地震屏
   ctx.setTransform(DPR * Z, 0, 0, DPR * Z, (-camX + shx) * DPR * Z, (-camY + shy) * DPR * Z);
-  // 🗺️ 地面：图案填充一次铺完（棋盘相位和世界原点对齐）+ 边缘 + 视野内装饰
+  // 🗺️ 地面：小镇=草地+马路+小家；冒险=图案填充
   const LV = LEVELS[level];
-  ctx.fillStyle = groundPattern(); ctx.fillRect(camX, camY, VW, VH);
+  if (townMode) {
+    ctx.fillStyle = '#4a7a3a'; ctx.fillRect(camX, camY, VW + 2, VH + 2);   // 草地
+    if (inRoom) {   // 🏠 房间内部：木地板+墙+床+柜子+门垫
+      ctx.fillStyle = '#8a6a4a'; ctx.fillRect(950, 1050, 520, 470);
+      ctx.fillStyle = '#6a4a2e'; ctx.fillRect(950, 1050, 520, 14); ctx.fillRect(950, 1506, 520, 14); ctx.fillRect(950, 1050, 14, 470); ctx.fillRect(1456, 1050, 14, 470);
+      for (let i = 0; i < 12; i++) { ctx.fillStyle = i % 2 ? '#96755a' : '#8a6a4a'; ctx.fillRect(964, 1064 + i * 37, 492, 36); }
+      ctx.fillStyle = '#c8a86a'; ctx.fillRect(1160, 1490, 90, 18);   // 门垫
+      // 🛏️ 床
+      ctx.fillStyle = '#7a5a3a'; ctx.fillRect(1010, 1110, 90, 80);
+      ctx.fillStyle = '#4a8af2'; ctx.fillRect(1016, 1130, 78, 54);   // 蓝被子
+      ctx.fillStyle = '#fff'; ctx.fillRect(1016, 1116, 78, 16);      // 白枕头
+      // 🗄️ 柜子
+      ctx.fillStyle = '#6a4a2a'; ctx.fillRect(1330, 1100, 70, 100);
+      ctx.fillStyle = '#8a6a3f'; ctx.fillRect(1336, 1106, 58, 42); ctx.fillRect(1336, 1152, 58, 42);
+      ctx.fillStyle = '#ffd24a'; ctx.fillRect(1362, 1124, 6, 6); ctx.fillRect(1362, 1170, 6, 6);
+    } else {
+      ctx.fillStyle = '#4a4a52'; ctx.fillRect(0, 1152, WORLD.w, 96); ctx.fillRect(1152, 0, 96, WORLD.h);   // 十字马路
+      ctx.fillStyle = '#e8e8e8'; for (let x = 0; x < WORLD.w; x += 60) ctx.fillRect(x + 10, 1197, 30, 6);   // 横线
+      for (let y = 0; y < WORLD.h; y += 60) ctx.fillRect(1197, y + 10, 6, 30);   // 竖线
+      ctx.fillStyle = '#8a8a92'; ctx.fillRect(0, 1144, WORLD.w, 8); ctx.fillRect(0, 1248, WORLD.w, 8); ctx.fillRect(1144, 0, 8, WORLD.h); ctx.fillRect(1248, 0, 8, WORLD.h);   // 路缘
+      if (ownedHouse) {   // 🏡 你的蓝色小家（北边）
+        ctx.fillStyle = '#4a8af2'; ctx.fillRect(1150, 620, 100, 80);
+        ctx.fillStyle = '#2a5ab8'; ctx.beginPath(); ctx.moveTo(1140, 620); ctx.lineTo(1200, 570); ctx.lineTo(1260, 620); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#6a4a2a'; ctx.fillRect(1182, 660, 36, 40);   // 门
+        ctx.fillStyle = '#ffd24a'; ctx.fillRect(1208, 678, 5, 5);     // 门把
+      }
+    }
+  } else {
+    ctx.fillStyle = groundPattern(); ctx.fillRect(camX, camY, VW, VH);
+  }
+  if (!townMode) {   // 冒险模式才画边缘+装饰
   ctx.strokeStyle = LV.edge; ctx.lineWidth = 12; ctx.strokeRect(0, 0, WORLD.w, WORLD.h);
   for (const d of deco) { if (d.x < camX - 60 || d.x > camX + VW + 60 || d.y < camY - 60 || d.y > camY + VH + 60) continue;
     if (d.t === 'tree') { ctx.fillStyle = LV.trunk; ctx.fillRect(d.x - 4, d.y - 6, 8, 18); ctx.fillStyle = LV.leaf; ctx.beginPath(); ctx.arc(d.x, d.y - 14, 16, 0, 6.3); ctx.fill(); ctx.fillStyle = LV.leafHi; ctx.beginPath(); ctx.arc(d.x - 4, d.y - 18, 9, 0, 6.3); ctx.fill(); }
     else { ctx.fillStyle = LV.rock; ctx.beginPath(); ctx.arc(d.x, d.y, 9, 0, 6.3); ctx.fill(); ctx.fillStyle = LV.rockHi; ctx.beginPath(); ctx.arc(d.x - 2, d.y - 3, 4, 0, 6.3); ctx.fill(); } }
-  // 🏪 地图商店：小木屋+类型图标，走近提示
+  }   // 🏡 !townMode 结束
+  // 🏪 地图商店：小木屋+类型图标，走近提示（房间里不画）
+  if (!inRoom) {
   const nearI = nearShop();
   for (let si = 0; si < mapShops.length; si++) {
     const s = mapShops[si];
@@ -2462,8 +2631,9 @@ function draw() {
     if (si === nearI) { ctx.fillStyle = '#ffd24a'; ctx.font = 'bold 12px sans-serif'; ctx.fillText('按 B / 点「进入」', s.x, s.y - 32); }
     ctx.textAlign = 'left';
   }
+  }   // 🏠 !inRoom 商店结束
   // 🎁 BOSS 宝箱（金光闪闪的小木箱）
-  if (chest) {
+  if (chest && !townMode) {
     if (!chest.taken) { ctx.globalAlpha = 0.35 + Math.sin(performance.now() / 300) * 0.2; ctx.fillStyle = '#ffd24a'; ctx.beginPath(); ctx.arc(chest.x, chest.y - 2, 22, 0, 6.3); ctx.fill(); ctx.globalAlpha = 1; }
     ctx.fillStyle = '#8a5a2a'; ctx.fillRect(chest.x - 12, chest.y - 8, 24, 16);   // 箱身
     ctx.fillStyle = '#6a3f1a'; ctx.fillRect(chest.x - 12, chest.y - 8, 24, 6);    // 箱盖
@@ -2799,6 +2969,7 @@ window.G = { get player() { return player; }, get zombies() { return zombies; },
   setKills: v => { kills = v; updateScore(); }, setLevel: v => { level = v; updateScore(); renderSkills(); }, setAuto: v => { autoOn = v; autoBtn.classList.toggle('on', v); if (v) autoT = 0; }, setHold: v => { holdAtk = v; if (v) autoT = 0; },
   get skillShots() { return skillShots; }, get clouds() { return clouds; }, get fxLines() { return fxLines; }, get netOrbs() { return netOrbs; }, get shocks() { return shocks; },
   get pets() { return pets; }, get dexCounts() { return dexCounts; }, get coins() { return coins; }, get portal() { return portal; }, addPet, toggleDex, toggleBag, get skillSlots() { return skillSlots; }, get chest() { return chest; }, goNextLevel, openChest,
+  get townMode() { return townMode; }, get storage() { return storage; }, get ownedHouse() { return ownedHouse; }, get inRoom() { return inRoom; }, get faintDone() { return faintDone; }, enterTown, exitTown, startFaint, buyHouse,
   castSkill, renderSkills, ownedSkills, spawnStorm: () => { const z = makeStorm(player.x + 150, player.y, Math.random); zombies.push(z); }, spawnVoid: () => { const z = makeVoid(player.x + 150, player.y, Math.random); zombies.push(z); } };
 reset(); if (loadGame()) setBanner('💾 存档已读取，接着玩！');
 showHome();   // 🏠 开机先进主页选存档
