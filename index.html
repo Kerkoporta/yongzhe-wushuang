@@ -1895,7 +1895,7 @@ function endlessBossDown(z) {
   player.gold += 100 * endlessRound; updateGold();
   for (const o of zombies) if (o !== z) o.dead = true;
   earrows = []; parrows = []; garrows = []; meteors = []; puddles = []; skillShots = []; clouds = []; fxLines = []; netOrbs = null; shocks = [];
-  refreshShops();   // 🏪 每打败一次 BOSS，两个商店都刷新
+  placeShops();   // 🏪 无尽每打完一波 BOSS：商店重新抽签（类型+位置+货全换新的）
   waveKills = 0; endlessWave++;
   if (endlessWave > 7) { endlessWave = 1; endlessRound++; setBanner(`🌀 第 ${endlessRound} 遍开始！BOSS 又变强了！商店已刷新`); if (endlessRound >= 8 && !faintDone) setTimeout(startFaint, 1600); }   // 💉 第八遍剧情
   else setBanner(`🌀 第 ${endlessWave} 波：${LEVELS[endlessWave].name}的怪来了！商店已刷新`);
@@ -2757,12 +2757,15 @@ function draw() {
   }
   // ☄️ 陨石预警红圈（缩圈=要砸了）
   for (const m of meteors) {
-    const p = m.t / 0.8, mr = m.r || 70, mc = m.color || '#e84a4a';
-    ctx.strokeStyle = mc; ctx.globalAlpha = 0.9; ctx.lineWidth = 3;
-    ctx.beginPath(); ctx.arc(m.x, m.y, mr * p + 8, 0, Math.PI * 2); ctx.stroke();
-    ctx.globalAlpha = 0.2; ctx.fillStyle = mc; ctx.beginPath(); ctx.arc(m.x, m.y, mr * p + 8, 0, Math.PI * 2); ctx.fill();
-    ctx.globalAlpha = 1;
-    if (!m.landed) { ctx.fillStyle = '#5a3a2a'; ctx.beginPath(); ctx.arc(m.x, m.y - 200 * p - 10, 10, 0, Math.PI * 2); ctx.fill(); }   // 天上掉下来的石头
+    const mr = m.r || 70, mc = m.color || '#e84a4a';
+    if (!m.landed) {   // 🔧 预警圈只在落地前画（落地后 m.t 继续变小，半径会变负把 arc 画炸）
+      const pr = Math.max(0.1, mr * (m.t / 0.8) + 8);
+      ctx.strokeStyle = mc; ctx.globalAlpha = 0.9; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.arc(m.x, m.y, pr, 0, Math.PI * 2); ctx.stroke();
+      ctx.globalAlpha = 0.2; ctx.fillStyle = mc; ctx.beginPath(); ctx.arc(m.x, m.y, pr, 0, Math.PI * 2); ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = '#5a3a2a'; ctx.beginPath(); ctx.arc(m.x, m.y - 200 * Math.max(0, m.t / 0.8) - 10, 10, 0, Math.PI * 2); ctx.fill();   // 天上掉下来的石头
+    }
     if (m.landed && m.showT > 0 && m.bolt) {   // 🌩️ 落雷：天上一道光柱劈下
       ctx.fillStyle = '#fff'; ctx.fillRect(m.x - 4, m.y - 400, 8, 400);
       ctx.fillStyle = mc; ctx.fillRect(m.x - 8, m.y - 400, 3, 400); ctx.fillRect(m.x + 5, m.y - 400, 3, 400);
