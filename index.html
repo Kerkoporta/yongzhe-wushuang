@@ -1218,6 +1218,7 @@ function applySave(s) {
   endlessRound = s.endlessRound || 1; endlessWave = s.endlessWave || 1; waveKills = s.waveKills || 0;   // 🌀 无尽进度回来
   chest = s.chest || null; pendingNext = s.pendingNext || null;   // 🎁 没开的宝箱回来
   faintDone = !!s.faintDone; townMode = !!s.townMode; townUnlocked = !!s.townUnlocked; ownedHouse = !!s.ownedHouse; storage = s.storage || {}; inRoom = false;   // 💉🏡 剧情进度回来（进门状态不存）
+  if (level === 8 && (endlessRound > 3 || (endlessRound === 3 && endlessWave > 1))) { townUnlocked = true; faintDone = true; }   // 🏡 过了剧情点的老存档：直接解锁小镇
   if (townMode) placeTownShops(); else if (Array.isArray(s.mapShops) && s.mapShops.length === 2) mapShops = s.mapShops;   // 🏪 小镇摆商店街，冒险用存档商店
   player.weapon = (s.weapon && ALLITEMS[s.weapon]) ? s.weapon : null;   // 🌈 武器全继承：读全物品表
   applyGear();
@@ -1230,7 +1231,7 @@ function applySave(s) {
     bossAt = kills + 100;   // 下一只 BOSS 从 100 杀后再算
     setBanner('👹 ' + LEVELS[level].bossName + '回来了！');
   }
-  for (let i = 0; i < 3; i++) spawnEnemy();   // 小怪也先来三只，世界不空
+  for (let i = 0; i < 3 && !townMode; i++) spawnEnemy();   // 小怪也先来三只，世界不空（🏡小镇不刷怪）
   pets = []; for (const k of s.pets || []) { const d = ALLPETS[k]; if (d) pets.push({ key: k, name: d.name, icon: d.icon, dmg: d.dmg, cd: d.cd, range: d.range, spec: d.spec, x: player.x, y: player.y, atkT: 0, wagT: Math.random() * 9, animT: 0, state: 'wander', face: 1, restT: 0 }); }   // 🐾 宠物回来（动画字段也要带齐，不然读档第一帧就炸）
   skillSlots = (s.skillSlots || Object.keys(player.bought).filter(k => ALLKIND[k] === 'skill').slice(0, 5)).filter(k => player.bought[k]);   // ✨ 上阵技能回来（老存档默认前 5 本上阵）
   dexCounts = s.dex || {};   // 📖 图鉴回来
@@ -1240,9 +1241,11 @@ function applySave(s) {
   updateScore(); updateGold();
 }
 let saveGen = 0;
+const SAVE_KEY_TOWN = 'zombie_fight_save_town';   // 🏡 小镇独立自动存档
 function saveGame() {
   try {
     const data = JSON.stringify(packSave());
+    if (townMode) { localStorage.setItem(SAVE_KEY_TOWN, data); return; }   // 🏡 在小镇：只写小镇档，不动冒险自动档
     saveGen = 1 - saveGen;
     localStorage.setItem(SAVE_KEY + '_g' + saveGen, data);   // 🧬 双代轮换：先写新一代
     localStorage.setItem(SAVE_KEY, data);                    // 再写主档（写坏主档也有上一代兜底）
@@ -1284,14 +1287,16 @@ function closeHome() {
 }
 function renderHome() {
   const auto = readSave(SAVE_KEY);
+  const town = readSave(SAVE_KEY_TOWN);
   let h = `<div class="slot"><div class="inf">🤖 自动档（一直在记）<br>${auto ? slotInfo(auto) + (auto.when ? ' · ' + fmtWhen(auto.when) : '') : '空空的'}</div>${auto ? '<button data-play="auto">▶️ 继续</button>' : ''}</div>`;
+  if (town) h += `<div class="slot"><div class="inf">🏡 小镇自动档（一直在记）<br>🏡 宁静小镇 · 💰${town.gold || 0}${town.when ? ' · ' + fmtWhen(town.when) : ''}</div><button data-play="town">▶️ 回小镇</button></div>`;
   for (let i = 1; i <= 4; i++) {
     const s = readSave(SLOT_KEY(i));
     h += `<div class="slot"><div class="inf">📁 存档 ${i}<br>${s ? slotInfo(s) + ' · ' + fmtWhen(s.when) : '空'}</div>${s ? `<button data-play="${i}">▶️ 玩</button>` : ''}${auto ? `<button data-copy="${i}">📥 存到这</button>` : ''}</div>`;
   }
   homeSlots.innerHTML = h;
   for (const b of homeSlots.querySelectorAll('button[data-play]')) b.onclick = () => {
-    const key = b.dataset.play === 'auto' ? SAVE_KEY : SLOT_KEY(+b.dataset.play);
+    const key = b.dataset.play === 'auto' ? SAVE_KEY : b.dataset.play === 'town' ? SAVE_KEY_TOWN : SLOT_KEY(+b.dataset.play);
     const s = readSave(key);
     if (s) { gameOver = false; applySave(s); saveGame(); setBanner('💾 读取成功，出发！'); beep(600, 1000, 0.15, 'sine', 0.12); }
     closeHome();
@@ -1301,7 +1306,7 @@ function renderHome() {
     if (s) { writeSlot(+b.dataset.copy, JSON.stringify(s)); beep(700, 1000, 0.12, 'sine', 0.12); renderHome(); }
   };
 }
-document.getElementById('homeNew').onclick = () => { for (const k of [SAVE_KEY, SAVE_KEY + '_g0', SAVE_KEY + '_g1', SAVE_KEY + '_bak']) { try { localStorage.removeItem(k); } catch (e) {} } gameOver = false; reset(); closeHome(); setBanner('🆕 新的冒险开始！'); };
+document.getElementById('homeNew').onclick = () => { for (const k of [SAVE_KEY, SAVE_KEY + '_g0', SAVE_KEY + '_g1', SAVE_KEY + '_bak', SAVE_KEY_TOWN]) { try { localStorage.removeItem(k); } catch (e) {} } gameOver = false; reset(); closeHome(); setBanner('🆕 新的冒险开始！'); };
 document.getElementById('gearHome').onclick = () => { toggleGear(false); showHome(); };
 /* 🗡️ 武器招式表：每把武器的手感（含雪原 20 把） */
 const WEAPON_FX = {
@@ -1917,7 +1922,8 @@ function endlessBossDown(z) {
   earrows = []; parrows = []; garrows = []; meteors = []; puddles = []; skillShots = []; clouds = []; fxLines = []; netOrbs = null; shocks = [];
   placeShops();   // 🏪 无尽每打完一波 BOSS：商店重新抽签（类型+位置+货全换新的）
   waveKills = 0; endlessWave++;
-  if (endlessWave > 7) { endlessWave = 1; endlessRound++; setBanner(`🌀 第 ${endlessRound} 遍开始！BOSS 又变强了！商店已刷新`); if (endlessRound >= 8 && !faintDone) setTimeout(startFaint, 1600); }   // 💉 第八遍剧情
+  if (endlessWave > 7) { endlessWave = 1; endlessRound++; setBanner(`🌀 第 ${endlessRound} 遍开始！BOSS 又变强了！商店已刷新`); if (endlessRound === 3 && !faintDone && !townUnlocked) setTimeout(startFaint, 1600); }   // 💉 第三遍剧情
+  if ((endlessRound > 3 || (endlessRound === 3 && endlessWave > 1)) && !townUnlocked) { townUnlocked = true; faintDone = true; setBanner('🏡 小镇入口开启啦！点⚙️齿轮就能回小镇'); }   // 过了剧情点：直接解锁不再演戏
   else setBanner(`🌀 第 ${endlessWave} 波：${LEVELS[endlessWave].name}的怪来了！商店已刷新`);
   player.hearts = player.maxHearts; placePortal();
   beep(600, 1200, 0.5, 'sine', 0.2); saveGame(); updateScore();
