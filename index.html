@@ -1146,14 +1146,15 @@ function petsTick(dt) {
   }
 }
 /* ================= 🕳️ 神秘山洞（每关一个：金色精英怪守着金币） ================= */
+let portalDone = false;   // 打没打过也记档（防读档重打刷奖励）
 function placePortal() {
   let px, py, tries = 0;
   do { px = 200 + Math.random() * (WORLD.w - 400); py = 200 + Math.random() * (WORLD.h - 400); tries++; } while (Math.hypot(px - player.x, py - player.y) < 300 && tries < 20);
-  portal = { x: px, y: py };
+  portal = { x: px, y: py }; portalDone = false;
 }
 function portalTick(dt) {
   if (portal && Math.hypot(player.x - portal.x, player.y - portal.y) < 32) {
-    const px2 = portal.x, py2 = portal.y; portal = null;
+    const px2 = portal.x, py2 = portal.y; portal = null; portalDone = true; saveGame();   // 🕳️ 打过了立刻存档
     setBanner('🕳️ 神秘山洞！金色精英怪守着宝箱！'); beep(500, 900, 0.4, 'sine', 0.2);
     spawnEnemy();
     const ez = zombies[zombies.length - 1];
@@ -1206,6 +1207,7 @@ function packSave() {
     pets: pets.map(p => p.key), dex: dexCounts, bought: player.bought, skillSlots,
     mapShops, endlessRound, endlessWave, waveKills,
     chest: chest && { x: chest.x, y: chest.y, taken: chest.taken }, pendingNext,
+    portal: portal && { x: portal.x, y: portal.y }, portalDone: portalDone ? 1 : 0,   // 🕳️ 山洞位置+打没打过
     faintDone: faintDone ? 1 : 0, townMode: townMode ? 1 : 0, townUnlocked: townUnlocked ? 1 : 0, ownedHouse: ownedHouse ? 1 : 0, storage };   // 💉🏡剧情小镇也跟着存档走
 }
 function applySave(s) {
@@ -1235,7 +1237,9 @@ function applySave(s) {
   pets = []; for (const k of s.pets || []) { const d = ALLPETS[k]; if (d) pets.push({ key: k, name: d.name, icon: d.icon, dmg: d.dmg, cd: d.cd, range: d.range, spec: d.spec, x: player.x, y: player.y, atkT: 0, wagT: Math.random() * 9, animT: 0, state: 'wander', face: 1, restT: 0 }); }   // 🐾 宠物回来（动画字段也要带齐，不然读档第一帧就炸）
   skillSlots = (s.skillSlots || Object.keys(player.bought).filter(k => ALLKIND[k] === 'skill').slice(0, 5)).filter(k => player.bought[k]);   // ✨ 上阵技能回来（老存档默认前 5 本上阵）
   dexCounts = s.dex || {};   // 📖 图鉴回来
-  coins = []; placePortal();   // 🕳️ 新一局刷个山洞
+  coins = [];
+  portal = s.portal || null; portalDone = !!s.portalDone;   // 🕳️ 山洞原样回来（打过就不刷了）
+  if (!portal && !portalDone && !townMode) placePortal();   // 老存档没记过山洞：才新刷一个
   if (!Array.isArray(s.mapShops) || (s.mapShops.length !== 2 && !townMode)) { if (!townMode) placeShops(); }   // 🏪 存档没商店就重摆
   renderSkills();   // ✨ 读档后技能按钮跟着来
   updateScore(); updateGold();
