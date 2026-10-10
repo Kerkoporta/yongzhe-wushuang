@@ -1794,9 +1794,31 @@ function drawBench(x, y, face) {   // 整条长椅（靠背在远离喷泉的一
   ctx.fillStyle = '#8a6a3f'; ctx.fillRect(bx, y - 30, 5, 22);   // 靠背板
   ctx.fillStyle = '#a8814f'; ctx.fillRect(bx, y - 30, 5, 4);
 }
-function drawBenchFront(x, y) {   // 坐下时盖在腿前面的坐板+腿
+function drawBenchFront(x, y) {   // （退役：坐姿改真姿势后不再需要盖腿板）
   ctx.fillStyle = '#8a6a3f'; ctx.fillRect(x - 19, y - 9, 38, 8);
   ctx.fillStyle = '#5a3f24'; ctx.fillRect(x - 15, y - 2, 5, 10); ctx.fillRect(x + 10, y - 2, 5, 10);
+}
+function drawSeated(x, y, face) {   // 🪑 真·坐姿：屁股在椅上、腿前伸、小腿垂地
+  ctx.save(); ctx.translate(Math.round(x), Math.round(y)); if (face < 0) ctx.scale(-1, 1);
+  ctx.fillStyle = '#3a3a4a'; ctx.fillRect(0, -13, 11, 4);   // 大腿前伸
+  ctx.fillRect(9, -13, 4, 10);   // 小腿垂下
+  ctx.fillStyle = '#2a2a2a'; ctx.fillRect(9, -3, 6, 3);   // 鞋
+  ctx.fillStyle = '#4a7ad4'; ctx.fillRect(-7, -25, 9, 13);   // 身体（坐直）
+  ctx.fillRect(-3, -22, 4, 8);   // 手臂搭腿上
+  ctx.fillStyle = '#f0c8a0'; ctx.fillRect(-6, -33, 8, 8);   // 头
+  ctx.fillStyle = '#5a4632'; ctx.fillRect(-6, -35, 8, 3);   // 头发
+  ctx.fillStyle = '#1a1a1a'; ctx.fillRect(-2, -30, 2, 2);   // 眼
+  ctx.restore();
+}
+function drawStatue(x, y) {   // 🗿 勇者石像：基座+举剑小人
+  ctx.fillStyle = '#7a7a84'; ctx.fillRect(x - 14, y - 8, 28, 8);   // 基座
+  ctx.fillStyle = '#8f8f99'; ctx.fillRect(x - 10, y - 14, 20, 6);
+  ctx.fillStyle = '#9a9aa4';   // 石像身体
+  ctx.fillRect(x - 3, y - 30, 6, 16);   // 身
+  ctx.beginPath(); ctx.arc(x, y - 34, 4, 0, 6.3); ctx.fill();   // 头
+  ctx.fillRect(x + 3, y - 40, 3, 10);   // 举剑的手臂
+  ctx.fillStyle = '#c8c8d4'; ctx.fillRect(x + 4, y - 50, 2, 12);   // 石剑
+  ctx.fillStyle = '#6a6a74'; ctx.fillRect(x - 5, y - 20, 10, 2);   // 裙摆线
 }
 function drawLamp(x, y) {   // 💡 路灯
   ctx.fillStyle = '#4a4a52'; ctx.fillRect(x - 2, y - 34, 4, 34);
@@ -2756,6 +2778,11 @@ function draw() {
       for (const lpos of [[1000, 1625], [1400, 1625], [1000, 2055], [1400, 2055]]) drawLamp(lpos[0], lpos[1]);   // 💡 四盏路灯
       for (const fpos of [[1090, 1680], [1310, 1680], [1090, 2000], [1310, 2000]]) drawFlowerBed(fpos[0], fpos[1]);   // 🌸 四个花坛
       for (const b of BENCHES) drawBench(b.x, b.y, b.face);   // 🪑 两张长椅面朝喷泉
+      drawStatue(1100, 1500); drawStatue(1300, 1500);   // 🗿 广场北门口两座勇者石像
+      // ⭐ 喷泉周围地砖拼花（八角星）
+      ctx.strokeStyle = 'rgba(255,255,255,.25)'; ctx.lineWidth = 3; ctx.beginPath();
+      for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4; ctx.moveTo(1200 + Math.cos(a) * 62, 1840 + Math.sin(a) * 62); ctx.lineTo(1200 + Math.cos(a + 0.5) * 78, 1840 + Math.sin(a + 0.5) * 78); }
+      ctx.stroke();
     }
   } else {
     ctx.fillStyle = groundPattern(); ctx.fillRect(camX, camY, VW, VH);
@@ -3006,7 +3033,8 @@ function draw() {
     const side = Math.abs(dirH) > Math.abs(dirV);
     const spr = side ? MAN_SIDE : (dirV < 0 ? MAN_UP : MAN_DOWN), flip = side && dirH < 0;
     const bob = player.moving ? Math.abs(Math.sin(player.walkT * 9)) * 2 : 0;
-    drawSprite(ctx, spr, player.x - 12, player.y - 16 - bob, 2, flip);
+    if (sittingBench) drawSeated(player.x, player.y, sittingBench.face);   // 🪑 真坐姿
+    else drawSprite(ctx, spr, player.x - 12, player.y - 16 - bob, 2, flip);
     if (player.atkT > 0) {   // ⚔️ 攻击动作（回旋镖=真一圈扩散环；寒冰弓=更大的弧）
       const t = 1 - player.atkT / ATTACK.swing;
       ctx.strokeStyle = player.swingColor || 'rgba(255,255,255,.9)';
@@ -3031,7 +3059,6 @@ function draw() {
       ctx.drawImage(WEAPON_CANVAS[player.weapon], -8, -18);
       ctx.restore();
     }
-    if (sittingBench) drawBenchFront(sittingBench.x, sittingBench.y);   // 🪑 坐板盖住腿=坐下了
     /* 🛡️ 穿在身上的盔甲看得见：胸甲/帽子/皇冠 */
     const bobA = bob;
     if (player.owned.gold_armor || player.armor) {   // 胸甲
