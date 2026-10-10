@@ -673,7 +673,7 @@ function reset() {
   pets = []; dexCounts = {}; coins = []; skillSlots = [];   // 🐾📖🪙✨ 新冒险从零开始
   endlessRound = 1; endlessWave = 1; waveKills = 0; overRecorded = false;   // 🌀 无尽从零开始
   chest = null; pendingNext = null; chestLatch = false; roomLatch = false; plazaSeen = false;   // 🎁 宝箱清空
-  faintDone = false; townMode = false; townUnlocked = false; ownedHouse = false; inRoom = false; storage = {};   // 💉🏡 剧情小镇清零
+  faintDone = false; townMode = false; townUnlocked = false; ownedHouse = false; inRoom = false; storage = {}; sittingBench = null;   // 💉🏡 剧情小镇清零（🪑屁股也起来）
   document.getElementById('faint').style.display = 'none'; document.getElementById('bed').style.display = 'none'; storeEl.style.display = 'none';
   bossAt = 100; banner = { txt: '', t: 0 }; shakeT = 0; slamFx = null;
   level = 1; earrows = []; parrows = [];
@@ -1725,7 +1725,7 @@ function enterTown() {
   setBanner('🏡 宁静小镇：随便逛！马路两边全是商店（小镇里装备会休息哦）'); saveGame();
 }
 function exitTown() {   // ⚔️ 继续刷怪：回到无尽进度（遍/波原样）
-  townMode = false; inRoom = false; paused = false;
+  townMode = false; inRoom = false; paused = false; sittingBench = null;   // 🪑 回战场不能坐着
   for (const z of zombies) z.dead = true;
   earrows = []; parrows = []; garrows = []; meteors = []; puddles = []; skillShots = []; clouds = []; fxLines = []; netOrbs = null; shocks = [];
   player.x = WORLD.w / 2; player.y = WORLD.h / 2;
@@ -1778,6 +1778,35 @@ function drawVillager(n) {   // 像素小人：腿交替+手臂摆动；img 款=
   ctx.fillStyle = '#5a4632'; ctx.fillRect(-5, -29, 10, 4);   // 头发
   ctx.fillStyle = '#1a1a1a'; ctx.fillRect(1, -23, 2, 2);   // 眼
   ctx.restore();
+}
+/* 🪑 广场长椅 + 坐下 */
+const BENCHES = [{ x: 1000, y: 1840, face: 1 }, { x: 1400, y: 1840, face: -1 }];   // 喷泉左右各一张，面朝喷泉
+let sittingBench = null;
+function sitBench(b) {
+  sittingBench = b; player.x = b.x; player.y = b.y - 10; player.dir = b.face > 0 ? 0 : Math.PI; player.moving = false;
+  setBanner('🪑 坐下歇会儿~ 推摇杆起身'); beep(500, 700, 0.1, 'sine', 0.1); saveGame();
+}
+function drawBench(x, y, face) {   // 整条长椅（靠背在远离喷泉的一侧）
+  const bx = face > 0 ? x - 21 : x + 16;
+  ctx.fillStyle = '#5a3f24'; ctx.fillRect(x - 15, y - 2, 5, 10); ctx.fillRect(x + 10, y - 2, 5, 10);   // 腿
+  ctx.fillStyle = '#8a6a3f'; ctx.fillRect(x - 19, y - 9, 38, 8);   // 坐板
+  ctx.fillStyle = '#a8814f'; ctx.fillRect(x - 19, y - 9, 38, 3);   // 坐板亮边
+  ctx.fillStyle = '#8a6a3f'; ctx.fillRect(bx, y - 30, 5, 22);   // 靠背板
+  ctx.fillStyle = '#a8814f'; ctx.fillRect(bx, y - 30, 5, 4);
+}
+function drawBenchFront(x, y) {   // 坐下时盖在腿前面的坐板+腿
+  ctx.fillStyle = '#8a6a3f'; ctx.fillRect(x - 19, y - 9, 38, 8);
+  ctx.fillStyle = '#5a3f24'; ctx.fillRect(x - 15, y - 2, 5, 10); ctx.fillRect(x + 10, y - 2, 5, 10);
+}
+function drawLamp(x, y) {   // 💡 路灯
+  ctx.fillStyle = '#4a4a52'; ctx.fillRect(x - 2, y - 34, 4, 34);
+  ctx.fillStyle = '#ffd24a'; ctx.beginPath(); ctx.arc(x, y - 38, 5, 0, 6.3); ctx.fill();
+  ctx.globalAlpha = 0.15; ctx.fillStyle = '#ffd24a'; ctx.beginPath(); ctx.arc(x, y - 38, 13, 0, 6.3); ctx.fill(); ctx.globalAlpha = 1;
+}
+function drawFlowerBed(x, y) {   // 🌸 花坛：绿叶底+三色小花
+  ctx.fillStyle = '#2e6a2e'; ctx.beginPath(); ctx.ellipse(x, y, 26, 16, 0, 0, 6.3); ctx.fill();
+  const cols = ['#ff6a6a', '#ffd24a', '#ff9af2'];
+  for (let i = 0; i < 6; i++) { const a = i * 1.05; ctx.fillStyle = cols[i % 3]; ctx.beginPath(); ctx.arc(x + Math.cos(a) * 15, y + Math.sin(a) * 9, 2.5, 0, 6.3); ctx.fill(); }
 }
 function drawBush(x, y) {   // 🌿 广场草丛：三团绿
   ctx.fillStyle = '#2e6a2e'; ctx.beginPath(); ctx.arc(x, y, 26, 0, 6.3); ctx.fill();
@@ -1944,7 +1973,15 @@ function endlessBossDown(z) {
 /* ================= 🔍 倍数镜（1×/2×/4× 循环） ================= */
 let zoomLv = 0; const ZOOMS = [1, 2, 4];
 document.getElementById('zoomBtn').onclick = () => { zoomLv = (zoomLv + 1) % 3; document.getElementById('zoomBtn').textContent = '🔍×' + ZOOMS[zoomLv]; beep(600, 800, 0.06, 'square', 0.08); };
-document.getElementById('enterBtn').onclick = () => openMapShop(nearShop());
+/* 🎛️ 情境动作：宝箱开/下一关/进店/坐长椅，共用一个按钮和 B 键 */
+function ctxGo() {
+  const c = window.__ctx || {};
+  if (c.act === 'chest') openChest();
+  else if (c.act === 'next') askNext();
+  else if (c.act === 'shop') openMapShop(nearShop());
+  else if (c.act === 'bench' && c.bench) sitBench(c.bench);
+}
+document.getElementById('enterBtn').onclick = ctxGo;
 let AC = null;
 function beep(f0, f1, dur, type, vol) {
   try { AC = AC || new (window.AudioContext || window.webkitAudioContext)();
@@ -2066,7 +2103,7 @@ function castSkillByIndex(i) { const k = ownedSkills()[i]; if (k) castSkill(k); 
 
 /* ================= 输入：键盘 + 触屏摇杆 + 攻击钮 ================= */
 const keys = {};
-addEventListener('keydown', e => { keys[e.key.toLowerCase()] = true; if (e.key === ' ') { doAttack(); e.preventDefault(); } if (e.key.toLowerCase() === 'b') openMapShop(nearShop()); if (/^[1-9]$/.test(e.key)) castSkillByIndex(+e.key - 1); showTouch(false); });   // B：只有靠近地图商店才能进
+addEventListener('keydown', e => { keys[e.key.toLowerCase()] = true; if (e.key === ' ') { doAttack(); e.preventDefault(); } if (e.key.toLowerCase() === 'b') ctxGo(); if (/^[1-9]$/.test(e.key)) castSkillByIndex(+e.key - 1); showTouch(false); });   // B：情境动作（宝箱/进店/坐长椅）
 addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
 const joy = document.getElementById('joy'), knob = document.getElementById('joyKnob'), atkBtn = document.getElementById('atkBtn'), autoBtn = document.getElementById('autoBtn');
 let joyVec = { x: 0, y: 0 }, joyId = null, joyC = { x: 0, y: 0 };
@@ -2279,6 +2316,10 @@ function update(dt) {
       }
     } else if (!(player.frozenT > 0)) {   // ❄️ 冻住时不能动
       let mx = joyVec.x, my = joyVec.y;
+      if (sittingBench) {   // 🪑 坐着：推摇杆=起身
+        if (Math.abs(mx) + Math.abs(my) > 0.1) { sittingBench = null; setBanner('🪑 起身啦'); }
+        else { mx = 0; my = 0; }
+      }
       if (keys['a'] || keys['arrowleft']) mx -= 1; if (keys['d'] || keys['arrowright']) mx += 1;
       if (keys['w'] || keys['arrowup']) my -= 1; if (keys['s'] || keys['arrowdown']) my += 1;
       if (rotated) { const t = mx; mx = my; my = -t; }   // 🔄 转屏后输入方向跟着转 90°
@@ -2319,17 +2360,23 @@ function update(dt) {
     for (const f of fxLines) f.t -= dt;
     fxLines = fxLines.filter(f => f.t > 0);
     if (!document.hidden) { saveT -= dt; if (saveT <= 0) { saveT = 2; saveGame(); } }   // 💾 每 2 秒自动存档（只有前台页面才写，后台旧页面不许盖）
-    document.getElementById('enterBtn').style.display = (!gameOver && nearShop() >= 0) ? 'block' : 'none';   // 🚪 靠近商店才出现
+    // 🎛️ 靠近商店才出现的旧独占显示已并入下方情境按钮（勿再加回）
     if (townMode && !inRoom) {
       const fd = Math.hypot(player.x - 1200, player.y - 1840);   // ⛲ 喷泉挡路，绕圈走
       if (fd < 52 && fd > 0) { const fa = Math.atan2(player.y - 1840, player.x - 1200); player.x = 1200 + Math.cos(fa) * 52; player.y = 1840 + Math.sin(fa) * 52; }
       if (!plazaSeen && player.x > 920 && player.x < 1480 && player.y > 1560 && player.y < 2120) { plazaSeen = true; setBanner('⛲ 发现小镇广场！喷泉好凉快~'); }
     }
-    if (chest && !paused && !gameOver && !townMode) {   // 🎁 走近宝箱自动开（🔧 修复：离开 90px 才解锁，点「再逛逛」不会瞬间又弹出来）
-      const cd = Math.hypot(player.x - chest.x, player.y - chest.y);
-      if (cd > 90) chestLatch = false;
-      else if (cd < 64 && !chestLatch) { chestLatch = true; if (!chest.taken) openChest(); else if (pendingNext) askNext(); }
+    // 🎛️ 情境按钮：宝箱 > 商店 > 长椅（靠近两格内才出现，点了才动作）
+    let ctxAct = null, ctxBench = null;
+    if (!gameOver && !paused && !sittingBench) {
+      if (chest && !townMode && Math.hypot(player.x - chest.x, player.y - chest.y) < 64) ctxAct = chest.taken ? (pendingNext ? 'next' : null) : 'chest';
+      else if (nearShop() >= 0) ctxAct = 'shop';
+      else if (townMode && !inRoom) { for (const b of BENCHES) if (Math.hypot(player.x - b.x, player.y - b.y) < 64) { ctxAct = 'bench'; ctxBench = b; break; } }
     }
+    const eb = document.getElementById('enterBtn');
+    eb.style.display = ctxAct ? 'block' : 'none';
+    if (ctxAct) eb.textContent = ctxAct === 'chest' ? '🎁 打开宝箱' : ctxAct === 'next' ? '🗺️ 下一关' : ctxAct === 'bench' ? '🪑 坐下' : '🚪 进入';
+    window.__ctx = { act: ctxAct, bench: ctxBench };   // B 键/按钮共用
     if (townMode && !paused && !gameOver) {   // 🏡 小镇里的家：门/床/柜子
       if (ownedHouse && !inRoom && Math.hypot(player.x - 1200, player.y - 700) < 40) { inRoom = true; player.x = 1200; player.y = 1380; setBanner('🏠 到家啦！'); }
       else if (inRoom) {
@@ -2706,6 +2753,9 @@ function draw() {
       for (let gy = 1616; gy < 2120; gy += 56) { ctx.beginPath(); ctx.moveTo(920, gy); ctx.lineTo(1480, gy); ctx.stroke(); }
       for (const bpos of [[968, 1608], [1432, 1608], [968, 2072], [1432, 2072]]) drawBush(bpos[0], bpos[1]);   // 四角草丛
       drawFountain(1200, 1840);   // ⛲ 中央喷泉
+      for (const lpos of [[1000, 1625], [1400, 1625], [1000, 2055], [1400, 2055]]) drawLamp(lpos[0], lpos[1]);   // 💡 四盏路灯
+      for (const fpos of [[1090, 1680], [1310, 1680], [1090, 2000], [1310, 2000]]) drawFlowerBed(fpos[0], fpos[1]);   // 🌸 四个花坛
+      for (const b of BENCHES) drawBench(b.x, b.y, b.face);   // 🪑 两张长椅面朝喷泉
     }
   } else {
     ctx.fillStyle = groundPattern(); ctx.fillRect(camX, camY, VW, VH);
@@ -2974,13 +3024,14 @@ function draw() {
       }
     }
     /* 🗡️ 手里的武器看得见：像素真刀真枪，跟手转向，攻击时挥起来 */
-    if (player.weapon && WEAPON_CANVAS[player.weapon]) {
+    if (player.weapon && WEAPON_CANVAS[player.weapon] && !sittingBench) {
       const wa = player.atkT > 0 ? player.dir - 0.9 + (1 - player.atkT / ATTACK.swing) * 1.8 : player.dir + 0.55;
       const wx = player.x + Math.cos(wa) * 16, wy = player.y - 4 + Math.sin(wa) * 16;
       ctx.save(); ctx.translate(wx, wy); ctx.rotate(wa + Math.PI / 2);
       ctx.drawImage(WEAPON_CANVAS[player.weapon], -8, -18);
       ctx.restore();
     }
+    if (sittingBench) drawBenchFront(sittingBench.x, sittingBench.y);   // 🪑 坐板盖住腿=坐下了
     /* 🛡️ 穿在身上的盔甲看得见：胸甲/帽子/皇冠 */
     const bobA = bob;
     if (player.owned.gold_armor || player.armor) {   // 胸甲
