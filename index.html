@@ -1783,7 +1783,7 @@ function drawVillager(n) {   // 像素小人：腿交替+手臂摆动；img 款=
 const BENCHES = [{ x: 1000, y: 1840, face: 1 }, { x: 1400, y: 1840, face: -1 }];   // 喷泉左右各一张，面朝喷泉
 let sittingBench = null;
 function sitBench(b) {
-  sittingBench = b; player.x = b.x; player.y = b.y - 10; player.dir = b.face > 0 ? 0 : Math.PI; player.moving = false;
+  sittingBench = b; player.x = b.x; player.y = b.y; player.dir = b.face > 0 ? 0 : Math.PI; player.moving = false;   // 脚线=椅脚线，小腿正好落地
   setBanner('🪑 坐下歇会儿~ 推摇杆起身'); beep(500, 700, 0.1, 'sine', 0.1); saveGame();
 }
 function drawBench(x, y, face) {   // 整条长椅（靠背在远离喷泉的一侧）
@@ -1798,16 +1798,18 @@ function drawBenchFront(x, y) {   // （退役：坐姿改真姿势后不再需�
   ctx.fillStyle = '#8a6a3f'; ctx.fillRect(x - 19, y - 9, 38, 8);
   ctx.fillStyle = '#5a3f24'; ctx.fillRect(x - 15, y - 2, 5, 10); ctx.fillRect(x + 10, y - 2, 5, 10);
 }
-function drawSeated(x, y, face) {   // 🪑 真·坐姿：屁股在椅上、腿前伸、小腿垂地
+function drawSeated(x, y, face) {   // 🪑 真·坐姿：屁股贴椅面、大腿平放、小腿垂到地面、背靠椅背
   ctx.save(); ctx.translate(Math.round(x), Math.round(y)); if (face < 0) ctx.scale(-1, 1);
-  ctx.fillStyle = '#3a3a4a'; ctx.fillRect(0, -13, 11, 4);   // 大腿前伸
-  ctx.fillRect(9, -13, 4, 10);   // 小腿垂下
-  ctx.fillStyle = '#2a2a2a'; ctx.fillRect(9, -3, 6, 3);   // 鞋
-  ctx.fillStyle = '#4a7ad4'; ctx.fillRect(-7, -25, 9, 13);   // 身体（坐直）
-  ctx.fillRect(-3, -22, 4, 8);   // 手臂搭腿上
-  ctx.fillStyle = '#f0c8a0'; ctx.fillRect(-6, -33, 8, 8);   // 头
-  ctx.fillStyle = '#5a4632'; ctx.fillRect(-6, -35, 8, 3);   // 头发
-  ctx.fillStyle = '#1a1a1a'; ctx.fillRect(-2, -30, 2, 2);   // 眼
+  ctx.fillStyle = '#4a7ad4'; ctx.fillRect(-11, -25, 9, 16);   // 躯干（底部正好落在椅面）
+  ctx.fillRect(-8, -22, 3, 9);   // 手臂垂放身侧
+  ctx.fillStyle = '#3a3a4a';
+  ctx.fillRect(-11, -12, 9, 3);   // 屁股（坐面上）
+  ctx.fillRect(-3, -12, 12, 3);   // 大腿向前平伸
+  ctx.fillRect(7, -10, 4, 10);   // 小腿垂到地面
+  ctx.fillStyle = '#2a2a2a'; ctx.fillRect(7, -1, 6, 3);   // 鞋踩地
+  ctx.fillStyle = '#f0c8a0'; ctx.fillRect(-10, -33, 8, 8);   // 头
+  ctx.fillStyle = '#5a4632'; ctx.fillRect(-10, -35, 8, 3);   // 头发
+  ctx.fillStyle = '#1a1a1a'; ctx.fillRect(-5, -30, 2, 2);   // 眼
   ctx.restore();
 }
 function drawStatue(x, y) {   // 🗿 勇者石像：基座+举剑小人
