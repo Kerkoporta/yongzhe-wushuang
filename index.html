@@ -742,7 +742,7 @@ function buyFromShop(key) {
 /* 💎 水晶装备通用加成读取器（mod 字段，读全物品表——装备继承到哪关都生效；数值乘品质倍率） */
 function modVal(name) { let v = 0; for (const k in player.owned) { if (!player.owned[k]) continue; const m = (ALLITEMS[k] || {}).mod; if (m && m[name]) v += m[name] * T(k); } return v; }
 function modMul(name) { let v = 1; for (const k in player.owned) { if (!player.owned[k]) continue; const m = (ALLITEMS[k] || {}).mod; if (m && m[name]) v *= 1 + (m[name] - 1) * T(k); } return v; }
-/* 🎒 装备加成重算（全部数值乘品质倍率 T(k)：灰的更强、彩的最强；🏡小镇里装备全部失效） */
+/* 🎒 装备加成重算（全部数值乘品质倍率 T(k)：普通(白)的更强、神话(彩)的最强；🏡小镇里装备全部失效） */
 function applyGear() {
   const o = player.owned;
   if (townMode) {   // 🏡 小镇是和平区：装备不生效
@@ -1216,7 +1216,7 @@ function applySave(s) {
   if (s.music != null) { musicOn = !!s.music; document.getElementById('gearMusic').textContent = musicOn ? '🎵 音乐：开' : '🔇 音乐：关'; }
   if (!!s.rot !== rotated) toggleRotate();   // 🔄 转屏状态跟着存档走
   bossAt = s.bossAt || 100; level = (s.level >= 2 && s.level <= 8) ? s.level : 1;   // 先定关卡，再校验武器
-  fixOldBought();   // 🌈 老存档的武器/装备升级成白级
+  fixOldBought();   // 🌈 老存档的武器/装备升级成正式品质条目
   endlessRound = s.endlessRound || 1; endlessWave = s.endlessWave || 1; waveKills = s.waveKills || 0;   // 🌀 无尽进度回来
   chest = s.chest || null; pendingNext = s.pendingNext || null;   // 🎁 没开的宝箱回来
   faintDone = !!s.faintDone; townMode = !!s.townMode; townUnlocked = !!s.townUnlocked; ownedHouse = !!s.ownedHouse; storage = s.storage || {}; inRoom = false;   // 💉🏡 剧情进度回来（进门状态不存）
@@ -1569,7 +1569,7 @@ document.getElementById('gearNext').onclick = () => { toggleGear(false); goNextL
 function renderBag() {
   const sec = (t, n) => `<div class="shopSec">${t}</div>`;
   const tierOf = k => { const b = invB(k); return b ? `<span style="color:${TIERS[b.t].c}">·${TIERS[b.t].n}</span>` : ''; };
-  const btn = (k, it, state, on) => { const b2 = invB(k); return `<button class="bagIt ${on ? 'on' : 'off'}" data-bag="${k}"><span class="bi">${it.icon}</span><span class="bn">${it.name}${tierOf(k)}</span><span class="bs">${state}</span>${b2 && b2.w >= 2 && b2.t < 8 ? `<span class="bs" data-synth="${k}" style="background:#7a5ac8;border-radius:8px;padding:2px 6px">🔧 合成（材料×${b2.w}）</span>` : ''}${b2 ? `<span class="bs" data-sell="${k}" style="background:#8a6a3a;border-radius:8px;padding:2px 6px">💰卖${Math.round(ALLITEMS[k].price * (b2.t + 1) * 0.5)}</span>` : ''}</button>`; };
+  const btn = (k, it, state, on) => { const b2 = invB(k); return `<button class="bagIt ${on ? 'on' : 'off'}" data-bag="${k}"><span class="bi">${it.icon}</span><span class="bn">${it.name}${tierOf(k)}</span><span class="bs">${state}</span>${b2 ? `<span class="bs" data-sell="${k}" style="background:#8a6a3a;border-radius:8px;padding:2px 6px">💰卖${Math.round(ALLITEMS[k].price * (b2.t + 1) * 0.5)}</span>` : ''}</button>`; };   // 🔧 合成按钮已随系统退役（v52）
   const grid = arr => `<div class="bagGrid">${arr.join('')}</div>`;
   let h = '';
   const ws = Object.keys(player.bought).filter(k => ALLKIND[k] === 'weapon');
@@ -1585,11 +1585,9 @@ function renderBag() {
   h += sec(`🐾 宠物（最多出战 3 只：现在 ${pets.length}/3）`);
   h += ps.length ? grid(ps.map(k => { const act = pets.some(p => p.key === k); return btn(k, ALLPETS[k], act ? '🐾 出战中' : '💤 休息中', act); })) : '<div class="htxt">还没买过宠物</div>';
   bagList.innerHTML = h;
-  bagList.onclick = e => {   // 💰卖钱优先，🔧合成其次，最后换装（事件委托）
+  bagList.onclick = e => {   // 💰卖钱优先，最后换装（事件委托）；🔧合成已退役（v52）
     const se = e.target.closest('[data-sell]');
     if (se) { sellItem(se.dataset.sell); renderBag(); return; }
-    const sy = e.target.closest('[data-synth]');
-    if (sy) { synth(sy.dataset.synth); renderBag(); return; }
     const b = e.target.closest('[data-bag]');
     if (b) bagTap(b.dataset.bag);
   };
@@ -1633,7 +1631,7 @@ function rollLoot() {
     if (!pool.length) continue;
     const key = pool[Math.floor(Math.random() * pool.length)]; used[key] = true;
     let tier = 0;
-    if (kind === 'weapon' || kind === 'gear') { const r = Math.random(); tier = r < 0.6 ? 0 : r < 0.9 ? 1 : 2; }   // 白 60% 灰 30% 黑 10%
+    if (kind === 'weapon' || kind === 'gear') { const r = Math.random(); tier = r < 0.6 ? 0 : r < 0.9 ? 1 : 2; }   // 粗糙(灰) 60% 普通(白) 30% 优秀(绿) 10%
     out.push({ key, tier });
   }
   return out;
@@ -1886,28 +1884,32 @@ const bedEl = document.getElementById('bed');
 function askBed() { paused = true; bedEl.style.display = 'flex'; }
 document.getElementById('bedYes').onclick = () => { player.hearts = player.maxHearts; saveGame(); bedEl.style.display = 'none'; paused = false; setBanner('😴 睡得真香！血全满了（已存档）'); beep(400, 800, 0.4, 'sine', 0.14); };
 document.getElementById('bedNo').onclick = () => { bedEl.style.display = 'none'; paused = false; };
-const TIERS = [
-  { n: '白', c: '#e8e8e8', mul: 1 }, { n: '灰', c: '#9a9a9a', mul: 1.5 }, { n: '黑', c: '#585858', mul: 2 },
-  { n: '蓝', c: '#4a8af2', mul: 2.6 }, { n: '黄', c: '#ffd24a', mul: 3.3 }, { n: '红', c: '#e84a4a', mul: 4.1 },
-  { n: '紫', c: '#b48af2', mul: 5 }, { n: '金', c: '#ffb03d', mul: 6.2 }, { n: '彩', c: '#ff8af2', mul: 7.8 },
+const TIERS = [   // 🌍 魔兽世界稀有度色彩体系：灰粗糙→白普通→绿优秀→蓝精良→紫史诗→橙传说（封顶！金/青/彩截肢——升级石封顶橙，上面不做海报级）
+  { n: '粗糙', c: '#9d9d9d', mul: 1 },      // 灰（WoW: Poor）
+  { n: '普通', c: '#ffffff', mul: 1.5 },    // 白（Common）
+  { n: '优秀', c: '#1eff00', mul: 2 },      // 绿（Uncommon）
+  { n: '精良', c: '#0070dd', mul: 2.6 },    // 蓝（Rare）
+  { n: '史诗', c: '#a335ee', mul: 3.3 },    // 紫（Epic）
+  { n: '传说', c: '#ff8000', mul: 4.1 },    // 橙（Legendary，封顶）
 ];
-function invB(k) { const b = player.bought[k]; return (b && b.t != null) ? b : null; }   // 武器/装备的 {t:品质, w:白材料数}
+const MAX_TIER = TIERS.length - 1;   // 🛡️ 品质天花板=橙：跟着天梯表自动走
+function invB(k) { const b = player.bought[k]; return (b && b.t != null) ? b : null; }   // 武器/装备的 {t:品质, w:材料数}
 function T(k) { const b = invB(k); return b ? TIERS[b.t].mul : 1; }   // 品质倍率
-function fixOldBought() { for (const k in player.bought) if (player.bought[k] === true && (ALLKIND[k] === 'weapon' || ALLKIND[k] === 'gear')) player.bought[k] = { t: 0, w: 0 }; }   // 老存档升级
+function fixOldBought() {   // 老存档升级：true→{t,w}；品质天梯换成魔兽世界稀有度色彩体系（级别序号不变自动映射，超纲的压到封顶级）
+  for (const k in player.bought) {
+    if (player.bought[k] === true && (ALLKIND[k] === 'weapon' || ALLKIND[k] === 'gear')) player.bought[k] = { t: 0, w: 0 };
+    const b = player.bought[k];
+    if (b && b.t != null && b.t > MAX_TIER) b.t = MAX_TIER;
+  }
+}
 function addToInv(key, tier) {
   const kind = ALLKIND[key];
   if (kind !== 'weapon' && kind !== 'gear') return false;
   const b = invB(key);
   if (!b) { player.bought[key] = { t: tier, w: 0 }; player.owned[key] = true; if (kind === 'weapon') player.weapon = key; }
-  else if (tier === 0) { b.w += 1; setBanner(`🌈 又一件${ALLITEMS[key].name}（白）变成材料啦（材料×${b.w}，2 个合 1 级）`); }
   applyGear(); return true;
 }
-function synth(key) {
-  const b = invB(key); if (!b || b.w < 2 || b.t >= 8) return;
-  b.w -= 2; b.t += 1;
-  setBanner(`🌈 合成成功！${ALLITEMS[key].name} 升到 ${TIERS[b.t].n} 级！`);
-  beep(600, 1200, 0.3, 'sine', 0.18); applyGear(); saveGame();
-}
+/* 🔧 合成系统已退役（v52）：商店宝箱永不出重复装备→材料永远凑不齐→合成是摆设；升级全靠升级石 */
 /* ================= 🏪 地图实体商店（每关 2 个随机类型，走近按 B / 点「进入」） ================= */
 const SHOP_TYPES = [['weapon', '🗡️ 武器店', 50], ['gear', '🛡️ 装备店', 30], ['skill', '✨ 法术店', 20], ['pet', '🐾 宠物店', 30]];
 const SHOP_ICON = { weapon: '🗡️', gear: '🛡️', skill: '✨', pet: '🐾' };
@@ -1919,10 +1921,15 @@ function rollShopItems(kind) {
     return !player.bought[k];   // 技能/宠物：已有的不卖
   });
   for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); const t = pool[i]; pool[i] = pool[j]; pool[j] = t; }
-  return pool.slice(0, 6).map((k, i) => {
-    const tier = (kind === 'weapon' || kind === 'gear') && i >= 4 ? 1 : 0;   // 6 件里 4 白 2 灰
+  const items = pool.slice(0, 6).map((k, i) => {
+    const tier = (kind === 'weapon' || kind === 'gear') && i >= 4 ? 1 : 0;   // 6 件里 4 灰 2 白
     return { key: k, tier, price: ALLITEMS[k].price * (tier === 1 ? 2 : 1), sold: false };
   });
+  // 🔷 升级石：武器店每件货 1% 概率变成石头（恩泽设计：稀有的工匠，一块升一级，封顶橙·传说）
+  if (kind === 'weapon') for (let i = 0; i < items.length; i++) {
+    if (Math.random() < 0.01) items[i] = { stone: true, price: level === 8 ? 3000 : 300, sold: false };   // 无尽涨价（恩泽定的：普通 300 / 无尽 3000）
+  }
+  return items;
 }
 function placeShops() {
   mapShops = [];
@@ -1946,10 +1953,16 @@ function renderMapShop() {
       : `<div class="shopIt"><div class="ic">🏡</div><div><div class="nm">温馨小房间</div><div class="ds">有床有柜子！床能睡觉回满血+存档，柜子能存背包里的宝贝</div></div>${player.gold >= 10000 ? '<button data-house="1">💰10000</button>' : `<button disabled>💰10000（差${10000 - player.gold}）</button>`}</div>`;
   } else if (!s.items.length) h = '<div class="htxt">货架空空啦，打死 BOSS 或过关会补货！</div>';
   for (let i = 0; i < s.items.length; i++) {
-    const it = s.items[i], d = ALLITEMS[it.key];
-    const tb = (s.kind === 'weapon' || s.kind === 'gear') ? `<span style="color:${TIERS[it.tier].c};font-weight:bold">［${TIERS[it.tier].n}级］</span>` : '';
+    const it = s.items[i];
     const btn = it.sold ? '<button disabled>卖光了</button>'
       : player.gold >= it.price ? `<button data-ms="${i}">💰${it.price}</button>` : `<button disabled>💰${it.price}（差${it.price - player.gold}）</button>`;
+    if (it.stone) {   // 🔷 升级石
+      const wb = invB(player.weapon), full = wb && wb.t >= MAX_TIER;
+      h += `<div class="shopIt"><div class="ic">🔷</div><div><div class="nm" style="color:#a8d8ff;font-weight:bold">升级石</div><div class="ds">工匠当场把「${ALLITEMS[player.weapon] ? ALLITEMS[player.weapon].name : '武器'}」升一级（最高橙·传说）${full ? '——你手里这把已经是传说啦！' : ''}</div></div>${full ? '<button disabled>已满级</button>' : btn}</div>`;
+      continue;
+    }
+    const d = ALLITEMS[it.key];
+    const tb = (s.kind === 'weapon' || s.kind === 'gear') ? `<span style="color:${TIERS[it.tier].c};font-weight:bold">［${TIERS[it.tier].n}］</span>` : '';
     h += `<div class="shopIt"><div class="ic">${d.icon}</div><div><div class="nm">${d.name}${tb}</div><div class="ds">${d.desc}</div></div>${btn}</div>`;
   }
   shopItems.innerHTML = h;
@@ -1959,6 +1972,16 @@ function renderMapShop() {
 function buyFromMapShop(i) {
   const s = mapShops[curShop]; if (!s) return;
   const it = s.items[i]; if (!it || it.sold || player.gold < it.price) { beep(160, 90, 0.15, 'square', 0.1); return; }
+  if (it.stone) {   // 🔷 升级石：工匠当场把手里的武器升一级（封顶橙·传说）
+    if (!player.weapon) { setBanner('🔷 你手上空空的！先买一把武器再来找工匠'); beep(160, 90, 0.15, 'square', 0.1); return; }
+    let wb = invB(player.weapon);
+    if (!wb) { addToInv(player.weapon, 0); wb = invB(player.weapon); }   // 武器没进过背包：先登记再升
+    if (wb.t >= MAX_TIER) { setBanner('🔷 工匠挠头：这把已经到顶啦！'); beep(160, 90, 0.15, 'square', 0.1); return; }
+    wb.t += 1; it.sold = true; player.gold -= it.price;
+    setBanner(`🔷 叮叮当当！${ALLITEMS[player.weapon].name} 升到 ${TIERS[wb.t].n}！`);
+    beep(600, 900, 0.15, 'square', 0.16); setTimeout(() => beep(900, 1400, 0.2, 'square', 0.14), 140);
+    applyGear(); updateGold(); saveGame(); renderMapShop(); return;
+  }
   player.gold -= it.price; it.sold = true;
   if (s.kind === 'weapon' || s.kind === 'gear') addToInv(it.key, it.tier);
   else if (s.kind === 'skill') { player.bought[it.key] = true; player.owned[it.key] = true; if (skillSlots.length < 5 && !skillSlots.includes(it.key)) skillSlots.push(it.key); else setBanner('✨ 技能位满啦，它在背包里休息'); renderSkills(); }
