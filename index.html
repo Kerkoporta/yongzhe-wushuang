@@ -762,6 +762,7 @@ function applyGear() {
     + g('cloud_hat', 1) + g('sky_stone', 2) + g('cloud_seat', 1) + g('thunder_crown', 2)
     + g('void_helm', 1) + g('starlight_stone', 2) + g('blackhole_stone', 3) + g('darkstar_crown', 2)
     + modVal('heart');
+  if (player.job === 'mage') player.maxHearts = 2.5 + (player.maxHearts - PLAYER.hearts) * 0.5;   // 🔮 法师代价：初始 2.5 格血，加血装备只发挥一半
   player.regenDelay = o.medkit ? REGEN.delay / 2 : REGEN.delay;
   if (o.snow_medkit || o.hell_map || o.cosmic_map || modVal('map')) player.regenDelay = Math.max(1, player.regenDelay - 1);
   player.regenEvery = (o.medkit || o.warm_hearth || o.soul_heart || o.magma_core_heart || o.thunder_heart || o.abyss_heart || modVal('regen') >= 2) ? REGEN.every / 2 : REGEN.every;
@@ -1689,15 +1690,16 @@ function openChest() {
 function takeLoot(i) {
   const L = chest.loot && chest.loot[i]; if (!L) return;
   const kind = ALLKIND[L.key];
-  if (kind === 'awaken') {   // 🌟 觉醒石：成为刺客！
-    player.job = 'assassin';
+  if (kind === 'awaken') {   // 🌟 觉醒石：随机觉醒一个职业（恩泽定的：不许挑）
+    player.job = Math.random() < 0.5 ? 'assassin' : 'mage';
     for (let j = 0; j < 30; j++) burst(player.x + (Math.random() - 0.5) * 120, player.y + (Math.random() - 0.5) * 120, ['#b48af2', '#ffd24a', '#ffffff'][j % 3]);
     beep(600, 1200, 0.3, 'sine', 0.18); setTimeout(() => beep(800, 1600, 0.3, 'sine', 0.16), 200);
+    applyGear(); player.hearts = Math.min(player.hearts, player.maxHearts);   // 🔮 法师觉醒当场血量腰斩
   }
   else if (kind === 'weapon' || kind === 'gear') addToInv(L.key, L.tier);
   else if (kind === 'skill') { player.bought[L.key] = true; player.owned[L.key] = true; if (skillSlots.length < 5 && !skillSlots.includes(L.key)) skillSlots.push(L.key); else setBanner('✨ 技能位满啦，它在背包里休息'); renderSkills(); }
   else if (kind === 'pet') { player.bought[L.key] = true; player.owned[L.key] = true; addPet(L.key); }
-  setBanner(kind === 'awaken' ? '🌟 觉醒成功！你是【刺客】：射箭→点「⚡传送」→落地一刀×2！' : '🎁 拿到 ' + ALLITEMS[L.key].name + '！');
+  setBanner(kind === 'awaken' ? (player.job === 'mage' ? '🔮 觉醒成功！你是【法师】：武器附魔+15%，法杖再+15%，剑能放剑风，箭带燃烧——但你只有 2.5 格血！' : '🌟 觉醒成功！你是【刺客】：射箭→点「⚡传送」→落地一刀×2！') : '🎁 拿到 ' + ALLITEMS[L.key].name + '！');
   beep(880, 1320, 0.2, 'square', 0.14);
   chest.loot = null;
   document.getElementById('chestLoot').style.display = 'none';
@@ -2177,7 +2179,7 @@ let skillRefs = [];
 const ALLITEMS = {}; for (const t of [SHOP, SHOP2, SHOP3, SHOP4, SHOP5, SHOP6, SHOP7]) for (const k in t) ALLITEMS[k] = t[k];   // 全关卡物品表（继承的技能跨关也能用）
 /* 🥷 职业物品（v54）：不进商店货架、不进宝箱抽奖池，只能靠剧情获得 */
 const CLASS_ITEMS = {
-  awaken_stone: { name: '觉醒石', icon: '🌟', price: 0, kind: 'awaken', desc: '觉醒职业：刺客！射箭后可传送到箭的落点，落地一刀伤害×2' },
+  awaken_stone: { name: '觉醒石', icon: '🌟', price: 0, kind: 'awaken', desc: '随机觉醒职业：刺客（传送连招）或法师（附魔玻璃大炮）！' },
   assassin_dagger: { name: '刺客匕首', icon: '🔪', price: 0, kind: 'weapon', desc: '刺客的终结武器：传送落地后的那一刀' },
 };
 Object.assign(ALLITEMS, CLASS_ITEMS); ALLKIND.awaken_stone = 'awaken'; ALLKIND.assassin_dagger = 'weapon';
@@ -2302,6 +2304,8 @@ function doAttack(fromAuto) {
   player.atkT = ATTACK.swing; swingDir = -swingDir;   // ↔️ 左右交替挥剑（恩泽点的：先左到右，再右到左）
   let dmg = (fx.dmg || 1) * T(player.weapon) + (player.dmgAdd || 0);   // 🌈 武器伤害乘品质；👑 皇冠伤害+1
   if (assassinStrike) dmg *= 2;   // 🥷 刺客落地一刀：×2
+  if (player.job === 'mage') dmg *= 1.15;   // 🔮 法师附魔：所有武器 +15%
+  if (player.job === 'mage' && fx.staff) dmg *= 1.15;   // 🔮 法杖火球再 +15%
   if (player.owned.berserk && player.hearts <= 2) dmg *= 1.5;   // 💢 狂暴
   if (player.owned.hellhound && player.hearts <= 2) dmg *= 1.5; // 🦷 犬牙
   if (player.owned.magma_tattoo && player.hearts <= 2) dmg *= 1.5;   // 🐉 纹身
@@ -2321,6 +2325,7 @@ function doAttack(fromAuto) {
     const ang = tgt ? Math.atan2(tgt.y - player.y, tgt.x - player.x) : player.dir;
     parrows.push({ x: player.x + Math.cos(ang) * 14, y: player.y - 6 + Math.sin(ang) * 14, vx: Math.cos(ang) * 380, vy: Math.sin(ang) * 380, t: 0.42, dmg, freeze: fx.freezeDur !== 0, freezeDur: fx.freezeDur || 1.5, soul: fx.bow === 'soul', burn: fx.bow === 'fire', volt: fx.bow === 'volt', voidz: fx.bow === 'void' });
     if (player.job === 'assassin') parrows[parrows.length - 1].asTp = true;   // 🥷 刺客的箭=传送信标
+    if (player.job === 'mage') parrows[parrows.length - 1].mageBurn = true;   // 🔮 法师的箭带燃烧
     player.dir = ang; player.swingColor = fx.color; player.swingRange = 26; player.swingCircle = false;
     beep(880, 440, 0.09, 'square', 0.1);
     return;
@@ -2334,6 +2339,7 @@ function doAttack(fromAuto) {
     const ang = tgt ? Math.atan2(tgt.y - player.y, tgt.x - player.x) : player.dir;
     const spd = fx.gun ? 560 : 320;
     parrows.push({ x: player.x + Math.cos(ang) * 14, y: player.y - 6 + Math.sin(ang) * 14, vx: Math.cos(ang) * spd, vy: Math.sin(ang) * spd, t: fx.gun ? 0.29 : 0.5, dmg: dmg * (fx.staff ? 0.6 : 2), magic: !!fx.staff, bullet: !!fx.gun, mcolor: fx.color, burn: !!fx.burn, volt: !!fx.zapPct });
+    if (player.job === 'mage') parrows[parrows.length - 1].mageBurn = true;   // 🔮 法师的法弹/子弹也带燃烧
     player.dir = ang; player.swingColor = fx.color; player.swingRange = 26; player.swingCircle = false;
     beep(fx.gun ? 220 : 990, fx.gun ? 110 : 660, fx.gun ? 0.14 : 0.07, 'square', fx.gun ? 0.16 : 0.09);
     return;
@@ -2363,6 +2369,9 @@ function doAttack(fromAuto) {
   if (assassinStrike) {   // 🥷 落地一刀已挥出：×2 用完，换回弓
     assassinStrike = false; assassinSwapT = 0;
     if (prevBow) { player.weapon = prevBow; prevBow = null; setBanner('🏹 一击得手，换回弓！'); }
+  }
+  if (player.job === 'mage') {   // 🌪️ 法师剑风：挥剑放出 4 格剑气，碰到的怪掉 1 血（穿透，一只只刮一次）
+    parrows.push({ wave: true, x: player.x + Math.cos(player.dir) * 20, y: player.y - 6 + Math.sin(player.dir) * 20, vx: Math.cos(player.dir) * 300, vy: Math.sin(player.dir) * 300, t: 0.43, dmg: 1, hitIds: {} });
   }
   if (fx.doublePct && Math.random() < fx.doublePct) {   // 👻 幻影匕首：幻影再砍一刀
     const hits2 = attackHit(player, zombies, opts);
@@ -2524,6 +2533,10 @@ function update(dt) {
     for (const z of zombies) { if (z.dead) continue;
       if (z.boss) { bossUpdate(z, dt); continue; }   // 👹 BOSS 有自己的大脑
       z.flash = Math.max(0, z.flash - dt); z.walkT += dt; z.zapT = Math.max(0, (z.zapT || 0) - dt);
+      if (z.mageBurnT > 0) {   // 🔮 法师附火：每 0.1 秒掉 0.1 血（2 秒共 2 血，恩泽定的数值）
+        z.mageBurnT -= dt; z.mageBurnAcc = (z.mageBurnAcc || 0) + dt;
+        if (z.mageBurnAcc >= 0.1) { z.mageBurnAcc -= 0.1; z.hp -= 0.1; z.flash = 0.1; dotBurst(z.x, z.y, '#ff9a3d'); if (z.hp <= 0) { killZombie(z); continue; } }
+      }
       if (z.burnT > 0) {   // 🔥 点燃掉血：每 0.1 秒掉十分之一
         z.burnT -= dt; z.burnAcc = (z.burnAcc || 0) + dt;
         if (z.burnAcc >= 0.1) { z.burnAcc -= 0.1; z.hp -= dotDmg(z); z.flash = 0.1; dotBurst(z.x, z.y, '#ff9a3d'); if (z.hp <= 0) { killZombie(z); continue; } }
@@ -2714,7 +2727,14 @@ function update(dt) {
       for (const z of zombies) {
         if (z.dead) continue;
         if (Math.hypot(a.x - z.x, a.y - z.y) < (z.r || ZOMBIE.r) + 6) {
+          if (a.wave) {   // 🌪️ 法师剑风：穿透，一只怪只刮一次
+            if (a.hitIds[z.id]) continue; a.hitIds[z.id] = 1;
+            z.hp -= a.dmg; z.flash = 0.12; burst(a.x, a.y, '#a8e8ff', 4);
+            if (z.hp <= 0) killZombie(z);
+            continue;
+          }
           z.hp -= a.dmg; z.flash = 0.12; a.t = 0;
+          if (a.mageBurn && !z.dead) { z.mageBurnT = 2; z.mageBurnAcc = 0; }   // 🔮 法师附火
           if (a.freeze && !z.boss && !z.dead) { z.freezeT = Math.max(z.freezeT || 0, a.freezeDur || 1.5); burst(z.x, z.y, '#a8e8ff', 8); }
           if (a.burn && !z.dead) { z.burnT = 2; z.burnAcc = 0; }   // 🔥 火箭点燃
           if (a.volt && !z.dead) { z.hp -= 2; z.zapT = 0.12; burst(z.x, z.y, '#ffe84a', 8); }   // ⚡ 电光箭追加电击
@@ -3104,7 +3124,14 @@ function draw() {
     } else a.soul ? drawArrow(a, '#4ac8c0', '#8ff2ea') : a.volt ? drawArrow(a, '#8a8a1a', '#ffe84a') : drawArrow(a, '#8a6a38', '#f0e6b0');
   }
   for (const a of parrows) {
-    if (a.magic) {   // 🪄 魔法弹：彩色光球+白芯
+    if (a.wave) {   // 🌪️ 法师剑风：月牙气浪
+      ctx.save(); ctx.translate(a.x, a.y); ctx.rotate(Math.atan2(a.vy, a.vx));
+      ctx.globalAlpha = Math.min(1, a.t * 3); ctx.strokeStyle = '#a8e8ff'; ctx.lineWidth = 4;
+      ctx.beginPath(); ctx.arc(0, 0, 14, -0.9, 0.9); ctx.stroke();
+      ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(0, 0, 10, -0.9, 0.9); ctx.stroke();
+      ctx.restore(); ctx.globalAlpha = 1;
+    } else if (a.magic) {   // 🪄 魔法弹：彩色光球+白芯
       ctx.globalAlpha = 0.9; ctx.fillStyle = a.mcolor || '#ff9a3d';
       ctx.beginPath(); ctx.arc(a.x, a.y, 5, 0, 6.3); ctx.fill();
       ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(a.x, a.y, 2.2, 0, 6.3); ctx.fill(); ctx.globalAlpha = 1;
