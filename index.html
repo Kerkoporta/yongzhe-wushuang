@@ -93,6 +93,7 @@
 <canvas id="mapC" width="112" height="112"></canvas>
 <button id="zoomBtn">🔍×1</button>
 <button id="enterBtn">🚪 进入</button>
+<button id="tpBtn" style="display:none;position:fixed;left:50%;bottom:150px;transform:translateX(-50%);z-index:7;background:linear-gradient(#7a4ad4,#5a2ab0);color:#fff;border:3px solid #b48aff;border-radius:16px;padding:12px 26px;font-weight:bold;font-size:19px;box-shadow:0 4px 14px rgba(120,60,220,.55);cursor:pointer">⚡ 传送</button>
 <div id="gear"><div id="gearCard">
   <div style="font-size:22px;font-weight:bold;margin-bottom:8px">⚙️ 设置</div>
   <button id="gearBag">🎒 背包</button>
@@ -479,6 +480,7 @@ for (const key in WEAPON_SPRITES) {
   drawSprite(octx, WEAPON_SPRITES[key], 0, 0, 2, false);
   WEAPON_CANVAS[key] = oc;
 }
+WEAPON_CANVAS.assassin_dagger = WEAPON_CANVAS.stone_sword;   // 🥷 职业匕首先用石剑贴图
 /* ================= 游戏状态 ================= */
 const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
 const mapCtx = document.getElementById('mapC').getContext('2d');   // 🗺️ 小地图
@@ -670,6 +672,7 @@ function bossUpdate(z, dt) {
 }
 function reset() {
   player = makePlayer(); zombies = []; kills = 0; spawnT = 1; summonT = 10; parts = []; gameOver = false;
+  player.job = null;   // 🥷 新冒险：无职业，等宝箱觉醒
   pets = []; dexCounts = {}; coins = []; skillSlots = [];   // 🐾📖🪙✨ 新冒险从零开始
   endlessRound = 1; endlessWave = 1; waveKills = 0; overRecorded = false;   // 🌀 无尽从零开始
   chest = null; pendingNext = null; chestLatch = false; roomLatch = false; plazaSeen = false;   // 🎁 宝箱清空
@@ -677,6 +680,7 @@ function reset() {
   document.getElementById('faint').style.display = 'none'; document.getElementById('bed').style.display = 'none'; storeEl.style.display = 'none';
   bossAt = 100; banner = { txt: '', t: 0 }; shakeT = 0; slamFx = null;
   hurtT = 0; deathT = 0; swingDir = 1; prevHearts = 99;   // 💥💀↔️ 动作状态清零
+  tpWindowT = 0; tpLand = null; prevBow = null; assassinStrike = false; assassinSwapT = 0;   // 🥷 刺客状态清零
   level = 1; earrows = []; parrows = [];
   autoOn = false; holdAtk = false; autoT = 0; autoBtn.classList.remove('on');
   skillShots = []; clouds = []; fxLines = []; netOrbs = null; shocks = [];
@@ -1146,6 +1150,31 @@ function petsTick(dt) {
     }
   }
 }
+/* 🥷 刺客传送：到箭落点→落地无敌 0.5s→自动切最强近战（没有就发职业匕首）→一刀×2→砍完或 2 秒换回弓 */
+function doAssassinTp() {
+  if (!(player.job === 'assassin' && tpWindowT > 0 && tpLand)) return;
+  player.x = tpLand.x; player.y = tpLand.y; tpWindowT = 0; tpLand = null;
+  player.inv = Math.max(player.inv, 0.5);
+  prevBow = player.weapon;
+  let best = null, bestD = -1;
+  for (const k in player.bought) {
+    if (ALLKIND[k] !== 'weapon') continue;
+    const fxk = WEAPON_FX[k] || {};
+    if (fxk.bow || fxk.staff || fxk.gun) continue;   // 只挑近战
+    const dps = (fxk.dmg || 1) * T(k);
+    if (dps > bestD) { bestD = dps; best = k; }
+  }
+  if (!best) {   // 没有近战武器：发职业匕首
+    if (!player.bought.assassin_dagger) { player.bought.assassin_dagger = { t: 0, w: 0 }; player.owned.assassin_dagger = true; }
+    best = 'assassin_dagger';
+  }
+  player.weapon = best; assassinStrike = true; assassinSwapT = 2;
+  burst(player.x, player.y, '#b48af2', 14); setBanner('⚡ 传送！落地一刀×2！'); beep(300, 900, 0.15, 'square', 0.16);
+  saveGame();
+}
+document.getElementById('tpBtn').onclick = doAssassinTp;
+/* 🥷 刺客（v54）：状态组 */
+let tpWindowT = 0, tpLand = null, prevBow = null, assassinStrike = false, assassinSwapT = 0;
 /* ================= 🕳️ 神秘山洞（每关一个：金色精英怪守着金币） ================= */
 let portalDone = false;   // 打没打过也记档（防读档重打刷奖励）
 let hurtT = 0, deathT = 0, swingDir = 1, prevHearts = 99;   // 💥受击后仰/💀死亡倒下/↔️左右挥剑（v53）
@@ -1205,6 +1234,7 @@ let saveT = 2;
 function packSave() {
   const boss = zombies.find(z => z.boss && !z.dead && !z.fake);
   return { kills, gold: player.gold, weapon: player.weapon, owned: player.owned, hearts: player.hearts, bossAt, level, music: musicOn ? 1 : 0, rot: rotated ? 1 : 0, when: Date.now(), sid: mySid,
+    job: player.job || null,   // 🥷 职业跟着存档走
     bossAlive: boss ? 1 : 0, bossHp: boss ? boss.hp : 0,
     pets: pets.map(p => p.key), dex: dexCounts, bought: player.bought, skillSlots,
     mapShops, endlessRound, endlessWave, waveKills,
@@ -1214,6 +1244,7 @@ function packSave() {
 }
 function applySave(s) {
   kills = s.kills || 0; player.gold = s.gold || 0; player.owned = s.owned || {};
+  player.job = s.job || null;   // 🥷 职业回来
   player.bought = s.bought || Object.assign({}, player.owned);   // 🎒 老存档没有 bought：拿 owned 顶上
   if (s.music != null) { musicOn = !!s.music; document.getElementById('gearMusic').textContent = musicOn ? '🎵 音乐：开' : '🔇 音乐：关'; }
   if (!!s.rot !== rotated) toggleRotate();   // 🔄 转屏状态跟着存档走
@@ -1641,6 +1672,7 @@ function rollLoot() {
 }
 function openChest() {
   chest.loot = rollLoot(); chest.taken = true; paused = true;
+  if (!player.job) chest.loot[0] = { key: 'awaken_stone', tier: 0 };   // 🌟 没觉醒职业？每关宝箱保底一颗觉醒石（恩泽定的规矩）
   document.getElementById('chest').style.display = 'flex';
   document.getElementById('chestNext').style.display = 'none';
   document.getElementById('chestHint').textContent = '三选一！点一张拿走';
@@ -1648,7 +1680,7 @@ function openChest() {
   lo.innerHTML = chest.loot.map((L, i) => {
     const d = ALLITEMS[L.key], kind = ALLKIND[L.key];
     const tb = (kind === 'weapon' || kind === 'gear') ? `<div style="color:${TIERS[L.tier].c};font-weight:bold">［${TIERS[L.tier].n}级］</div>` : '';
-    const kn = { weapon: '🗡️武器', gear: '🛡️装备', skill: '✨技能', pet: '🐾宠物' }[kind];
+    const kn = { weapon: '🗡️武器', gear: '🛡️装备', skill: '✨技能', pet: '🐾宠物', awaken: '🌟职业' }[kind];
     return `<button class="chestIt" data-loot="${i}"><div style="font-size:34px">${d.icon}</div><div style="font-weight:bold;font-size:13px">${d.name}</div>${tb}<div style="font-size:10px;opacity:.7">${kn}</div><div style="font-size:11px;opacity:.85">${d.desc}</div></button>`;
   }).join('');
   for (const b of lo.querySelectorAll('button[data-loot]')) b.onclick = () => takeLoot(+b.dataset.loot);
@@ -1657,10 +1689,15 @@ function openChest() {
 function takeLoot(i) {
   const L = chest.loot && chest.loot[i]; if (!L) return;
   const kind = ALLKIND[L.key];
-  if (kind === 'weapon' || kind === 'gear') addToInv(L.key, L.tier);
+  if (kind === 'awaken') {   // 🌟 觉醒石：成为刺客！
+    player.job = 'assassin';
+    for (let j = 0; j < 30; j++) burst(player.x + (Math.random() - 0.5) * 120, player.y + (Math.random() - 0.5) * 120, ['#b48af2', '#ffd24a', '#ffffff'][j % 3]);
+    beep(600, 1200, 0.3, 'sine', 0.18); setTimeout(() => beep(800, 1600, 0.3, 'sine', 0.16), 200);
+  }
+  else if (kind === 'weapon' || kind === 'gear') addToInv(L.key, L.tier);
   else if (kind === 'skill') { player.bought[L.key] = true; player.owned[L.key] = true; if (skillSlots.length < 5 && !skillSlots.includes(L.key)) skillSlots.push(L.key); else setBanner('✨ 技能位满啦，它在背包里休息'); renderSkills(); }
   else if (kind === 'pet') { player.bought[L.key] = true; player.owned[L.key] = true; addPet(L.key); }
-  setBanner('🎁 拿到 ' + ALLITEMS[L.key].name + '！');
+  setBanner(kind === 'awaken' ? '🌟 觉醒成功！你是【刺客】：射箭→点「⚡传送」→落地一刀×2！' : '🎁 拿到 ' + ALLITEMS[L.key].name + '！');
   beep(880, 1320, 0.2, 'square', 0.14);
   chest.loot = null;
   document.getElementById('chestLoot').style.display = 'none';
@@ -1920,7 +1957,8 @@ let mapShops = [], curShop = -1;
 function rollShopType() { const tot = SHOP_TYPES.reduce((s, t) => s + t[2], 0); let r = Math.random() * tot; for (const t of SHOP_TYPES) { r -= t[2]; if (r <= 0) return t; } return SHOP_TYPES[0]; }
 function rollShopItems(kind) {
   const pool = Object.keys(ALLITEMS).filter(k => ALLKIND[k] === kind).filter(k => {
-    if (kind === 'weapon' || kind === 'gear') { const b = player.bought[k]; return !invB(k); }   // 武器/装备：已有的不再卖（白装靠重复买变材料，见下）
+    if (CLASS_ITEMS[k]) return false;   // 🥷 职业物品不上货架
+    if (kind === 'weapon' || kind === 'gear') { const b = player.bought[k]; return !invB(k); }   // 武器/装备：已有的不再卖
     return !player.bought[k];   // 技能/宠物：已有的不卖
   });
   for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); const t = pool[i]; pool[i] = pool[j]; pool[j] = t; }
@@ -2137,6 +2175,13 @@ function castSkill(key) {
 const skillsEl = document.getElementById('skills');
 let skillRefs = [];
 const ALLITEMS = {}; for (const t of [SHOP, SHOP2, SHOP3, SHOP4, SHOP5, SHOP6, SHOP7]) for (const k in t) ALLITEMS[k] = t[k];   // 全关卡物品表（继承的技能跨关也能用）
+/* 🥷 职业物品（v54）：不进商店货架、不进宝箱抽奖池，只能靠剧情获得 */
+const CLASS_ITEMS = {
+  awaken_stone: { name: '觉醒石', icon: '🌟', price: 0, kind: 'awaken', desc: '觉醒职业：刺客！射箭后可传送到箭的落点，落地一刀伤害×2' },
+  assassin_dagger: { name: '刺客匕首', icon: '🔪', price: 0, kind: 'weapon', desc: '刺客的终结武器：传送落地后的那一刀' },
+};
+Object.assign(ALLITEMS, CLASS_ITEMS); ALLKIND.awaken_stone = 'awaken'; ALLKIND.assassin_dagger = 'weapon';
+WEAPON_FX.assassin_dagger = { dmg: 2, cdMul: 0.8, color: '#b48af2' };
 function ownedSkills() { return skillSlots.filter(k => player.bought[k] && ALLKIND[k] === 'skill'); }   // ✨ 只有上阵的 5 个技能显示按钮
 function renderSkills() {
   const keys = ownedSkills(), s = ALLITEMS;
@@ -2256,6 +2301,7 @@ function doAttack(fromAuto) {
   player.atkCount = (player.atkCount || 0) + 1;
   player.atkT = ATTACK.swing; swingDir = -swingDir;   // ↔️ 左右交替挥剑（恩泽点的：先左到右，再右到左）
   let dmg = (fx.dmg || 1) * T(player.weapon) + (player.dmgAdd || 0);   // 🌈 武器伤害乘品质；👑 皇冠伤害+1
+  if (assassinStrike) dmg *= 2;   // 🥷 刺客落地一刀：×2
   if (player.owned.berserk && player.hearts <= 2) dmg *= 1.5;   // 💢 狂暴
   if (player.owned.hellhound && player.hearts <= 2) dmg *= 1.5; // 🦷 犬牙
   if (player.owned.magma_tattoo && player.hearts <= 2) dmg *= 1.5;   // 🐉 纹身
@@ -2274,6 +2320,7 @@ function doAttack(fromAuto) {
     for (const z of zombies) { if (z.dead) continue; const d = Math.hypot(z.x - player.x, z.y - player.y); if (d < best) { best = d; tgt = z; } }
     const ang = tgt ? Math.atan2(tgt.y - player.y, tgt.x - player.x) : player.dir;
     parrows.push({ x: player.x + Math.cos(ang) * 14, y: player.y - 6 + Math.sin(ang) * 14, vx: Math.cos(ang) * 380, vy: Math.sin(ang) * 380, t: 0.42, dmg, freeze: fx.freezeDur !== 0, freezeDur: fx.freezeDur || 1.5, soul: fx.bow === 'soul', burn: fx.bow === 'fire', volt: fx.bow === 'volt', voidz: fx.bow === 'void' });
+    if (player.job === 'assassin') parrows[parrows.length - 1].asTp = true;   // 🥷 刺客的箭=传送信标
     player.dir = ang; player.swingColor = fx.color; player.swingRange = 26; player.swingCircle = false;
     beep(880, 440, 0.09, 'square', 0.1);
     return;
@@ -2313,6 +2360,10 @@ function doAttack(fromAuto) {
   if (fx.kbMul) opts.kbMul = (opts.kbMul || 1) * fx.kbMul;
   const preX = player.x, preY = player.y;   // 🗡️ 光影剑：记下原点，0.5 秒后闪回
   const hits = attackHit(player, zombies, opts);
+  if (assassinStrike) {   // 🥷 落地一刀已挥出：×2 用完，换回弓
+    assassinStrike = false; assassinSwapT = 0;
+    if (prevBow) { player.weapon = prevBow; prevBow = null; setBanner('🏹 一击得手，换回弓！'); }
+  }
   if (fx.doublePct && Math.random() < fx.doublePct) {   // 👻 幻影匕首：幻影再砍一刀
     const hits2 = attackHit(player, zombies, opts);
     for (const z of hits2) if (!hits.includes(z)) hits.push(z);
@@ -2359,6 +2410,13 @@ function update(dt) {
   hurtT = Math.max(0, hurtT - dt);   // 💥 受击后仰计时
   if (player.hearts < prevHearts) hurtT = 0.28;   // 掉血瞬间后仰一下
   prevHearts = player.hearts;
+  // 🥷 刺客计时：传送窗口 + 超时换回弓
+  if (tpWindowT > 0) tpWindowT = Math.max(0, tpWindowT - dt);
+  if (assassinSwapT > 0) {
+    assassinSwapT = Math.max(0, assassinSwapT - dt);
+    if (assassinSwapT === 0 && prevBow) { player.weapon = prevBow; prevBow = null; assassinStrike = false; setBanner('🏹 两秒到，换回弓'); }
+  }
+  document.getElementById('tpBtn').style.display = (player.job === 'assassin' && tpWindowT > 0 && tpLand && !gameOver && !paused && !townMode) ? 'block' : 'none';
   if (gameOver) { deathT += dt; const ov = document.getElementById('over'); if (ov) ov.style.display = deathT > 1.2 ? 'flex' : 'none'; }   // 💀 先看倒下动画，1.2 秒后才弹面板
   if (!gameOver) {
     /* 🗡️ 光影剑残影中：不能移动、全程无敌、0.5 秒到点闪回原点 */
@@ -2667,6 +2725,7 @@ function update(dt) {
         }
       }
     }
+    for (const a of parrows) if (a.asTp && a.t <= 0 && !a.asDone) { a.asDone = true; tpLand = { x: a.x, y: a.y }; tpWindowT = 2; }   // 🥷 刺客：箭消失处开 2 秒传送门
     parrows = parrows.filter(a => a.t > 0 && a.x > 0 && a.x < WORLD.w && a.y > 0 && a.y < WORLD.h);
   }
   for (const pt of parts) { pt.t -= dt; pt.x += pt.vx * dt; pt.y += pt.vy * dt; pt.vy += 260 * dt; }
