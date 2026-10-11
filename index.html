@@ -676,6 +676,7 @@ function reset() {
   faintDone = false; townMode = false; townUnlocked = false; ownedHouse = false; inRoom = false; storage = {}; sittingBench = null;   // 💉🏡 剧情小镇清零（🪑屁股也起来）
   document.getElementById('faint').style.display = 'none'; document.getElementById('bed').style.display = 'none'; storeEl.style.display = 'none';
   bossAt = 100; banner = { txt: '', t: 0 }; shakeT = 0; slamFx = null;
+  hurtT = 0; deathT = 0; swingDir = 1; prevHearts = 99;   // 💥💀↔️ 动作状态清零
   level = 1; earrows = []; parrows = [];
   autoOn = false; holdAtk = false; autoT = 0; autoBtn.classList.remove('on');
   skillShots = []; clouds = []; fxLines = []; netOrbs = null; shocks = [];
@@ -1147,6 +1148,7 @@ function petsTick(dt) {
 }
 /* ================= 🕳️ 神秘山洞（每关一个：金色精英怪守着金币） ================= */
 let portalDone = false;   // 打没打过也记档（防读档重打刷奖励）
+let hurtT = 0, deathT = 0, swingDir = 1, prevHearts = 99;   // 💥受击后仰/💀死亡倒下/↔️左右挥剑（v53）
 function placePortal() {
   let px, py, tries = 0;
   do { px = 200 + Math.random() * (WORLD.w - 400); py = 200 + Math.random() * (WORLD.h - 400); tries++; } while (Math.hypot(px - player.x, py - player.y) < 300 && tries < 20);
@@ -1223,8 +1225,9 @@ function applySave(s) {
   if (level === 8 && (endlessRound > 3 || (endlessRound === 3 && endlessWave > 1))) { townUnlocked = true; faintDone = true; }   // 🏡 过了剧情点的老存档：直接解锁小镇
   if (townMode) placeTownShops(); else if (Array.isArray(s.mapShops) && s.mapShops.length === 2) mapShops = s.mapShops;   // 🏪 小镇摆商店街，冒险用存档商店
   player.weapon = (s.weapon && ALLITEMS[s.weapon]) ? s.weapon : null;   // 🌈 武器全继承：读全物品表
-  applyGear();
+  applyGear(); hurtT = 0; deathT = 0;   // 读档不触发后仰/倒下
   player.hearts = Math.min(player.maxHearts, Math.max(1, s.hearts || player.maxHearts));
+  prevHearts = player.hearts;   // 要在血量恢复之后再对表
   zombies = []; garrows = []; meteors = []; puddles = []; shocks = []; netOrbs = null;   // 读档清场重摆
   if (s.bossAlive) {   // 👹 存档时场上有 BOSS：立刻召唤回来，血还是原来那些
     spawnBoss();
@@ -2251,7 +2254,7 @@ function doAttack(fromAuto) {
     player.cd = ATTACK.cd * (fx.cdMul || 1) * (player.cdMulGear || 1);   // 🔨🧤 攻速加成
   }
   player.atkCount = (player.atkCount || 0) + 1;
-  player.atkT = ATTACK.swing;
+  player.atkT = ATTACK.swing; swingDir = -swingDir;   // ↔️ 左右交替挥剑（恩泽点的：先左到右，再右到左）
   let dmg = (fx.dmg || 1) * T(player.weapon) + (player.dmgAdd || 0);   // 🌈 武器伤害乘品质；👑 皇冠伤害+1
   if (player.owned.berserk && player.hearts <= 2) dmg *= 1.5;   // 💢 狂暴
   if (player.owned.hellhound && player.hearts <= 2) dmg *= 1.5; // 🦷 犬牙
@@ -2353,6 +2356,10 @@ function update(dt) {
   if (paused) return;   // 🏪 逛商店时僵尸等你
   banner.t = Math.max(0, banner.t - dt); shakeT = Math.max(0, shakeT - dt);
   if (slamFx) { slamFx.t -= dt; if (slamFx.t <= 0) slamFx = null; }
+  hurtT = Math.max(0, hurtT - dt);   // 💥 受击后仰计时
+  if (player.hearts < prevHearts) hurtT = 0.28;   // 掉血瞬间后仰一下
+  prevHearts = player.hearts;
+  if (gameOver) { deathT += dt; const ov = document.getElementById('over'); if (ov) ov.style.display = deathT > 1.2 ? 'flex' : 'none'; }   // 💀 先看倒下动画，1.2 秒后才弹面板
   if (!gameOver) {
     /* 🗡️ 光影剑残影中：不能移动、全程无敌、0.5 秒到点闪回原点 */
     if (player.tpT > 0) {
@@ -3058,7 +3065,14 @@ function draw() {
     const side = Math.abs(dirH) > Math.abs(dirV);
     const spr = side ? MAN_SIDE : (dirV < 0 ? MAN_UP : MAN_DOWN), flip = side && dirH < 0;
     const bob = player.moving ? Math.abs(Math.sin(player.walkT * 9)) * 2 : 0;
-    if (sittingBench) drawSeated(player.x, player.y, sittingBench.face);   // 🪑 真坐姿
+    if (gameOver) {   // 💀 死亡动画：缓缓倒下+淡出
+      ctx.save(); ctx.globalAlpha = Math.max(0, 1 - deathT / 1.15);
+      ctx.translate(Math.round(player.x), Math.round(player.y - 6)); ctx.rotate(Math.min(1.5, deathT * 2.6));
+      drawSprite(ctx, spr, -12, -10, 2, flip); ctx.restore(); ctx.globalAlpha = 1;
+    } else if (hurtT > 0) {   // 💥 受击后仰：往后一仰
+      ctx.save(); ctx.translate(Math.round(player.x), Math.round(player.y)); ctx.rotate(-0.38 * (hurtT / 0.28));
+      drawSprite(ctx, spr, -12, -16 - bob, 2, flip); ctx.restore();
+    } else if (sittingBench) drawSeated(player.x, player.y, sittingBench.face);   // 🪑 真坐姿
     else drawSprite(ctx, spr, player.x - 12, player.y - 16 - bob, 2, flip);
     if (player.atkT > 0) {   // ⚔️ 攻击动作（回旋镖=真一圈扩散环；寒冰弓=更大的弧）
       const t = 1 - player.atkT / ATTACK.swing;
@@ -3070,15 +3084,16 @@ function draw() {
         ctx.beginPath(); ctx.arc(player.x, player.y - 4, 6 + t * (player.swingRange - 18), 0, Math.PI * 2); ctx.stroke();
         ctx.globalAlpha = 1;
       } else {
-        const a0 = player.dir - 0.9 + t * 1.8, rr = player.swingRange || 26;
+        const a0 = player.dir + swingDir * (-0.9 + t * 1.8), rr = player.swingRange || 26;   // ↔️ 弧光跟着左右交替
         ctx.lineWidth = 5;
-        ctx.beginPath(); ctx.arc(player.x, player.y - 4, rr, a0 - 0.35, a0 + 0.35); ctx.stroke();
+        ctx.beginPath(); ctx.arc(player.x, player.y - 4, rr, Math.min(a0 - 0.35, a0 + 0.35), Math.max(a0 - 0.35, a0 + 0.35)); ctx.stroke();
         ctx.fillStyle = '#d8d8e8'; ctx.fillRect(player.x + Math.cos(a0) * rr - 3, player.y - 4 + Math.sin(a0) * rr - 3, 7, 7);
       }
     }
-    /* 🗡️ 手里的武器看得见：像素真刀真枪，跟手转向，攻击时挥起来 */
-    if (player.weapon && WEAPON_CANVAS[player.weapon] && !sittingBench) {
-      const wa = player.atkT > 0 ? player.dir - 0.9 + (1 - player.atkT / ATTACK.swing) * 1.8 : player.dir + 0.55;
+    /* 🗡️ 手里的武器看得见：像素真刀真枪，跟手转向，攻击时挥起来（远程=举弓瞄准；近战=左右交替挥） */
+    if (player.weapon && WEAPON_CANVAS[player.weapon] && !sittingBench && !gameOver && hurtT <= 0) {
+      const fxw = WEAPON_FX[player.weapon] || {}, isRanged = fxw.bow || fxw.staff || fxw.gun;
+      const wa = player.atkT > 0 ? (isRanged ? player.dir : player.dir + swingDir * (-0.9 + (1 - player.atkT / ATTACK.swing) * 1.8)) : player.dir + 0.55;
       const wx = player.x + Math.cos(wa) * 16, wy = player.y - 4 + Math.sin(wa) * 16;
       ctx.save(); ctx.translate(wx, wy); ctx.rotate(wa + Math.PI / 2);
       ctx.drawImage(WEAPON_CANVAS[player.weapon], -8, -18);
