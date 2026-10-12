@@ -481,6 +481,7 @@ for (const key in WEAPON_SPRITES) {
   WEAPON_CANVAS[key] = oc;
 }
 WEAPON_CANVAS.assassin_dagger = WEAPON_CANVAS.stone_sword;   // 🥷 职业匕首先用石剑贴图
+WEAPON_CANVAS.wood_sword = WEAPON_CANVAS.stone_sword;   // ⚔️ 木剑也先用石剑贴图
 /* ================= 游戏状态 ================= */
 const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
 const mapCtx = document.getElementById('mapC').getContext('2d');   // 🗺️ 小地图
@@ -672,7 +673,7 @@ function bossUpdate(z, dt) {
 }
 function reset() {
   player = makePlayer(); zombies = []; kills = 0; spawnT = 1; summonT = 10; parts = []; gameOver = false;
-  player.job = null;   // 🥷 新冒险：无职业，等宝箱觉醒
+  player.job = null; player.offhand = null; warriorHand = false; lastSwingKey = null;   // 🥷⚔️ 新冒险：无职业无副手，等宝箱觉醒
   pets = []; dexCounts = {}; coins = []; skillSlots = [];   // 🐾📖🪙✨ 新冒险从零开始
   endlessRound = 1; endlessWave = 1; waveKills = 0; overRecorded = false;   // 🌀 无尽从零开始
   chest = null; pendingNext = null; chestLatch = false; roomLatch = false; plazaSeen = false;   // 🎁 宝箱清空
@@ -1235,7 +1236,7 @@ let saveT = 2;
 function packSave() {
   const boss = zombies.find(z => z.boss && !z.dead && !z.fake);
   return { kills, gold: player.gold, weapon: player.weapon, owned: player.owned, hearts: player.hearts, bossAt, level, music: musicOn ? 1 : 0, rot: rotated ? 1 : 0, when: Date.now(), sid: mySid,
-    job: player.job || null,   // 🥷 职业跟着存档走
+    job: player.job || null, offhand: player.offhand || null,   // 🥷⚔️ 职业和副手跟着存档走
     bossAlive: boss ? 1 : 0, bossHp: boss ? boss.hp : 0,
     pets: pets.map(p => p.key), dex: dexCounts, bought: player.bought, skillSlots,
     mapShops, endlessRound, endlessWave, waveKills,
@@ -1246,6 +1247,7 @@ function packSave() {
 function applySave(s) {
   kills = s.kills || 0; player.gold = s.gold || 0; player.owned = s.owned || {};
   player.job = s.job || null;   // 🥷 职业回来
+  player.offhand = (s.offhand && ALLITEMS[s.offhand]) ? s.offhand : null;   // ⚔️ 副手回来（只认全物品表里的）
   player.bought = s.bought || Object.assign({}, player.owned);   // 🎒 老存档没有 bought：拿 owned 顶上
   if (s.music != null) { musicOn = !!s.music; document.getElementById('gearMusic').textContent = musicOn ? '🎵 音乐：开' : '🔇 音乐：关'; }
   if (!!s.rot !== rotated) toggleRotate();   // 🔄 转屏状态跟着存档走
@@ -1608,8 +1610,9 @@ function renderBag() {
   const grid = arr => `<div class="bagGrid">${arr.join('')}</div>`;
   let h = '';
   const ws = Object.keys(player.bought).filter(k => ALLKIND[k] === 'weapon');
-  h += sec('🗡️ 武器（点一下拿手上，只能拿一把）');
-  h += ws.length ? grid(ws.map(k => btn(k, ALLITEMS[k], player.weapon === k ? '✅ 手上拿着' : '点我装备', player.weapon === k))) : '<div class="htxt">还没买过武器，去商店看看！</div>';
+  const isWar = player.job === 'warrior';
+  h += sec(isWar ? '⚔️ 武器（战士双持：点一件上主手，再点一件同类型的上副手）' : '🗡️ 武器（点一下拿手上，只能拿一把）');
+  h += ws.length ? grid(ws.map(k => btn(k, ALLITEMS[k], player.weapon === k ? '✅ 主手拿着' : (isWar && player.offhand === k) ? '🤚 副手拿着' : '点我装备', player.weapon === k || player.offhand === k))) : '<div class="htxt">还没买过武器，去商店看看！</div>';
   const gs = Object.keys(player.bought).filter(k => ALLKIND[k] === 'gear');
   h += sec('🛡️ 装备（默认装着，点一下卸下/装上）');
   h += gs.length ? grid(gs.map(k => btn(k, ALLITEMS[k], player.owned[k] ? '✅ 装着' : '💤 卸下了', !!player.owned[k]))) : '<div class="htxt">还没买过装备</div>';
@@ -1633,13 +1636,26 @@ function sellItem(k) {
   const price = Math.round(ALLITEMS[k].price * (b.t + 1) * 0.5);
   player.gold += price; delete player.bought[k]; delete player.owned[k];
   if (player.weapon === k) player.weapon = null;
+  if (player.offhand === k) player.offhand = null;   // ⚔️ 副手也卸
   applyGear(); updateGold();
   setBanner(`💰 卖掉了 ${ALLITEMS[k].name}，+${price} 金币！`);
   beep(900, 1300, 0.1, 'sine', 0.12); saveGame();
 }
 function bagTap(k) {
   const kind = ALLKIND[k];
-  if (kind === 'weapon') { player.weapon = player.weapon === k ? null : k; beep(700, 900, 0.08, 'square', 0.1); }
+  if (kind === 'weapon') {
+    if (player.job === 'warrior') {   // ⚔️ 战士：点一件上主手，再点同类型的上副手；点手上的卸下
+      if (player.weapon === k) { player.weapon = player.offhand; player.offhand = null; }
+      else if (player.offhand === k) player.offhand = null;
+      else if (!player.weapon) player.weapon = k;
+      else if (!player.offhand) {
+        if (weapFam(k) === weapFam(player.weapon) && weapFam(k) !== 'staff') player.offhand = k;
+        else { player.weapon = k; setBanner('⚔️ 双持只能用同类型的武器，法杖不能双持！已换到主手'); }
+      }
+      else { player.weapon = k; if (player.offhand && (weapFam(player.offhand) !== weapFam(k) || weapFam(k) === 'staff')) player.offhand = null; }
+    } else player.weapon = player.weapon === k ? null : k;
+    beep(700, 900, 0.08, 'square', 0.1);
+  }
   else if (kind === 'gear') { player.owned[k] = !player.owned[k]; applyGear(); player.hearts = Math.min(player.hearts, player.maxHearts); beep(500, 700, 0.08, 'square', 0.1); }
   else if (kind === 'skill') {
     if (skillSlots.includes(k)) skillSlots = skillSlots.filter(s => s !== k);
@@ -1691,7 +1707,11 @@ function takeLoot(i) {
   const L = chest.loot && chest.loot[i]; if (!L) return;
   const kind = ALLKIND[L.key];
   if (kind === 'awaken') {   // 🌟 觉醒石：随机觉醒一个职业（恩泽定的：不许挑）
-    player.job = Math.random() < 0.5 ? 'assassin' : 'mage';
+    player.job = ['assassin', 'mage', 'warrior'][Math.floor(Math.random() * 3)];
+    if (player.job === 'warrior') {   // ⚔️ 战士开局：双木剑人手一把
+      player.bought.wood_sword = { t: 0, w: 0 }; player.owned.wood_sword = true;
+      player.weapon = 'wood_sword'; player.offhand = 'wood_sword';
+    }
     for (let j = 0; j < 30; j++) burst(player.x + (Math.random() - 0.5) * 120, player.y + (Math.random() - 0.5) * 120, ['#b48af2', '#ffd24a', '#ffffff'][j % 3]);
     beep(600, 1200, 0.3, 'sine', 0.18); setTimeout(() => beep(800, 1600, 0.3, 'sine', 0.16), 200);
     applyGear(); player.hearts = Math.min(player.hearts, player.maxHearts);   // 🔮 法师觉醒当场血量腰斩
@@ -1699,7 +1719,7 @@ function takeLoot(i) {
   else if (kind === 'weapon' || kind === 'gear') addToInv(L.key, L.tier);
   else if (kind === 'skill') { player.bought[L.key] = true; player.owned[L.key] = true; if (skillSlots.length < 5 && !skillSlots.includes(L.key)) skillSlots.push(L.key); else setBanner('✨ 技能位满啦，它在背包里休息'); renderSkills(); }
   else if (kind === 'pet') { player.bought[L.key] = true; player.owned[L.key] = true; addPet(L.key); }
-  setBanner(kind === 'awaken' ? (player.job === 'mage' ? '🔮 觉醒成功！你是【法师】：武器附魔+15%，法杖再+15%，剑能放剑风，箭带燃烧——但你只有 2.5 格血！' : '🌟 觉醒成功！你是【刺客】：射箭→点「⚡传送」→落地一刀×2！') : '🎁 拿到 ' + ALLITEMS[L.key].name + '！');
+  setBanner(kind === 'awaken' ? (player.job === 'mage' ? '🔮 觉醒成功！你是【法师】：武器附魔+15%，法杖再+15%，剑能放剑风，箭带燃烧——但你只有 2.5 格血！' : player.job === 'warrior' ? '⚔️ 觉醒成功！你是【战士】：双手各持一把剑轮流砍，双剑=300° 大扇形！法杖只能发挥九成' : '🌟 觉醒成功！你是【刺客】：射箭→点「⚡传送」→落地一刀×2！') : '🎁 拿到 ' + ALLITEMS[L.key].name + '！');
   beep(880, 1320, 0.2, 'square', 0.14);
   chest.loot = null;
   document.getElementById('chestLoot').style.display = 'none';
@@ -2179,11 +2199,13 @@ let skillRefs = [];
 const ALLITEMS = {}; for (const t of [SHOP, SHOP2, SHOP3, SHOP4, SHOP5, SHOP6, SHOP7]) for (const k in t) ALLITEMS[k] = t[k];   // 全关卡物品表（继承的技能跨关也能用）
 /* 🥷 职业物品（v54）：不进商店货架、不进宝箱抽奖池，只能靠剧情获得 */
 const CLASS_ITEMS = {
-  awaken_stone: { name: '觉醒石', icon: '🌟', price: 0, kind: 'awaken', desc: '随机觉醒职业：刺客（传送连招）或法师（附魔玻璃大炮）！' },
+  awaken_stone: { name: '觉醒石', icon: '🌟', price: 0, kind: 'awaken', desc: '随机觉醒职业：刺客（传送连招）、法师（附魔玻璃大炮）或战士（双持大扇形）！' },
   assassin_dagger: { name: '刺客匕首', icon: '🔪', price: 0, kind: 'weapon', desc: '刺客的终结武器：传送落地后的那一刀' },
+  wood_sword: { name: '木剑', icon: '🗡️', price: 0, kind: 'weapon', desc: '战士的入门剑，开局人手一把' },
 };
-Object.assign(ALLITEMS, CLASS_ITEMS); ALLKIND.awaken_stone = 'awaken'; ALLKIND.assassin_dagger = 'weapon';
+Object.assign(ALLITEMS, CLASS_ITEMS); ALLKIND.awaken_stone = 'awaken'; ALLKIND.assassin_dagger = 'weapon'; ALLKIND.wood_sword = 'weapon';
 WEAPON_FX.assassin_dagger = { dmg: 2, cdMul: 0.8, color: '#b48af2' };
+WEAPON_FX.wood_sword = { dmg: 1, cdMul: 1, color: '#c89058' };
 function ownedSkills() { return skillSlots.filter(k => player.bought[k] && ALLKIND[k] === 'skill'); }   // ✨ 只有上阵的 5 个技能显示按钮
 function renderSkills() {
   const keys = ownedSkills(), s = ALLITEMS;
@@ -2293,16 +2315,24 @@ function killZombie(z) {
   beep(320, 60, 0.22, 'sawtooth', 0.12);
   setTimeout(() => beep(700 + Math.min(6, g) * 80, 1100, 0.12, 'sine', 0.1), 100);
 }
+/* ⚔️ 战士（v56）：双持状态 */
+let warriorHand = false, lastSwingKey = null;
+const weapFam = k => { const f = WEAPON_FX[k] || {}; return f.bow ? 'bow' : f.staff ? 'staff' : f.gun ? 'gun' : 'melee'; };   // 武器家族：近战/弓/法杖/枪
 function doAttack(fromAuto) {
   if (gameOver || paused || player.tpT > 0 || player.frozenT > 0) return;   // 🗡️残影/❄️冻结中不能出手
-  const fx = WEAPON_FX[player.weapon] || {};
+  let handKey = player.weapon;
+  const dualOk = player.job === 'warrior' && !!player.offhand && weapFam(player.offhand) === weapFam(player.weapon) && weapFam(player.weapon) !== 'staff';   // 双持：同类型才行，法杖不行
+  if (dualOk) { warriorHand = !warriorHand; handKey = warriorHand ? player.offhand : player.weapon; }   // 左右手轮流
+  lastSwingKey = handKey;
+  const fx = WEAPON_FX[handKey] || {};
   if (!fromAuto) {   // 手动点：走武器冷却；自动/按住：外面 0.2 秒一刀管着
     if (player.cd > 0) return;
-    player.cd = ATTACK.cd * (fx.cdMul || 1) * (player.cdMulGear || 1);   // 🔨🧤 攻速加成
+    player.cd = ATTACK.cd * (fx.cdMul || 1) * (player.cdMulGear || 1) * (dualOk ? 0.5 : 1);   // 🔨🧤 攻速加成；⚔️ 双持轮流=攻速翻倍
   }
   player.atkCount = (player.atkCount || 0) + 1;
   player.atkT = ATTACK.swing; swingDir = -swingDir;   // ↔️ 左右交替挥剑（恩泽点的：先左到右，再右到左）
-  let dmg = (fx.dmg || 1) * T(player.weapon) + (player.dmgAdd || 0);   // 🌈 武器伤害乘品质；👑 皇冠伤害+1
+  let dmg = (fx.dmg || 1) * T(handKey) + (player.dmgAdd || 0);   // 🌈 按出手的那只手算伤害
+  if (player.job === 'warrior' && fx.staff) dmg *= 0.9;   // ⚔️ 战士拿法杖只能发挥九成
   if (assassinStrike) dmg *= 2;   // 🥷 刺客落地一刀：×2
   if (player.job === 'mage') dmg *= 1.15;   // 🔮 法师附魔：所有武器 +15%
   if (player.job === 'mage' && fx.staff) dmg *= 1.15;   // 🔮 法杖火球再 +15%
@@ -2345,7 +2375,7 @@ function doAttack(fromAuto) {
     return;
   }
   /* 🔱 木矛：自动戳向周围 120 内最近的怪（360° 不用转身）；周围没怪才挥弧 */
-  if (player.weapon === 'spear') {
+  if (handKey === 'spear') {
     let tgt = null, best = 120;
     for (const z of zombies) { if (z.dead) continue; const d = Math.hypot(z.x - player.x, z.y - player.y); if (d < best) { best = d; tgt = z; } }
     if (tgt) {
@@ -2360,6 +2390,7 @@ function doAttack(fromAuto) {
       return;
     }
   }
+  if (dualOk && weapFam(handKey) === 'melee') opts.arc = Math.PI * 5 / 3;   // ⚔️ 双剑专属：300° 大扇形（后方 60° 盲区）
   if (fx.tp) opts.teleport = Math.random;
   if (fx.rangeMul) opts.rangeMul = fx.rangeMul;
   if (fx.circle) opts.arc = Math.PI * 2;
@@ -3178,12 +3209,17 @@ function draw() {
     }
     /* 🗡️ 手里的武器看得见：像素真刀真枪，跟手转向，攻击时挥起来（远程=举弓瞄准；近战=左右交替挥） */
     if (player.weapon && WEAPON_CANVAS[player.weapon] && !sittingBench && !gameOver && hurtT <= 0) {
-      const fxw = WEAPON_FX[player.weapon] || {}, isRanged = fxw.bow || fxw.staff || fxw.gun;
-      const wa = player.atkT > 0 ? (isRanged ? player.dir : player.dir + swingDir * (-0.9 + (1 - player.atkT / ATTACK.swing) * 1.8)) : player.dir + 0.55;
+      const wkey = (player.atkT > 0 && lastSwingKey) ? lastSwingKey : player.weapon;   // ⚔️ 战士：画正在挥的那只手
+      const fxw = WEAPON_FX[wkey] || {}, isRanged = fxw.bow || fxw.staff || fxw.gun;
+      const wa = player.atkT > 0 ? (isRanged ? player.dir : player.dir + swingDir * (-0.9 + (1 - player.atkT / ATTACK.swing) * 1.8)) : player.dir + 0.55;   // 🏹 远程=举弓瞄准；⚔️ 近战=左右交替挥
       const wx = player.x + Math.cos(wa) * 16, wy = player.y - 4 + Math.sin(wa) * 16;
       ctx.save(); ctx.translate(wx, wy); ctx.rotate(wa + Math.PI / 2);
-      ctx.drawImage(WEAPON_CANVAS[player.weapon], -8, -18);
+      ctx.drawImage(WEAPON_CANVAS[wkey], -8, -18);
       ctx.restore();
+    }
+    if (player.job === 'warrior' && player.offhand && player.offhand !== player.weapon && WEAPON_CANVAS[player.offhand] && !sittingBench && !gameOver && hurtT <= 0) {
+      ctx.save(); ctx.translate(Math.round(player.x), Math.round(player.y - 6)); ctx.scale(-1, 1); ctx.rotate(-0.55);   // 🤚 副手挂左边待命
+      ctx.drawImage(WEAPON_CANVAS[player.offhand], -8, -18); ctx.restore();
     }
     /* 🛡️ 穿在身上的盔甲看得见：胸甲/帽子/皇冠 */
     const bobA = bob;
