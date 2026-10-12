@@ -94,6 +94,7 @@
 <button id="zoomBtn">🔍×1</button>
 <button id="enterBtn">🚪 进入</button>
 <button id="tpBtn" style="display:none;position:fixed;left:50%;bottom:150px;transform:translateX(-50%);z-index:7;background:linear-gradient(#7a4ad4,#5a2ab0);color:#fff;border:3px solid #b48aff;border-radius:16px;padding:12px 26px;font-weight:bold;font-size:19px;box-shadow:0 4px 14px rgba(120,60,220,.55);cursor:pointer">⚡ 传送</button>
+<button id="blockBtn" style="display:none;position:fixed;left:calc(50% - 160px);bottom:150px;transform:translateX(-50%);z-index:7;background:linear-gradient(#3a6ad4,#2a4ab0);color:#fff;border:3px solid #7ab8ff;border-radius:16px;padding:12px 26px;font-weight:bold;font-size:19px;box-shadow:0 4px 14px rgba(60,120,220,.55);cursor:pointer">🛡️ 格挡</button>
 <div id="gear"><div id="gearCard">
   <div style="font-size:22px;font-weight:bold;margin-bottom:8px">⚙️ 设置</div>
   <button id="gearBag">🎒 背包</button>
@@ -682,6 +683,7 @@ function reset() {
   bossAt = 100; banner = { txt: '', t: 0 }; shakeT = 0; slamFx = null;
   hurtT = 0; deathT = 0; swingDir = 1; prevHearts = 99;   // 💥💀↔️ 动作状态清零
   tpWindowT = 0; tpLand = null; prevBow = null; assassinStrike = false; assassinSwapT = 0;   // 🥷 刺客状态清零
+  blockT = 0; blockCd = 0;   // 🛡️ 格挡清零
   level = 1; earrows = []; parrows = [];
   autoOn = false; holdAtk = false; autoT = 0; autoBtn.classList.remove('on');
   skillShots = []; clouds = []; fxLines = []; netOrbs = null; shocks = [];
@@ -736,7 +738,7 @@ function buyFromShop(key) {
   player.bought[key] = true; player.owned[key] = true;   // 🎒 买下=进背包；装备默认装上
   if (shopNow()[key].kind === 'weapon') player.weapon = key;   // 买武器直接上手
   if (shopNow()[key].kind === 'skill') {   // ✨ 技能位只有 5 个，满了进背包休息
-    if (skillSlots.length < 5 && !skillSlots.includes(key)) skillSlots.push(key);
+    if (skillSlots.length < skillMax() && !skillSlots.includes(key)) skillSlots.push(key);
     else setBanner('✨ 技能位满啦，它在背包里休息（去背包换上）');
     renderSkills();
   }
@@ -1175,6 +1177,13 @@ function doAssassinTp() {
   saveGame();
 }
 document.getElementById('tpBtn').onclick = doAssassinTp;
+/* 🛡️ 坦克格挡：0.5 秒举盾免疫一切（站桩），冷却 2 秒 */
+function doBlock() {
+  if (player.job !== 'tank' || blockCd > 0 || blockT > 0 || gameOver || paused) return;
+  blockT = 0.5; blockCd = 2;
+  setBanner('🛡️ 格挡！'); beep(200, 420, 0.15, 'square', 0.16);
+}
+document.getElementById('blockBtn').onclick = doBlock;
 /* 🥷 刺客（v54）：状态组 */
 let tpWindowT = 0, tpLand = null, prevBow = null, assassinStrike = false, assassinSwapT = 0;
 /* ================= 🕳️ 神秘山洞（每关一个：金色精英怪守着金币） ================= */
@@ -1658,8 +1667,11 @@ function bagTap(k) {
   }
   else if (kind === 'gear') { player.owned[k] = !player.owned[k]; applyGear(); player.hearts = Math.min(player.hearts, player.maxHearts); beep(500, 700, 0.08, 'square', 0.1); }
   else if (kind === 'skill') {
-    if (skillSlots.includes(k)) skillSlots = skillSlots.filter(s => s !== k);
-    else if (skillSlots.length < 5) skillSlots.push(k);
+    if (skillSlots.includes(k)) {
+      if (k === 'block_skill' && player.job === 'tank') setBanner('🛡️ 格挡是坦克的本命技，永不下场！');
+      else skillSlots = skillSlots.filter(s => s !== k);
+    }
+    else if (skillSlots.length < skillMax()) skillSlots.push(k);
     else { setBanner('✨ 最多上阵 5 个技能，先卸一个！'); beep(160, 90, 0.15, 'square', 0.1); renderBag(); return; }
     renderSkills(); beep(600, 900, 0.08, 'square', 0.1);
   } else if (kind === 'pet') {
@@ -1707,19 +1719,24 @@ function takeLoot(i) {
   const L = chest.loot && chest.loot[i]; if (!L) return;
   const kind = ALLKIND[L.key];
   if (kind === 'awaken') {   // 🌟 觉醒石：随机觉醒一个职业（恩泽定的：不许挑）
-    player.job = ['assassin', 'mage', 'warrior'][Math.floor(Math.random() * 3)];
+    player.job = ['assassin', 'mage', 'warrior', 'tank'][Math.floor(Math.random() * 4)];
     if (player.job === 'warrior') {   // ⚔️ 战士开局：双木剑人手一把
       player.bought.wood_sword = { t: 0, w: 0 }; player.owned.wood_sword = true;
       player.weapon = 'wood_sword'; player.offhand = 'wood_sword';
+    }
+    if (player.job === 'tank') {   // 🛡️ 坦克开局：格挡锁定上阵
+      player.bought.block_skill = true; player.owned.block_skill = true;
+      if (!skillSlots.includes('block_skill')) skillSlots.unshift('block_skill');
+      renderSkills();
     }
     for (let j = 0; j < 30; j++) burst(player.x + (Math.random() - 0.5) * 120, player.y + (Math.random() - 0.5) * 120, ['#b48af2', '#ffd24a', '#ffffff'][j % 3]);
     beep(600, 1200, 0.3, 'sine', 0.18); setTimeout(() => beep(800, 1600, 0.3, 'sine', 0.16), 200);
     applyGear(); player.hearts = Math.min(player.hearts, player.maxHearts);   // 🔮 法师觉醒当场血量腰斩
   }
   else if (kind === 'weapon' || kind === 'gear') addToInv(L.key, L.tier);
-  else if (kind === 'skill') { player.bought[L.key] = true; player.owned[L.key] = true; if (skillSlots.length < 5 && !skillSlots.includes(L.key)) skillSlots.push(L.key); else setBanner('✨ 技能位满啦，它在背包里休息'); renderSkills(); }
+  else if (kind === 'skill') { player.bought[L.key] = true; player.owned[L.key] = true; if (skillSlots.length < skillMax() && !skillSlots.includes(L.key)) skillSlots.push(L.key); else setBanner('✨ 技能位满啦，它在背包里休息'); renderSkills(); }
   else if (kind === 'pet') { player.bought[L.key] = true; player.owned[L.key] = true; addPet(L.key); }
-  setBanner(kind === 'awaken' ? (player.job === 'mage' ? '🔮 觉醒成功！你是【法师】：武器附魔+15%，法杖再+15%，剑能放剑风，箭带燃烧——但你只有 2.5 格血！' : player.job === 'warrior' ? '⚔️ 觉醒成功！你是【战士】：双手各持一把剑轮流砍，双剑=300° 大扇形！法杖只能发挥九成' : '🌟 觉醒成功！你是【刺客】：射箭→点「⚡传送」→落地一刀×2！') : '🎁 拿到 ' + ALLITEMS[L.key].name + '！');
+  setBanner(kind === 'awaken' ? (player.job === 'mage' ? '🔮 觉醒成功！你是【法师】：武器附魔+15%，法杖再+15%，剑能放剑风，箭带燃烧——但你只有 2.5 格血！' : player.job === 'warrior' ? '⚔️ 觉醒成功！你是【战士】：双手各持一把剑轮流砍，双剑=300° 大扇形！法杖只能发挥九成' : player.job === 'tank' ? '🛡️ 觉醒成功！你是【坦克】：点「格挡」举盾 0.5 秒免疫一切（站桩），冷却 2 秒；技能位只剩 4 格，格挡永不下场！' : '🌟 觉醒成功！你是【刺客】：射箭→点「⚡传送」→落地一刀×2！') : '🎁 拿到 ' + ALLITEMS[L.key].name + '！');
   beep(880, 1320, 0.2, 'square', 0.14);
   chest.loot = null;
   document.getElementById('chestLoot').style.display = 'none';
@@ -2047,7 +2064,7 @@ function buyFromMapShop(i) {
   }
   player.gold -= it.price; it.sold = true;
   if (s.kind === 'weapon' || s.kind === 'gear') addToInv(it.key, it.tier);
-  else if (s.kind === 'skill') { player.bought[it.key] = true; player.owned[it.key] = true; if (skillSlots.length < 5 && !skillSlots.includes(it.key)) skillSlots.push(it.key); else setBanner('✨ 技能位满啦，它在背包里休息'); renderSkills(); }
+  else if (s.kind === 'skill') { player.bought[it.key] = true; player.owned[it.key] = true; if (skillSlots.length < skillMax() && !skillSlots.includes(it.key)) skillSlots.push(it.key); else setBanner('✨ 技能位满啦，它在背包里休息'); renderSkills(); }
   else if (s.kind === 'pet') { player.bought[it.key] = true; player.owned[it.key] = true; addPet(it.key); }
   beep(660, 990, 0.14, 'square', 0.12); setTimeout(() => beep(880, 1320, 0.16, 'square', 0.1), 120);
   updateGold(); saveGame(); renderMapShop();
@@ -2199,11 +2216,12 @@ let skillRefs = [];
 const ALLITEMS = {}; for (const t of [SHOP, SHOP2, SHOP3, SHOP4, SHOP5, SHOP6, SHOP7]) for (const k in t) ALLITEMS[k] = t[k];   // 全关卡物品表（继承的技能跨关也能用）
 /* 🥷 职业物品（v54）：不进商店货架、不进宝箱抽奖池，只能靠剧情获得 */
 const CLASS_ITEMS = {
-  awaken_stone: { name: '觉醒石', icon: '🌟', price: 0, kind: 'awaken', desc: '随机觉醒职业：刺客（传送连招）、法师（附魔玻璃大炮）或战士（双持大扇形）！' },
+  awaken_stone: { name: '觉醒石', icon: '🌟', price: 0, kind: 'awaken', desc: '随机觉醒职业：刺客（传送连招）、法师（附魔玻璃大炮）、战士（双持大扇形）或坦克（格挡铁壁）！' },
   assassin_dagger: { name: '刺客匕首', icon: '🔪', price: 0, kind: 'weapon', desc: '刺客的终结武器：传送落地后的那一刀' },
   wood_sword: { name: '木剑', icon: '🗡️', price: 0, kind: 'weapon', desc: '战士的入门剑，开局人手一把' },
+  block_skill: { name: '格挡', icon: '🛡️', price: 0, kind: 'skill', desc: '坦克本命技：0.5 秒举盾免疫一切伤害（站桩），冷却 2 秒。永不下场' },
 };
-Object.assign(ALLITEMS, CLASS_ITEMS); ALLKIND.awaken_stone = 'awaken'; ALLKIND.assassin_dagger = 'weapon'; ALLKIND.wood_sword = 'weapon';
+Object.assign(ALLITEMS, CLASS_ITEMS); ALLKIND.awaken_stone = 'awaken'; ALLKIND.assassin_dagger = 'weapon'; ALLKIND.wood_sword = 'weapon'; ALLKIND.block_skill = 'skill';
 WEAPON_FX.assassin_dagger = { dmg: 2, cdMul: 0.8, color: '#b48af2' };
 WEAPON_FX.wood_sword = { dmg: 1, cdMul: 1, color: '#c89058' };
 function ownedSkills() { return skillSlots.filter(k => player.bought[k] && ALLKIND[k] === 'skill'); }   // ✨ 只有上阵的 5 个技能显示按钮
@@ -2315,11 +2333,12 @@ function killZombie(z) {
   beep(320, 60, 0.22, 'sawtooth', 0.12);
   setTimeout(() => beep(700 + Math.min(6, g) * 80, 1100, 0.12, 'sine', 0.1), 100);
 }
-/* ⚔️ 战士（v56）：双持状态 */
-let warriorHand = false, lastSwingKey = null;
+/* ⚔️ 战士（v56）：双持状态；🛡️ 坦克（v57）：格挡状态 */
+let warriorHand = false, lastSwingKey = null, blockT = 0, blockCd = 0;
 const weapFam = k => { const f = WEAPON_FX[k] || {}; return f.bow ? 'bow' : f.staff ? 'staff' : f.gun ? 'gun' : 'melee'; };   // 武器家族：近战/弓/法杖/枪
+function skillMax() { return player.job === 'tank' ? 4 : 5; }   // 🛡️ 坦克代价：技能位 5→4
 function doAttack(fromAuto) {
-  if (gameOver || paused || player.tpT > 0 || player.frozenT > 0) return;   // 🗡️残影/❄️冻结中不能出手
+  if (gameOver || paused || player.tpT > 0 || player.frozenT > 0 || blockT > 0) return;   // 🗡️残影/❄️冻结/🛡️举盾中不能出手
   let handKey = player.weapon;
   const dualOk = player.job === 'warrior' && !!player.offhand && weapFam(player.offhand) === weapFam(player.weapon) && weapFam(player.weapon) !== 'staff';   // 双持：同类型才行，法杖不行
   if (dualOk) { warriorHand = !warriorHand; handKey = warriorHand ? player.offhand : player.weapon; }   // 左右手轮流
@@ -2456,6 +2475,15 @@ function update(dt) {
     assassinSwapT = Math.max(0, assassinSwapT - dt);
     if (assassinSwapT === 0 && prevBow) { player.weapon = prevBow; prevBow = null; assassinStrike = false; setBanner('🏹 两秒到，换回弓'); }
   }
+  // 🛡️ 坦克计时：举盾期间无敌（靠 inv 统一挡所有伤害），冷却读秒上按钮
+  if (blockT > 0) { blockT = Math.max(0, blockT - dt); player.inv = Math.max(player.inv, blockT + 0.05); }   // 无敌罩住整段举盾（帧长多大都不漏）
+  if (blockCd > 0) blockCd = Math.max(0, blockCd - dt);
+  const bkBtn = document.getElementById('blockBtn');
+  if (player.job === 'tank' && !gameOver && !paused && !townMode) {
+    bkBtn.style.display = 'block';
+    bkBtn.textContent = blockCd > 0 ? `🛡️ ${blockCd.toFixed(1)}s` : '🛡️ 格挡！';
+    bkBtn.style.opacity = blockCd > 0 ? 0.5 : 1;
+  } else bkBtn.style.display = 'none';
   document.getElementById('tpBtn').style.display = (player.job === 'assassin' && tpWindowT > 0 && tpLand && !gameOver && !paused && !townMode) ? 'block' : 'none';
   if (gameOver) { deathT += dt; const ov = document.getElementById('over'); if (ov) ov.style.display = deathT > 1.2 ? 'flex' : 'none'; }   // 💀 先看倒下动画，1.2 秒后才弹面板
   if (!gameOver) {
@@ -2466,7 +2494,7 @@ function update(dt) {
         player.x = player.tpRx; player.y = player.tpRy;
         burst(player.x, player.y, '#8fd8ff', 14); beep(1200, 700, 0.12, 'sine', 0.1);
       }
-    } else if (!(player.frozenT > 0)) {   // ❄️ 冻住时不能动
+    } else if (!(player.frozenT > 0) && blockT <= 0) {   // ❄️ 冻住/🛡️举盾时不能动
       let mx = joyVec.x, my = joyVec.y;
       if (sittingBench) {   // 🪑 坐着：推摇杆=起身
         if (Math.abs(mx) + Math.abs(my) > 0.1) { sittingBench = null; setBanner('🪑 起身啦'); }
@@ -2478,7 +2506,7 @@ function update(dt) {
       const slow = player.drainSlow ? 0.4 : 1; player.drainSlow = false;   // ⛓️ 夺魂锁链减速
       playerStep(player, mx, my, dt, (player.speedMul || 1) * slow);   // 👟 跑鞋皇冠加速
     }
-    if ((autoOn || holdAtk) && !(player.frozenT > 0)) { autoT -= dt; if (autoT <= 0) { autoT = 0.2; doAttack(true); } }   // ⚔️ 自动/按住：0.2 秒一刀
+    if ((autoOn || holdAtk) && !(player.frozenT > 0) && blockT <= 0) { autoT -= dt; if (autoT <= 0) { autoT = 0.2; doAttack(true); } }   // ⚔️ 自动/按住：0.2 秒一刀（举盾时停手）
     /* ✨ 技能冷却递减 + 按钮显示 */
     if (player.skillCds) for (const k in player.skillCds) player.skillCds[k] = Math.max(0, player.skillCds[k] - dt);
     for (const r of skillRefs) {
@@ -3220,6 +3248,13 @@ function draw() {
     if (player.job === 'warrior' && player.offhand && player.offhand !== player.weapon && WEAPON_CANVAS[player.offhand] && !sittingBench && !gameOver && hurtT <= 0) {
       ctx.save(); ctx.translate(Math.round(player.x), Math.round(player.y - 6)); ctx.scale(-1, 1); ctx.rotate(-0.55);   // 🤚 副手挂左边待命
       ctx.drawImage(WEAPON_CANVAS[player.offhand], -8, -18); ctx.restore();
+    }
+    if (blockT > 0) {   // 🛡️ 格挡护盾：蓝色光罩包住全身
+      ctx.save(); ctx.globalAlpha = 0.28; ctx.fillStyle = '#7ab8ff';
+      ctx.beginPath(); ctx.arc(player.x, player.y - 8, 22, 0, 6.3); ctx.fill();
+      ctx.globalAlpha = 0.85; ctx.strokeStyle = '#7ab8ff'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.arc(player.x, player.y - 8, 22, 0, 6.3); ctx.stroke();
+      ctx.restore(); ctx.globalAlpha = 1;
     }
     /* 🛡️ 穿在身上的盔甲看得见：胸甲/帽子/皇冠 */
     const bobA = bob;
