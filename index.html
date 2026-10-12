@@ -1681,6 +1681,19 @@ function renderBag() {
   const btn = (k, it, state, on) => { const b2 = invB(k); return `<button class="bagIt ${on ? 'on' : 'off'}" data-bag="${k}"><span class="bi">${it.icon}</span><span class="bn">${it.name}${tierOf(k)}</span><span class="bs">${state}</span>${b2 ? `<span class="bs" data-sell="${k}" style="background:#8a6a3a;border-radius:8px;padding:2px 6px">💰卖${Math.round(ALLITEMS[k].price * (b2.t + 1) * 0.5)}</span>` : ''}</button>`; };   // 🔧 合成按钮已随系统退役（v52）
   const grid = arr => `<div class="bagGrid">${arr.join('')}</div>`;
   let h = '';
+  /* 🌟 职业展示卡（v60）：背包最顶上亮明身份 */
+  const JOBS = {
+    assassin: ['🥷', '刺客', '射箭后点「⚡传送」瞬移到落点，落地一刀×2！'],
+    mage: ['🔮', '法师', '武器附魔+15%（法杖再+15%）、挥剑放剑风、箭带燃烧——但只有 2.5 格血'],
+    warrior: ['⚔️', '战士', '双持同类型武器轮流砍（攻速翻倍）；双剑=300° 大扇形；法杖只能发挥九成'],
+    tank: ['🛡️', '坦克', '格挡 0.5 秒免疫一切（站桩，冷却 2 秒）；技能位 4 格，格挡永不下场'],
+    summoner: ['🐺', '召唤师', '每 8 秒召唤一只狼（上限 3 只、每只 6 血）；谁打怪怪咬谁——你只有 3 格血'],
+  };
+  const jb = JOBS[player.job];
+  h += sec('🌟 职业');
+  h += jb
+    ? `<div style="background:linear-gradient(135deg,#3a2a5a,#2a1a3a);border:2px solid #b48af2;border-radius:12px;padding:8px;text-align:center;margin:4px 0"><span style="font-size:26px">${jb[0]}</span> <b style="font-size:17px">${jb[1]}</b><div style="font-size:11px;opacity:.85;margin-top:3px">${jb[2]}</div></div>`
+    : '<div class="htxt">还没觉醒职业——打 BOSS 开宝箱，找 🌟 觉醒石！</div>';
   const ws = Object.keys(player.bought).filter(k => ALLKIND[k] === 'weapon');
   const isWar = player.job === 'warrior';
   h += sec(isWar ? '⚔️ 武器（战士双持：点一件上主手，再点一件同类型的上副手）' : '🗡️ 武器（点一下拿手上，只能拿一把）');
