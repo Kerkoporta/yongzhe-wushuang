@@ -544,6 +544,7 @@ const LEVELS = {
 };
 let level = 1, earrows = [], parrows = [], garrows = [], meteors = [], puddles = [], skillShots = [], clouds = [], fxLines = [], netOrbs = null, shocks = [];   // 各种飞行物与特效
 let towerMode = false;   // 🗼 试炼塔（无尽）中：第八关是凋零关主线，无尽搬进了小镇试炼塔
+let townFrom = 'level';   // 🧭 进小镇前的位置（'level'=主线关卡 / 'tower'=试炼塔），回去时原路送回
 function makeWSkel(x, y) { return { id: _id++, x, y, hp: 8, r: 11, ws: true, dead: false, flash: 0, walkT: Math.random() * 9, kind: 'wskeleton' }; }   // 💀 MC 凋零骷髅：黑高个，8 血，近战
 function makeCreeper(x, y) { return { id: _id++, x, y, hp: 6, r: 10, creep: true, dead: false, flash: 0, walkT: Math.random() * 9, kind: 'creeper' }; }   // 🧨 MC 苦力怕：6 血，靠近就自爆
 function spawnEnemy() {   // 按关卡出怪（试炼塔按波次）
@@ -1484,6 +1485,7 @@ function packSave() {
   return { kills, gold: player.gold, weapon: player.weapon, owned: player.owned, hearts: player.hearts, bossAt, level, music: musicOn ? 1 : 0, rot: rotated ? 1 : 0, when: Date.now(), sid: mySid,
     job: player.job || null, offhand: player.offhand || null,   // 🥷⚔️ 职业和副手跟着存档走
     towerMode: towerMode ? 1 : 0,   // 🗼 在不在试炼塔里
+    townFrom,   // 🧭 进镇前的位置跟着存档走
     bossAlive: boss ? 1 : 0, bossHp: boss ? boss.hp : 0,
     pets: pets.map(p => p.key), dex: dexCounts, bought: player.bought, skillSlots,
     mapShops, endlessRound, endlessWave, waveKills,
@@ -1495,6 +1497,7 @@ function applySave(s) {
   kills = s.kills || 0; player.gold = s.gold || 0; player.owned = s.owned || {};
   player.job = s.job || null;   // 🥷 职业回来
   towerMode = s.towerMode != null ? !!s.towerMode : s.level === 8;   // 🗼 老存档没这字段：level 8 一律算在塔里（旧无尽）
+  townFrom = s.townFrom || (s.towerMode ? 'tower' : 'level');   // 🧭 老存档按塔状态猜
   player.offhand = (s.offhand && ALLITEMS[s.offhand]) ? s.offhand : null;   // ⚔️ 副手回来（只认全物品表里的）
   player.bought = s.bought || Object.assign({}, player.owned);   // 🎒 老存档没有 bought：拿 owned 顶上
   if (s.music != null) { musicOn = !!s.music; document.getElementById('gearMusic').textContent = musicOn ? '🎵 音乐：开' : '🔇 音乐：关'; }
@@ -2074,21 +2077,24 @@ document.getElementById('faintStay').onclick = () => {   // ② 留在这里：�
 };
 /* ================= 🏡 宁静小镇（马路+商店街+小家） ================= */
 function enterTown() {
-  townMode = true; townUnlocked = true; inRoom = false; paused = false; towerMode = false;   // 🗼 出塔回镇
+  townMode = true; townUnlocked = true; inRoom = false; paused = false;
+  townFrom = towerMode ? 'tower' : 'level'; towerMode = false;   // 🧭 记住从哪进镇：回主线还是回塔
   for (const z of zombies) z.dead = true;
   earrows = []; parrows = []; garrows = []; meteors = []; puddles = []; skillShots = []; clouds = []; fxLines = []; netOrbs = null; shocks = []; chest = null;
   player.x = WORLD.w / 2; player.y = WORLD.h / 2 - 200;
   placeTownShops(); spawnTownNpcs(); applyGear(); updateScore();   // 🏡 装备失效+村民上街
   setBanner('🏡 宁静小镇：随便逛！马路两边全是商店（小镇里装备会休息哦）'); saveGame();
 }
-function exitTown() {   // ⚔️ 继续刷怪：回到试炼塔进度（遍/波原样）
+function exitTown() {   // ⚔️ 继续刷怪：从哪来回哪去（主线关卡 or 试炼塔）
   townMode = false; inRoom = false; paused = false; sittingBench = null;   // 🪑 回战场不能坐着
-  towerMode = true; level = 8;   // 🗼 回试炼塔
+  towerMode = townFrom === 'tower';
+  if (towerMode) level = 8;   // 🗼 回试炼塔
   for (const z of zombies) z.dead = true;
   earrows = []; parrows = []; garrows = []; meteors = []; puddles = []; skillShots = []; clouds = []; fxLines = []; netOrbs = null; shocks = [];
   player.x = WORLD.w / 2; player.y = WORLD.h / 2;
   placeShops(); placePortal(); applyGear(); updateScore();   // ⚔️ 回来装备重新生效
-  setBanner('🗼 回到试炼塔：第' + endlessRound + '遍·第' + endlessWave + '波，接着刷！');
+  if (towerMode) setBanner('🗼 回到试炼塔：第' + endlessRound + '遍·第' + endlessWave + '波，接着刷！');
+  else setBanner('⚔️ 回到主线：第' + level + '关·' + LEVELS[level].name + '，接着闯！');
   saveGame();
 }
 function enterTower() {   // 🗼 进试炼塔=开始新一轮无尽挑战
