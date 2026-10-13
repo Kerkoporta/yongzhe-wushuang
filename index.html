@@ -121,7 +121,7 @@
   <div class="hsec">🌟 职业（打 BOSS 开宝箱拿「觉醒石」，随机觉醒，不许挑！）</div>
   <div class="htxt">🥷 <b>刺客</b>：射箭后点「⚡传送」瞬移到落点，落地一刀×2<br>🔮 <b>法师</b>：武器伤害+15%（法杖再+15%），挥剑放剑风、箭带燃烧——但只有 2.5 格血<br>⚔️ <b>战士</b>：双手各持一把武器轮流砍（攻速翻倍），双剑=300° 大扇形——法杖只能发挥九成<br>🛡️ <b>坦克</b>：点「格挡」举盾 0.5 秒免疫一切（站桩），冷却 2 秒——技能位只剩 4 格<br>🐺 <b>召唤师</b>：每 8 秒自动召唤一只狼（最多 3 只、每只 6 血），谁打怪怪就咬谁——只有 3 格血</div>
   <div class="hsec">🗺️ 更多玩法</div>
-  <div class="htxt">🎁 BOSS 宝箱三选一（武器/装备/技能/宠物/觉醒石）<br>🔷 武器店偶尔刷「升级石」，300 金币让工匠把手里的武器升一级（最高橙色传说）<br>🌈 品质天梯：灰粗糙→白普通→绿优秀→蓝精良→紫史诗→橙传说<br>🐾 宠物有血条啦：越贵越扛揍，被打倒下关复活（无尽过波也复活）<br>💀 第八关·凋零之地：MC 凋零骷髅成群出没，BOSS 是三头凋灵——蓝骷髅头打中掉 2 血，红色冲锋走廊里掉 2.5 血，快闪！<br>🐉 第九关·末影之地：全关只有末影龙（10000 血）——紫龙息落地成雾（站雾里一直掉血），被俯冲顶飞落地掉 3 血！<br>🏡 通关第九关解锁宁静小镇：商店街、买房、广场长椅随便坐<br>🗼 小镇广场南边有座试炼塔：进去就是无尽挑战，一遍遍刷榜比谁爬得高</div>
+  <div class="htxt">🎁 BOSS 宝箱三选一（武器/装备/技能/宠物/觉醒石）<br>🔷 武器店偶尔刷「升级石」，300 金币让工匠把手里的武器升一级（最高橙色传说）<br>🌈 品质天梯：灰粗糙→白普通→绿优秀→蓝精良→紫史诗→橙传说<br>🐾 宠物有血条啦：越贵越扛揍，被打倒下关复活（无尽过波也复活）<br>💀 第八关·凋零之地：MC 凋零骷髅成群出没，BOSS 是三头凋灵——蓝骷髅头打中掉 2 血，红色冲锋走廊里掉 2.5 血，快闪！<br>🐉 第九关·末影之地：全关只有末影龙（10000 血）——紫龙息落地成雾（站雾里一直掉血），被俯冲顶飞落地掉 3 血！<br>🧨 第十关·苦力怕矿洞：MC 苦力怕悄悄摸近你就自爆（跑远 2 格引信熄灭）；BOSS 泰坦苦力怕——TNT 雨 2.5 秒后炸 2.5 血（有一个瞄准你），被扑咬掉 3 血！<br>🏡 通关第十关解锁宁静小镇：商店街、买房、广场长椅随便坐<br>🗼 小镇广场南边有座试炼塔：进去就是无尽挑战，一遍遍刷榜比谁爬得高</div>
   <button id="helpClose" style="margin-top:10px">知道啦！</button>
   <div style="margin-top:14px;padding-top:8px;border-top:1px solid rgba(255,255,255,.15);font-size:11px;opacity:.6;text-align:center">本游戏由杨恩泽出品<br>最终解释权归杨恩泽所有</div>
 </div></div>
@@ -519,16 +519,18 @@ const LEVELS = {
   7: { name: '水晶洞窟', grassA: '#1e3a44', grassB: '#1a333c', edge: '#0e2028', trunk: '#2a4a56', leaf: '#4ad8e8', leafHi: '#a8f2ff', rock: '#3a5a66', rockHi: '#56d8e8', enemy: 'crystal', bossName: '💎 水晶魔王' },
   8: { name: '凋零之地', grassA: '#14101c', grassB: '#100c18', edge: '#080610', trunk: '#241a30', leaf: '#3a2a52', leafHi: '#5a4a82', rock: '#1e1828', rockHi: '#342a44', enemy: 'wskeleton', bossName: '💀 凋灵' },
   9: { name: '末影之地', grassA: '#18142a', grassB: '#141022', edge: '#0a0816', trunk: '#2a2444', leaf: '#b8b08a', leafHi: '#d8d0a8', rock: '#3a3454', rockHi: '#5a5478', enemy: 'none', bossName: '🐉 末影龙' },
+  10: { name: '苦力怕矿洞', grassA: '#2a3020', grassB: '#242a1c', edge: '#141810', trunk: '#3a3428', leaf: '#5a6a3a', leafHi: '#7a8a4a', rock: '#4a4a44', rockHi: '#6a6a60', enemy: 'creeper', bossName: '🧨 泰坦苦力怕' },
 };
 let level = 1, earrows = [], parrows = [], garrows = [], meteors = [], puddles = [], skillShots = [], clouds = [], fxLines = [], netOrbs = null, shocks = [];   // 各种飞行物与特效
 let towerMode = false;   // 🗼 试炼塔（无尽）中：第八关是凋零关主线，无尽搬进了小镇试炼塔
 function makeWSkel(x, y) { return { id: _id++, x, y, hp: 8, r: 11, ws: true, dead: false, flash: 0, walkT: Math.random() * 9, kind: 'wskeleton' }; }   // 💀 MC 凋零骷髅：黑高个，8 血，近战
+function makeCreeper(x, y) { return { id: _id++, x, y, hp: 6, r: 10, creep: true, dead: false, flash: 0, walkT: Math.random() * 9, kind: 'creeper' }; }   // 🧨 MC 苦力怕：6 血，靠近就自爆
 function spawnEnemy() {   // 按关卡出怪（试炼塔按波次）
   if (towerMode) { waveSpawn(); return; }
   if (level === 9) return;   // 🐉 末影之地只有末影龙，一只小怪都没有
   const s = pickSpawn(player, Math.random);
-  zombies.push(level === 2 ? makeSkeleton(s.x, s.y, Math.random) : level === 3 ? makeGhost(s.x, s.y, Math.random) : level === 4 ? makeLava(s.x, s.y, Math.random) : level === 5 ? makeStorm(s.x, s.y, Math.random) : level === 6 ? makeVoid(s.x, s.y, Math.random) : level === 7 ? makeCrystal(s.x, s.y, Math.random) : level === 8 ? makeWSkel(s.x, s.y) : spawnZombie(player, Math.random));
-  zombies[zombies.length - 1].kind = ['', 'zombie', 'skeleton', 'ghost', 'lava', 'storm', 'voidw', 'crystal', 'wskeleton'][level];   // 📖 图鉴计数用
+  zombies.push(level === 2 ? makeSkeleton(s.x, s.y, Math.random) : level === 3 ? makeGhost(s.x, s.y, Math.random) : level === 4 ? makeLava(s.x, s.y, Math.random) : level === 5 ? makeStorm(s.x, s.y, Math.random) : level === 6 ? makeVoid(s.x, s.y, Math.random) : level === 7 ? makeCrystal(s.x, s.y, Math.random) : level === 8 ? makeWSkel(s.x, s.y) : level === 10 ? makeCreeper(s.x, s.y) : spawnZombie(player, Math.random));
+  zombies[zombies.length - 1].kind = ['', 'zombie', 'skeleton', 'ghost', 'lava', 'storm', 'voidw', 'crystal', 'wskeleton', 'none', 'creeper'][level];   // 📖 图鉴计数用
 }
 function setBanner(t) { banner = { txt: t, t: 2.6 }; }
 /* 👹 BOSS 登场：击杀满 100（之后每 100 一只） */
@@ -556,6 +558,7 @@ function spawnBoss() {
   b.crystalBoss = level === 7; // 💎 第七关出水晶魔王（分身+棱光齐射）
   b.wither = level === 8;      // 💀 第八关出凋灵（蓝色骷髅头+直线冲锋）
   b.ender = level === 9;       // 🐉 第九关出末影龙（龙息+俯冲顶飞）
+  b.titan = level === 10;      // 🧨 第十关出泰坦苦力怕（TNT 雨+撕咬扑击）
   b.kind = 'boss' + level;     // 📖 图鉴计数用
   b.hp = b.maxHp = BOSS.hp + (level - 1) * 15;   // 🌡️ 难度爬坡：每关 BOSS 血更厚（40→55→70→85→100→115）
   if (b.ender) b.hp = b.maxHp = 10000;   // 🐉 末影龙一万血（恩泽定的）
@@ -635,8 +638,70 @@ function enderTick(z, dt) {
     if (z.diveWarn <= 0) { z.dive = { vx: z.warnDx * 500, vy: z.warnDy * 500, left: Math.max(320, d + 120), hit: false }; z.diveWarn = null; }
   }
 }
+/* 🧨 苦力怕小怪：悄悄靠近→嘶嘶引信 0.8 秒→自爆（跑远 2 格引信熄灭，MC 同款；爆炸还会连环伤别的怪） */
+function creepTick(z, p, dt, spdMul) {
+  if (z.fuseT != null) {   // 引信点燃中：站住，越烧越亮
+    z.fuseT -= dt;
+    if (Math.hypot(p.x - z.x, p.y - z.y) > 64) { z.fuseT = null; return; }   // 跑远了：引信熄灭
+    if (z.fuseT <= 0) {   // 💥 爆！
+      z.dead = true;
+      burst(z.x, z.y, '#7ec850', 18); burst(z.x, z.y, '#5a5a5a', 12); shakeT = Math.max(shakeT, 0.3); beep(80, 40, 0.4, 'sawtooth', 0.25);
+      if (p === player && Math.hypot(p.x - z.x, p.y - z.y) < 75 && player.inv <= 0 && !(player.tpT > 0)) {
+        player.hearts -= rollDmg(1.5); player.inv = 0.6; player.sinceHurt = 0; player.regenT = 0;
+        burst(player.x, player.y, '#e84a4a', 8);
+        if (player.hearts <= 0 && !angelSave()) { gameOver = true; document.getElementById('overScore').textContent = `你这局打败了 ${kills} 只怪物！`; document.getElementById('over').style.display = 'flex'; }
+      }
+      for (const o of zombies) { if (o !== z && !o.dead && Math.hypot(o.x - z.x, o.y - z.y) < 75) { o.hp -= 3; o.flash = 0.12; if (o.hp <= 0) killZombie(o); } }   // 连环爆
+    }
+    return;
+  }
+  zombieStep(z, p, dt, spdMul);   // 悄悄靠近（不咬人）
+  if (Math.hypot(p.x - z.x, p.y - z.y) < 42) { z.fuseT = 0.8; beep(900, 1400, 0.5, 'sine', 0.08); }   // 嘶——
+}
+/* 🧨 泰坦苦力怕（第十关 BOSS）：①TNT 雨=周围降 10 个 TNT（1 个瞄准玩家），2.5 秒爆炸掉 2.5 血，冷却 10 秒；②撕咬扑击=玩家进 2 格内就扑上去咬 3 血，冷却 15 秒 */
+function titanTick(z, dt) {
+  z.walkT += dt;
+  const dx = player.x - z.x, dy = player.y - z.y, d = Math.hypot(dx, dy) || 1;
+  if (!z.lunge) zombieStep(z, player, dt, 0.9);   // 慢慢逼近
+  z.tntCd = (z.tntCd == null ? 4 : z.tntCd) - dt;
+  if (z.tntCd <= 0) {   // ① TNT 雨
+    z.tntCd = 10; z.tnts = [];
+    for (let i = 0; i < 9; i++) { const a = Math.random() * 6.28, rr = 60 + Math.random() * 110; z.tnts.push({ x: z.x + Math.cos(a) * rr, y: z.y + Math.sin(a) * rr, t: 2.5 }); }
+    z.tnts.push({ x: player.x, y: player.y, t: 2.5, aim: true });   // 🎯 有一个瞄准玩家
+    setBanner('🧨 TNT 雨！2.5 秒后爆炸，快跑出红圈！'); beep(500, 900, 0.3, 'square', 0.15);
+  }
+  if (z.tnts) for (const t of z.tnts) {
+    t.t -= dt;
+    if (t.t <= 0 && !t.boom) {
+      t.boom = true; burst(t.x, t.y, '#ff8a5a', 16); burst(t.x, t.y, '#5a5a5a', 10); shakeT = Math.max(shakeT, 0.2); beep(80, 40, 0.35, 'sawtooth', 0.2);
+      if (Math.hypot(player.x - t.x, player.y - t.y) < 65 && player.inv <= 0 && !(player.tpT > 0)) {
+        player.hearts -= rollDmg(2.5); player.inv = 0.7; player.sinceHurt = 0; player.regenT = 0; burst(player.x, player.y, '#e84a4a', 10);
+        if (player.hearts <= 0 && !angelSave()) { gameOver = true; document.getElementById('overScore').textContent = `你这局打败了 ${kills} 只怪物！`; document.getElementById('over').style.display = 'flex'; }
+      }
+    }
+  }
+  if (z.tnts) z.tnts = z.tnts.filter(t => !t.boom);
+  z.lungeCd = (z.lungeCd == null ? 3 : z.lungeCd) - dt;
+  if (z.lunge) {   // ② 扑击中
+    z.x += z.lunge.vx * dt; z.y += z.lunge.vy * dt; z.lunge.left -= 400 * dt;
+    if (!z.lunge.bit && Math.hypot(player.x - z.x, player.y - z.y) < 30 && player.inv <= 0) {
+      z.lunge.bit = true; player.hearts -= rollDmg(3); player.inv = 0.8; player.sinceHurt = 0; player.regenT = 0;
+      burst(player.x, player.y, '#7ec850', 10); beep(250, 90, 0.2, 'sawtooth', 0.2); shakeT = 0.3;
+      if (player.hearts <= 0 && !angelSave()) { gameOver = true; document.getElementById('overScore').textContent = `你这局打败了 ${kills} 只怪物！`; document.getElementById('over').style.display = 'flex'; }
+    }
+    if (z.lunge.left <= 0) z.lunge = null;
+  } else if (z.lungeCd <= 0 && d < 64) {   // 玩家进两格：扑！
+    z.lungeCd = 15; z.lunge = { vx: dx / d * 400, vy: dy / d * 400, left: 80, bit: false };
+    setBanner('🧨 泰坦苦力怕扑过来了！'); beep(300, 600, 0.15, 'square', 0.15);
+  }
+  if (!z.lunge) {   // 扑击时普通接触不抢戏（撕咬 3 血才是正戏）
+    const dmgT = rollDmg(1);
+    if (touchHurt(player, z, dmgT)) { beep(300, 120, 0.2, 'sawtooth', 0.16); burst(player.x, player.y, '#7ec850', 8); if (player.hearts <= 0 && !angelSave()) { gameOver = true; document.getElementById('overScore').textContent = `你这局打败了 ${kills} 只怪物！`; document.getElementById('over').style.display = 'flex'; saveGame(); } }
+  }
+}
 /* 👹 BOSS 每帧：砸地伤害结算+陀螺持续刮血+骷髅王巨箭/寒冰+鬼王魂火/夺魂 */
 function bossUpdate(z, dt) {
+  if (z.titan) { titanTick(z, dt); return; }   // 🧨 泰坦苦力怕有自己的大脑
   if (z.ender) { enderTick(z, dt); return; }   // 🐉 末影龙有自己的大脑
   if (z.wither) { witherTick(z, dt); return; }   // 💀 凋灵有自己的大脑
   if (z.fake) {   // 💎 水晶魔王假身：只会慢慢飘过来吓人，不放技能、不给赏金
@@ -1480,7 +1545,7 @@ function showHome() {
   saveGame();   // 进主页先存好
   homeOpen = true; paused = true;   // 怪物全部罚站
   const bst = bestEndless();
-  document.getElementById('homeBest').textContent = bst ? `🏆 无尽榜最佳：第${bst.round}遍·第${bst.wave}波` : '🗼 试炼塔：通关第九关去小镇，无尽挑战爬最高！';
+  document.getElementById('homeBest').textContent = bst ? `🏆 无尽榜最佳：第${bst.round}遍·第${bst.wave}波` : '🗼 试炼塔：通关第十关去小镇，无尽挑战爬最高！';
   renderHome(); homeEl.style.display = 'flex';
 }
 function closeHome() {
@@ -1925,7 +1990,7 @@ function goNextLevel() {   // 🗺️ 真正过关（旧自动过渡搬到这里
   const what = pendingNext; pendingNext = null; chest = null;
   if (what === 'level') {
     level++;
-    setBanner((level === 2 ? '❄️ 第二关：骷髅雪原！' : level === 3 ? '👻 第三关：鬼魂地狱！' : level === 4 ? '🌋 第四关：熔岩火山！' : level === 5 ? '⛈️ 第五关：天空雷域！' : level === 6 ? '🕳️ 第六关：虚空之境！' : level === 8 ? '💀 第八关：凋零之地！凋灵骷髅大举入侵！' : level === 9 ? '🐉 第九关：末影之地！没有小怪，只有末影龙！' : '💎 第七关：水晶洞窟！') + '全部家当都继承，商店已刷新！');
+    setBanner((level === 2 ? '❄️ 第二关：骷髅雪原！' : level === 3 ? '👻 第三关：鬼魂地狱！' : level === 4 ? '🌋 第四关：熔岩火山！' : level === 5 ? '⛈️ 第五关：天空雷域！' : level === 6 ? '🕳️ 第六关：虚空之境！' : level === 8 ? '💀 第八关：凋零之地！凋灵骷髅大举入侵！' : level === 9 ? '🐉 第九关：末影之地！没有小怪，只有末影龙！' : level === 10 ? '🧨 第十关：苦力怕矿洞！听脚步声，嘶嘶响就跑！' : '💎 第七关：水晶洞窟！') + '全部家当都继承，商店已刷新！');
   } else {   // what === 'town'：主线通关→剧情→进小镇（🗼 试炼塔在小镇广场南边）
     townUnlocked = true; setBanner('🏆 主线通关！宁静小镇开启，试炼塔在等你！');
     for (const o of zombies) o.dead = true;
@@ -2479,15 +2544,15 @@ function killZombie(z) {
       endlessBossDown(z);
       chest = { x: z.x, y: z.y, taken: false };
       setBanner('🌀 BOSS 倒下！宝箱掉下来啦，走过去打开！');
-    } else if (level < 9) {   // 🎁 普通关：掉宝箱，开完问要不要进下一关
+    } else if (level < 10) {   // 🎁 普通关：掉宝箱，开完问要不要进下一关
       pendingNext = 'level'; chest = { x: z.x, y: z.y, taken: false };
       setBanner('👑 BOSS 倒下！宝箱掉下来了，走过去打开！');
       saveGame();
-    } else {   // 🐉 第九关末影龙倒了：主线通关！掉宝箱，开完进小镇（试炼塔等你）
+    } else {   // 🧨 第十关泰坦苦力怕倒了：主线通关！掉宝箱，开完进小镇（试炼塔等你）
       player.gold += 800; updateGold();
       for (let i = 0; i < 40; i++) burst(player.x + (Math.random() - 0.5) * 300, player.y + (Math.random() - 0.5) * 300, ['#ffd24a', '#4a6aff', '#a8f2ff', '#7ec850'][i % 4]);
       pendingNext = 'town'; chest = { x: z.x, y: z.y, taken: false };
-      setBanner('🐉 末影龙倒下！主线通关！宝箱掉下来了，走过去打开！');
+      setBanner('🧨 泰坦苦力怕倒下了！主线通关！宝箱掉下来了，走过去打开！');
       beep(600, 1200, 0.6, 'sine', 0.2); setTimeout(() => beep(800, 1600, 0.6, 'sine', 0.2), 250);
       saveGame();
     }
@@ -2846,6 +2911,10 @@ function update(dt) {
         }
         continue;
       }
+      if (z.creep) {   // 🧨 苦力怕：悄悄靠近→引信→自爆（不咬人）
+        creepTick(z, (z.aggroW && z.aggroW.hp > 0) ? z.aggroW : player, dt, diff.speedMul * cloakMul * slowF);   // 🐺 追仇恨目标
+        continue;
+      }
       if (z.lava) {   // 🌋 岩浆怪：蹦跳近战，抓到 1 心（盔甲照挡）
         lavaTick(z, (z.aggroW && z.aggroW.hp > 0) ? z.aggroW : player, dt, diff.speedMul * cloakMul * slowF);   // 🐺 追仇恨目标
         const dmgL = rollDmg(1);
@@ -3024,6 +3093,31 @@ function loop(now) {
 /* ================= 画面 ================= */
 /* 👹 BOSS 画法：举臂预警圈、陀螺旋转、受击闪白 */
 function drawBoss(z) {
+  if (z.titan) {   // 🧨 泰坦苦力怕：巨型绿色苦力怕（四条腿+苦脸）
+    const tx = Math.round(z.x), ty = Math.round(z.y - 26);
+    if (z.tnts) for (const t of z.tnts) {   // TNT 块：红盒白条纹+引线火花+预警圈
+      ctx.globalAlpha = 0.25 + 0.2 * Math.sin(t.t * 12); ctx.strokeStyle = '#ff4a3a'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.arc(t.x, t.y, 65 * (t.t / 2.5), 0, 6.3); ctx.stroke(); ctx.globalAlpha = 1;
+      ctx.fillStyle = '#c8302a'; ctx.fillRect(t.x - 10, t.y - 12, 20, 20);
+      ctx.fillStyle = '#f0e6d0'; ctx.fillRect(t.x - 10, t.y - 4, 20, 6);
+      ctx.fillStyle = '#5a1a14'; ctx.font = 'bold 6px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('TNT', t.x, t.y + 1); ctx.textAlign = 'left';
+      if (Math.floor(t.t * 8) % 2 === 0) { ctx.fillStyle = '#ffe84a'; ctx.fillRect(t.x - 1, t.y - 17, 3, 5); }   // 火花闪
+    }
+    ctx.globalAlpha = 0.3; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.ellipse(tx, z.y + 4, 26, 9, 0, 0, 6.3); ctx.fill(); ctx.globalAlpha = 1;
+    const tstep = Math.sin(z.walkT * 7) * 3;
+    ctx.fillStyle = '#4a8a2a';
+    ctx.fillRect(tx - 20, z.y - 10 + Math.max(0, tstep), 9, 12 - Math.max(0, tstep)); ctx.fillRect(tx + 11, z.y - 10 + Math.max(0, tstep), 9, 12 - Math.max(0, tstep));   // 前腿
+    ctx.fillRect(tx - 20, z.y - 10 + Math.max(0, -tstep), 9, 12 - Math.max(0, -tstep)); ctx.fillRect(tx + 11, z.y - 10 + Math.max(0, -tstep), 9, 12 - Math.max(0, -tstep));   // 后腿
+    ctx.fillStyle = '#5aa832'; ctx.fillRect(tx - 18, ty - 40, 36, 52);   // 身体
+    ctx.fillStyle = '#6ab838'; ctx.fillRect(tx - 18, ty - 40, 36, 8);   // 头顶亮绿
+    ctx.fillStyle = '#141410';   // 苦力怕脸：两眼+倒三角嘴
+    ctx.fillRect(tx - 11, ty - 30, 8, 8); ctx.fillRect(tx + 3, ty - 30, 8, 8);
+    ctx.fillRect(tx - 5, ty - 20, 10, 6); ctx.fillRect(tx - 8, ty - 14, 6, 8); ctx.fillRect(tx + 2, ty - 14, 6, 8);
+    if (z.flash > 0) { ctx.globalAlpha = Math.min(1, z.flash * 8); ctx.fillStyle = 'rgba(255,255,255,.7)'; ctx.fillRect(tx - 22, ty - 44, 44, 60); ctx.globalAlpha = 1; }
+    ctx.fillStyle = '#0008'; ctx.fillRect(tx - 28, ty - 52, 56, 5);
+    ctx.fillStyle = '#e84a4a'; ctx.fillRect(tx - 28, ty - 52, 56 * (z.hp / z.maxHp), 5);
+    return;
+  }
   if (z.ender) {   // 🐉 末影龙：黑龙盘旋（大翅膀扇动+长尾巴+紫眼睛）
     const ex = Math.round(z.x), ey = Math.round(z.y - 46 - Math.sin(z.walkT * 2) * 8);
     if (z.diveWarn != null) {   // 俯冲预警红线
@@ -3300,6 +3394,26 @@ function draw() {
       if (z.freezeT > 0) { ctx.fillStyle = 'rgba(140,210,255,.45)'; ctx.fillRect(z.x - 10, z.y - 24 - hop2, 20, 28); }
       ctx.fillStyle = '#0008'; ctx.fillRect(z.x - 12, z.y - 32 - hop2, 24, 4);
       ctx.fillStyle = '#e84a4a'; ctx.fillRect(z.x - 12, z.y - 32 - hop2, 24 * (z.hp / VOIDW.hp), 4);
+      continue;
+    }
+    if (z.creep) {   // 🧨 苦力怕：绿色小个子+苦脸，引信点燃时发白膨胀
+      const fusing = z.fuseT != null, flashOn = fusing && Math.floor(z.fuseT * 10) % 2 === 0, grow = fusing ? 1 + (0.8 - z.fuseT) * 0.25 : 1;
+      const cx = Math.round(z.x), cy = Math.round(z.y);
+      ctx.save(); ctx.translate(cx, cy); ctx.scale(grow, grow);
+      const cstep = Math.sin(z.walkT * 8) * 2.5;
+      ctx.fillStyle = flashOn ? '#d8f0c8' : '#4a8a2a';
+      ctx.fillRect(-9, -8 + Math.max(0, cstep), 5, 9 - Math.max(0, cstep)); ctx.fillRect(4, -8 + Math.max(0, cstep), 5, 9 - Math.max(0, cstep));
+      ctx.fillRect(-9, -8 + Math.max(0, -cstep), 5, 9 - Math.max(0, -cstep)); ctx.fillRect(4, -8 + Math.max(0, -cstep), 5, 9 - Math.max(0, -cstep));
+      ctx.fillStyle = flashOn ? '#e8f8dc' : '#5aa832'; ctx.fillRect(-8, -24, 16, 20);
+      ctx.fillStyle = flashOn ? '#f4fce8' : '#6ab838'; ctx.fillRect(-8, -24, 16, 4);
+      ctx.fillStyle = '#141410';
+      ctx.fillRect(-5, -21, 4, 4); ctx.fillRect(1, -21, 4, 4);
+      ctx.fillRect(-2, -16, 4, 3); ctx.fillRect(-4, -13, 3, 4); ctx.fillRect(1, -13, 3, 4);
+      ctx.restore();
+      if (fusing) { ctx.fillStyle = '#ffe84a'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('!', cx, cy - 30); ctx.textAlign = 'left'; }   // 引信警告
+      if (z.flash > 0) { ctx.globalAlpha = Math.min(1, z.flash * 8); ctx.fillStyle = 'rgba(255,255,255,.75)'; ctx.fillRect(cx - 10, cy - 26, 20, 28); ctx.globalAlpha = 1; }
+      ctx.fillStyle = '#0008'; ctx.fillRect(cx - 10, cy - 32, 20, 3);
+      ctx.fillStyle = '#e84a4a'; ctx.fillRect(cx - 10, cy - 32, 20 * (z.hp / 6), 3);
       continue;
     }
     if (z.ws) {   // 💀 MC 凋零骷髅：黑色高个骷髅，正面/侧面走路，手拿石剑
