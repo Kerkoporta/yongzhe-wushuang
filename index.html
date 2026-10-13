@@ -121,7 +121,7 @@
   <div class="hsec">🌟 职业（打 BOSS 开宝箱拿「觉醒石」，随机觉醒，不许挑！）</div>
   <div class="htxt">🥷 <b>刺客</b>：射箭后点「⚡传送」瞬移到落点，落地一刀×2<br>🔮 <b>法师</b>：武器伤害+15%（法杖再+15%），挥剑放剑风、箭带燃烧——但只有 2.5 格血<br>⚔️ <b>战士</b>：双手各持一把武器轮流砍（攻速翻倍），双剑=300° 大扇形——法杖只能发挥九成<br>🛡️ <b>坦克</b>：点「格挡」举盾 0.5 秒免疫一切（站桩），冷却 2 秒——技能位只剩 4 格<br>🐺 <b>召唤师</b>：每 8 秒自动召唤一只狼（最多 3 只、每只 6 血），谁打怪怪就咬谁——只有 3 格血</div>
   <div class="hsec">🗺️ 更多玩法</div>
-  <div class="htxt">🎁 BOSS 宝箱三选一（武器/装备/技能/宠物/觉醒石）<br>🔷 武器店偶尔刷「升级石」，300 金币让工匠把手里的武器升一级（最高橙色传说）<br>🌈 品质天梯：灰粗糙→白普通→绿优秀→蓝精良→紫史诗→橙传说<br>🐾 宠物有血条啦：越贵越扛揍，被打倒下关复活（无尽过波也复活）<br>💀 第八关·凋零之地：MC 凋零骷髅成群出没，BOSS 是三头凋灵——蓝骷髅头打中掉 2 血，红色冲锋走廊里掉 2.5 血，快闪！<br>🐉 第九关·末影之地：全关只有末影龙（10000 血）——紫龙息落地成雾（站雾里一直掉血），被俯冲顶飞落地掉 3 血！<br>🧨 第十关·苦力怕矿洞：MC 苦力怕悄悄摸近你就自爆（跑远 2 格引信熄灭）；BOSS 泰坦苦力怕——TNT 雨 2.5 秒后炸 2.5 血（有一个瞄准你），被扑咬掉 3 血！<br>🏡 通关第十关解锁宁静小镇：商店街、买房、广场长椅随便坐<br>🗼 小镇广场南边有座试炼塔：进去就是无尽挑战，一遍遍刷榜比谁爬得高</div>
+  <div class="htxt">🎁 BOSS 宝箱三选一（武器/装备/技能/宠物/觉醒石）<br>🔷 武器店偶尔刷「升级石」，300 金币让工匠把手里的武器升一级（最高橙色传说）<br>🌈 品质天梯：灰粗糙→白普通→绿优秀→蓝精良→紫史诗→橙传说<br>🐾 宠物有血条啦：越贵越扛揍，被打倒下关复活（无尽过波也复活）<br>💀 第八关·凋零之地：MC 凋零骷髅成群出没，BOSS 是三头凋灵——蓝骷髅头打中掉 2 血，红色冲锋走廊里掉 2.5 血，快闪！<br>🐉 第九关·末影之地：全关只有末影龙（10000 血）——紫龙息落地成雾（站雾里一直掉血），被俯冲顶飞落地掉 3 血！<br>🧨 第十关·苦力怕矿洞：MC 苦力怕悄悄摸近你就自爆（跑远 2 格引信熄灭）；BOSS 泰坦苦力怕——TNT 雨 2.5 秒后炸 2.5 血（有一个瞄准你），被扑咬掉 3 血！<br>🛍️ 新三关还藏了 80 件新宝贝（武器/装备/宠物/技能各 20 件）：全混在商店随机池里，第一关的商店也能抽到！<br>🏡 通关第十关解锁宁静小镇：商店街、买房、广场长椅随便坐<br>🗼 小镇广场南边有座试炼塔：进去就是无尽挑战，一遍遍刷榜比谁爬得高</div>
   <button id="helpClose" style="margin-top:10px">知道啦！</button>
   <div style="margin-top:14px;padding-top:8px;border-top:1px solid rgba(255,255,255,.15);font-size:11px;opacity:.6;text-align:center">本游戏由杨恩泽出品<br>最终解释权归杨恩泽所有</div>
 </div></div>
@@ -195,7 +195,7 @@
   <button id="overHome" style="margin-top:10px">🏠 回主页</button>
 </div></div>
 </div>
-<script src="logic.js?v=23"></script>
+<script src="logic.js?v=24"></script>
 <script>
 'use strict';
 /* ================= 像素小人 & 僵尸（字符串画出来的，MC 风） ================= */
@@ -266,6 +266,27 @@ const WEAPON_SPRITES = {
   phantom_soul: WEP_SWORD.map(r => r.replace(/X/g, 'v').replace('x', 'Y')),
   night_sword: WEP_SWORD.map(r => r.replace(/X/g, 'k').replace('x', 'm')),
   final_judge: ['...yy...','...yY...','...yy...','...yY...','...yy...','...yY...','..uuuu..','...hh...','...hh...','...hh...'],
+  /* 💀🐉🧨 新三关 20 把像素造型 */
+  wskel_sword: WEP_SWORD.map(r => r.replace(/X/g, 'm').replace('x', 'k')),
+  coal_dagger: ['...kk...','...km...','...kk...','...kk...','..uuu...','...h....','...h....','........','........','........'],
+  dark_bow: ['....vv..','...v..k.','..v...k.','.v....k.','.v....k.','.v....k.','..v...k.','...v..k.','....vv..','........'],
+  bone_scythe: ['..qqqq..','.qq..q..','.q......','.Q......','.Q......','.Q......','.Q......','..Q.....','..Q.....','..Q.....'],
+  wither_blade: WEP_SWORD.map(r => r.replace(/X/g, 'k').replace('x', 'm')),
+  wither_staff: ['...KK...','..KvvK..','...KK...','...uu...','...uu...','...uu...','...uu...','...uu...','...uu...','...uu...'],
+  netherite_sword: WEP_SWORD.map(r => r.replace(/X/g, 'k').replace('x', 'R')),
+  purpur_sword: WEP_SWORD.map(r => r.replace(/X/g, 'v').replace('x', 'V')),
+  void_bow: ['....vv..','...v..V.','..v...V.','.v....V.','.v....V.','.v....V.','..v...V.','...v..V.','....vv..','........'],
+  ender_pearl_blade: WEP_SWORD.map(r => r.replace(/X/g, 'V').replace('x', 'v')),
+  end_staff: ['...vv...','..vVVv..','...vv...','...uu...','...uu...','...uu...','...uu...','...uu...','...uu...','...uu...'],
+  shulker_gun: ['...VV...','...VV...','...uu...','...uu...','...uu...','...uu...','...uu...','...uu...','...uu...','...uu...'],
+  dragon_breath_blade: ['..vvvv..','..vVVv..','..vvvv..','..vvvv..','..vvvv..','..vvvv..','.uuuuuu.','...hh...','...hh...','...hh...'],
+  dragon_fang: ['....WW..','...W.W..','...W....','..W.....','..W.....','.W......','.W......','........','........','........'],
+  powder_dagger: ['...mm...','...me...','...mm...','...mm...','..uuu...','...h....','...h....','........','........','........'],
+  tnt_stick: ['...RR...','...RR...','...Rk...','...RR...','...RR...','...kR...','...RR...','...RR...','...RR...','...RR...'],
+  blast_bow: ['....ff..','...f..F.','..f...F.','.f....F.','.f....F.','.f....F.','..f...F.','...f..F.','....ff..','........'],
+  fuse_blade: WEP_SWORD.map(r => r.replace(/X/g, 'y').replace('x', 'F')),
+  creeper_hammer: ['gggggggg','gggggggg','ggdggdgg','gggggggg','...hh...','...hh...','...hh...','...hh...','...hh...','...hh...'],
+  titan_fist: ['dddddddd','dddddddd','ddgddgdd','dddddddd','...hh...','...hh...','...hh...','...hh...','...hh...','...hh...'],
   /* 🌋 火山 20 把像素造型 */
   fire_sword: WEP_SWORD.map(r => r.replace(/X/g, 'f').replace('x', 'F')),
   flame_knife: ['...ff...','...fF...','...ff...','...ff...','..uuu...','...h....','...h....','........','........','........'],
@@ -972,7 +993,7 @@ function angelSave() {
 }
 /* ================= 🐾 宠物伙伴（继承！过关不收回；最多 3 只出战） ================= */
 const ALLPETS = {};
-for (const lv of [1, 2, 3, 4, 5, 6, 7]) for (const [k, n, i, p, dmg, cd, range, spec] of PETS[lv]) ALLPETS[k] = { name: n, icon: i, price: p, dmg, cd, range, spec };
+for (const lv of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) for (const [k, n, i, p, dmg, cd, range, spec] of PETS[lv]) ALLPETS[k] = { name: n, icon: i, price: p, dmg, cd, range, spec };
 /* 🐾 宠物血量（v58 恩泽定的）：按价格定血 3~5；会被怪咬（咬一口=怪咬人的伤害）；过关/无尽过波复活 */
 function petMaxHp(key) { const pr = (ALLPETS[key] && ALLPETS[key].price) || 0; return pr >= 300 ? 5 : pr >= 100 ? 4 : 3; }
 function revivePets() {
@@ -1639,6 +1660,29 @@ const WEAPON_FX = {
   phantom_soul: { dmg: 3.5, tp: true, color: '#c8a0ff' },
   night_sword: { dmg: 5, color: '#6a6a8a' },
   final_judge: { dmg: 6, holy: true, color: '#fff2b0' },
+  /* 💀 凋零 7 把 */
+  wskel_sword: { dmg: 2, color: '#b8b8c2' },
+  coal_dagger: { dmg: 1.8, cdMul: 0.7, color: '#3a3440' },
+  dark_bow: { dmg: 1.8, bow: 'soul', color: '#5a4a82' },
+  bone_scythe: { dmg: 2.5, rangeMul: 1.5, color: '#e8e8f0' },
+  wither_blade: { dmg: 3, poison: 3, color: '#241a30' },
+  wither_staff: { dmg: 2.2, staff: true, color: '#4a6aff' },
+  netherite_sword: { dmg: 5, color: '#3a2a30' },
+  /* 🐉 末影 7 把 */
+  purpur_sword: { dmg: 2.2, color: '#c8a0ff' },
+  void_bow: { dmg: 2.2, bow: 'void', color: '#b48af2' },
+  ender_pearl_blade: { dmg: 3, tp: true, color: '#8a5ac8' },
+  end_staff: { dmg: 2, staff: true, zapPct: 0.2, color: '#e0ccff' },
+  shulker_gun: { dmg: 3, gun: true, color: '#d0b0ff' },
+  dragon_breath_blade: { dmg: 4.5, cdMul: 1.2, color: '#b48af2' },
+  dragon_fang: { dmg: 6, color: '#e8e8f0' },
+  /* 🧨 苦力怕 6 把 */
+  powder_dagger: { dmg: 1.6, doublePct: 0.3, color: '#8a8578' },
+  tnt_stick: { dmg: 2, cdMul: 0.8, color: '#c8302a' },
+  blast_bow: { dmg: 2, bow: 'fire', color: '#ff8a5a' },
+  fuse_blade: { dmg: 2.5, zapPct: 0.15, color: '#ffe84a' },
+  creeper_hammer: { dmg: 4, cdMul: 1.3, kbMul: 3, color: '#7ec850' },
+  titan_fist: { dmg: 5.5, cdMul: 1.2, color: '#5aa832' },
   /* 🌋 火山 20 把 */
   fire_sword: { dmg: 2, color: '#ff9a3d' },
   flame_knife: { dmg: 1.5, cdMul: 0.7, color: '#ffb03d' },
@@ -1725,7 +1769,7 @@ const WEAPON_FX = {
   glow_pick: { dmg: 8.5, color: '#a8f2ff' },
 };
 function shopNow() { return level === 2 ? SHOP2 : level === 3 ? SHOP3 : level === 4 ? SHOP4 : level === 5 ? SHOP5 : level === 6 ? SHOP6 : level === 7 ? SHOP7 : SHOP; }   // 每关商店完全不同
-const ALLKIND = {}; for (const t of [SHOP, SHOP2, SHOP3, SHOP4, SHOP5, SHOP6, SHOP7]) for (const k in t) ALLKIND[k] = t[k].kind;   // 全商品类型表（过关保留技能/宠物用）
+const ALLKIND = {}; for (const t of [SHOP, SHOP2, SHOP3, SHOP4, SHOP5, SHOP6, SHOP7, SHOP8, SHOP9, SHOP10]) for (const k in t) ALLKIND[k] = t[k].kind;   // 全商品类型表（过关保留技能/宠物用）
 function toggleShop(force) {
   paused = force == null ? !paused : force;
   shopEl.style.display = paused ? 'flex' : 'none';
@@ -2376,6 +2420,12 @@ const SKILL_FX = {
   sk5_voltball: ['ball', 14, 4, '#ffe84a', { zapx: 1 }], sk5_truezap: ['zap', 16, 5, '#ffe84a'], sk5_stormfreeze: ['freeze', 0, 8, '#ffe84a', { r: 190, dur: 3 }], sk5_voltspin: ['spin', 13, 6, '#ffe84a', { r: 95 }], sk5_eleccloud: ['cloud', 1, 9, '#fff29a', { dur: 5.5, r: 80 }], sk5_skymeteor: ['zap', 26, 10, '#ffe84a'], sk5_voltrain: ['chain', 9, 9, '#ffe84a'], sk5_magpull: ['pull', 7, 8, '#ffe84a', { r: 230 }], sk5_megachain: ['chain', 8, 7, '#ffe84a'], sk5_thundergod: ['spin', 28, 15, '#fff29a', { r: 135 }],
   sk6_voidball: ['ball', 16, 4, '#b48af2', { zapx: 1 }], sk6_oblivionzap: ['zap', 18, 5, '#b48af2'], sk6_voidfreeze: ['freeze', 0, 8, '#b48af2', { r: 190, dur: 3 }], sk6_voidspin: ['spin', 15, 6, '#b48af2', { r: 95 }], sk6_darkcloud: ['cloud', 1, 9, '#8a5ac8', { dur: 6, r: 80 }], sk6_voidmeteor: ['zap', 30, 10, '#b48af2'], sk6_oblivionrain: ['chain', 10, 9, '#b48af2'], sk6_singularpull: ['pull', 8, 8, '#b48af2', { r: 230 }], sk6_voidchain: ['chain', 9, 7, '#b48af2'], sk6_bigbang: ['spin', 32, 15, '#d0b0ff', { r: 140 }],
   sk7_spikeball: ['ball', 12, 4, '#a8f2ff', { burn: 1 }], sk7_prismzap: ['zap', 14, 5, '#d0b0ff'], sk7_crystalfrost: ['freeze', 0, 8, '#c8f4ff', { r: 180, dur: 2.5 }], sk7_gemspin: ['spin', 11, 6, '#a8f2ff', { r: 95 }], sk7_lightcloud: ['cloud', 1, 9, '#d0f2ff', { dur: 5, r: 75 }], sk7_gemmeteor: ['zap', 18, 10, '#a8f2ff'], sk7_prismrain: ['chain', 8, 9, '#d0b0ff'], sk7_pull: ['pull', 8, 8, '#b48af2', { r: 220 }], sk7_chain: ['chain', 9, 7, '#d0b0ff'], sk7_annihilate: ['spin', 34, 30, '#eaf8ff', { r: 140 }],
+  /* 💀 凋零 7 技 */
+  sk8_wskull: ['ball', 16, 5, '#4a6aff'], sk8_darkzap: ['zap', 14, 5, '#3a3440'], sk8_bonefreeze: ['freeze', 0, 9, '#e8e8f0', { r: 150, dur: 2 }], sk8_soulcloud: ['cloud', 2, 8, '#4a6aff', { dur: 4, r: 70 }], sk8_wspin: ['spin', 20, 13, '#5a4a82', { r: 110 }], sk8_wchain: ['chain', 9, 7, '#8a5ac8'], sk8_nether: ['spin', 28, 16, '#241a30', { r: 135 }],
+  /* 🐉 末影 7 技 */
+  sk9_pearl: ['ball', 15, 5, '#8a5ac8'], sk9_breath: ['cloud', 3, 9, '#b48af2', { dur: 5, r: 75 }], sk9_roar: ['spin', 22, 14, '#b48af2', { r: 120 }], sk9_pull: ['pull', 5, 8, '#6a4a92', { r: 220 }], sk9_shulker: ['ball', 20, 7, '#d0b0ff'], sk9_endbeam: ['zap', 24, 8, '#e0ccff'], sk9_chorus: ['chain', 13, 8, '#c8a0ff'],
+  /* 🧨 苦力怕 6 技 */
+  sk10_tnt: ['ball', 22, 8, '#c8302a'], sk10_blast: ['spin', 18, 12, '#ff8a5a', { r: 100 }], sk10_powder: ['cloud', 2, 8, '#8a8578', { dur: 4.5, r: 70 }], sk10_creep: ['chain', 10, 7, '#7ec850'], sk10_mega: ['spin', 30, 18, '#ff6a2a', { r: 140 }], sk10_fuse: ['zap', 16, 6, '#ffe84a'],
 };
 function zMaxHp(z) { return z.boss ? BOSS.hp : z.voidw ? VOIDW.hp : z.storm ? STORM.hp : z.lava ? LAVA.hp : z.ghost ? GHOST.hp : z.skel ? SKELETON.hp : z.crystal ? CRYSTAL.hp : ZOMBIE.hp; }
 function dotDmg(z) { return z.boss ? 1 : Math.max(1, Math.ceil(zMaxHp(z) * 0.1)); }   // 🩸 持续伤害：每 0.1 秒掉十分之一血（BOSS 固定 1）
@@ -2460,7 +2510,7 @@ function castSkill(key) {
 }
 const skillsEl = document.getElementById('skills');
 let skillRefs = [];
-const ALLITEMS = {}; for (const t of [SHOP, SHOP2, SHOP3, SHOP4, SHOP5, SHOP6, SHOP7]) for (const k in t) ALLITEMS[k] = t[k];   // 全关卡物品表（继承的技能跨关也能用）
+const ALLITEMS = {}; for (const t of [SHOP, SHOP2, SHOP3, SHOP4, SHOP5, SHOP6, SHOP7, SHOP8, SHOP9, SHOP10]) for (const k in t) ALLITEMS[k] = t[k];   // 全关卡物品表（继承的技能跨关也能用）
 /* 🥷 职业物品（v54）：不进商店货架、不进宝箱抽奖池，只能靠剧情获得 */
 const CLASS_ITEMS = {
   awaken_stone: { name: '觉醒石', icon: '🌟', price: 0, kind: 'awaken', desc: '随机觉醒职业：刺客/法师/战士/坦克/召唤师，看你的命！' },

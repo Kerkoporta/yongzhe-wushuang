@@ -693,6 +693,87 @@ SKBOOKS[7] = [
   ['sk7_chain', '折光链', '⚡', 610, '技能：光链劈 3 只各 9 伤（冷却 7 秒）'],
   ['sk7_annihilate', '水晶湮灭', '💎', 900, '技能：毕业大招！一圈 34 伤（冷却 30 秒）'],
 ];
+/* 💀 凋零之地商店（第八关主题，全关卡商店随机池都能抽到） */
+const SHOP8 = {
+  /* ---- 凋零武器 ×7 ---- */
+  wskel_sword: { name: '骷髅石剑', icon: '🗡️', price: 40, kind: 'weapon', desc: '伤害 2：凋零骷髅手里那把，黑沉沉' },
+  coal_dagger: { name: '煤黑匕首', icon: '🔪', price: 60, kind: 'weapon', desc: '伤害 1.8+攻速×1.4：黑得看不见刀影' },
+  dark_bow: { name: '暗影弓', icon: '🏹', price: 90, kind: 'weapon', desc: '远程：一箭 1.8，影子一样的箭' },
+  bone_scythe: { name: '白骨镰刀', icon: '⚔️', price: 110, kind: 'weapon', desc: '伤害 2.5+射程×1.5：死神同款' },
+  wither_blade: { name: '凋零之刃', icon: '🖤', price: 160, kind: 'weapon', desc: '伤害 3+凋零毒 3 秒：被砍的一直掉血' },
+  wither_staff: { name: '凋零法杖', icon: '🪄', price: 170, kind: 'weapon', desc: '远程速射：蓝色凋灵火，单发 2.2' },
+  netherite_sword: { name: '下界合金剑', icon: '⚫', price: 280, kind: 'weapon', desc: '伤害 5：MC 最硬的剑，没有之一' },
+  /* ---- 凋零装备 ×7 ---- */
+  wskel_helm: { name: '凋零骨盔', icon: '🪖', price: 30, kind: 'gear', desc: '最大血量+1', mod: { heart: 1 } },
+  nether_brick: { name: '下界砖甲', icon: '🧱', price: 100, kind: 'gear', desc: '最大血量+2：砖头垒的甲', mod: { heart: 2 } },
+  bone_boots: { name: '白骨战靴', icon: '🥾', price: 45, kind: 'gear', desc: '移动速度+20%', mod: { speed: 1.2 } },
+  coal_stone: { name: '煤渣石', icon: '🪨', price: 55, kind: 'gear', desc: '伤害+1：黑煤块里的火力', mod: { dmgAdd: 1 } },
+  wither_rose: { name: '凋零玫瑰', icon: '🥀', price: 90, kind: 'gear', desc: '回血速度×2：危险又美丽', mod: { regen: 2 } },
+  wither_cloak: { name: '凋零披风', icon: '🖤', price: 120, kind: 'gear', desc: '15% 概率完全格挡', mod: { block: 0.15 } },
+  dark_crown: { name: '暗黑王冠', icon: '👑', price: 210, kind: 'gear', desc: '血+1、伤害+1、移速+10%：凋零毕业神装', mod: { heart: 1, dmgAdd: 1, speed: 1.1 } },
+};
+SKBOOKS[8] = [
+  ['sk8_wskull', '凋零之首', '🔵', 220, '技能：喷出蓝色凋灵头 16 伤（冷却 5 秒）'],
+  ['sk8_darkzap', '黑暗电击', '⚫', 200, '技能：黑电劈最近的怪 14 伤（冷却 5 秒）'],
+  ['sk8_bonefreeze', '白骨囚笼', '💀', 240, '技能：一圈白骨冻住怪 2 秒（冷却 9 秒）'],
+  ['sk8_soulcloud', '灵魂毒雾', '🌫️', 210, '技能：蓝雾 4 秒持续掉血（冷却 8 秒）'],
+  ['sk8_wspin', '凋零风暴', '🌪️', 300, '技能：360° 黑风暴 20 伤（冷却 13 秒）'],
+  ['sk8_wchain', '凋零连锁', '⚡', 260, '技能：黑链劈 3 只各 9 伤（冷却 7 秒）'],
+  ['sk8_nether', '下界湮灭', '👹', 420, '技能：一圈 28 伤的下界之力（冷却 16 秒）'],
+];
+/* 🐉 末影之地商店（第九关主题） */
+const SHOP9 = {
+  /* ---- 末影武器 ×7 ---- */
+  purpur_sword: { name: '紫珀剑', icon: '🟣', price: 90, kind: 'weapon', desc: '伤害 2.2：末地城的紫色砖打的' },
+  void_bow: { name: '虚空弓', icon: '🏹', price: 140, kind: 'weapon', desc: '远程：一箭 2.2，箭从虚空里来' },
+  ender_pearl_blade: { name: '末影之刃', icon: '💜', price: 150, kind: 'weapon', desc: '伤害 3，20% 瞬移背刺+无敌残影' },
+  end_staff: { name: '末地法杖', icon: '🪄', price: 180, kind: 'weapon', desc: '远程速射：20% 追加紫电击（单发 2）' },
+  shulker_gun: { name: '潜影枪', icon: '🔫', price: 200, kind: 'weapon', desc: '远程重炮：潜影贝导弹，单发 3' },
+  dragon_breath_blade: { name: '龙息大剑', icon: '🐉', price: 260, kind: 'weapon', desc: '伤害 4.5 但挥得慢：沾着龙息' },
+  dragon_fang: { name: '龙牙', icon: '🦷', price: 320, kind: 'weapon', desc: '伤害 6：末影龙掉的牙，吹毛断发' },
+  /* ---- 末影装备 ×7 ---- */
+  ender_helm: { name: '末影头盔', icon: '🪖', price: 35, kind: 'gear', desc: '最大血量+1', mod: { heart: 1 } },
+  dragon_scale: { name: '龙鳞甲', icon: '🐉', price: 150, kind: 'gear', desc: '最大血量+3：龙鳞一片片缝的', mod: { heart: 3 } },
+  dragon_wing: { name: '龙翼', icon: '🦋', price: 130, kind: 'gear', desc: '移动速度+25%：背上真的有小翅膀', mod: { speed: 1.25 } },
+  ender_eye: { name: '末影之眼', icon: '👁️', price: 120, kind: 'gear', desc: '伤害+2：它盯着怪看', mod: { dmgAdd: 2 } },
+  chorus_fruit: { name: '紫颂果', icon: '🍇', price: 60, kind: 'gear', desc: '回血速度×2：咬一口瞬移味', mod: { regen: 2 } },
+  shulker_shell: { name: '潜影壳', icon: '🐚', price: 80, kind: 'gear', desc: '15% 概率完全格挡', mod: { block: 0.15 } },
+  elytra: { name: '鞘翅', icon: '🪂', price: 230, kind: 'gear', desc: '血+1、移速+15%、伤害+1：末影毕业神装', mod: { heart: 1, speed: 1.15, dmgAdd: 1 } },
+};
+SKBOOKS[9] = [
+  ['sk9_pearl', '末影珍珠', '🟣', 230, '技能：掷出末影珍珠 15 伤（冷却 5 秒）'],
+  ['sk9_breath', '龙息术', '💜', 280, '技能：紫雾 5 秒持续掉血（冷却 9 秒）'],
+  ['sk9_roar', '龙吟', '🐉', 320, '技能：360° 龙吟冲击 22 伤（冷却 14 秒）'],
+  ['sk9_pull', '虚空引力', '🕳️', 250, '技能：把怪吸过来 5 伤（冷却 8 秒）'],
+  ['sk9_shulker', '潜影导弹', '🐚', 270, '技能：追踪导弹 20 伤（冷却 7 秒）'],
+  ['sk9_endbeam', '末地光束', '✨', 340, '技能：光束劈最近的怪 24 伤（冷却 8 秒）'],
+  ['sk9_chorus', '紫颂瞬影', '🍇', 300, '技能：紫链劈 3 只各 13 伤（冷却 8 秒）'],
+];
+/* 🧨 苦力怕矿洞商店（第十关主题） */
+const SHOP10 = {
+  /* ---- 苦力怕武器 ×6 ---- */
+  powder_dagger: { name: '火药匕首', icon: '🔪', price: 55, kind: 'weapon', desc: '伤害 1.6，30% 再补一刀' },
+  tnt_stick: { name: 'TNT 棒', icon: '🧨', price: 70, kind: 'weapon', desc: '伤害 2+攻速×1.25：抡起来呼呼响' },
+  blast_bow: { name: '爆破弓', icon: '🏹', price: 100, kind: 'weapon', desc: '远程：一箭 2，箭头是迷你 TNT' },
+  fuse_blade: { name: '引信剑', icon: '⚡', price: 120, kind: 'weapon', desc: '伤害 2.5，15% 追加电光' },
+  creeper_hammer: { name: '苦力怕锤', icon: '🔨', price: 170, kind: 'weapon', desc: '伤害 4+击退×3：一锤炸飞一片' },
+  titan_fist: { name: '泰坦之拳', icon: '👊', price: 300, kind: 'weapon', desc: '伤害 5.5：泰坦苦力怕的拳头（缩小版）' },
+  /* ---- 苦力怕装备 ×6 ---- */
+  creep_bandana: { name: '苦力怕头巾', icon: '🟢', price: 30, kind: 'gear', desc: '最大血量+1', mod: { heart: 1 } },
+  tnt_vest: { name: 'TNT 背心', icon: '🎽', price: 110, kind: 'gear', desc: '最大血量+2：谁敢咬穿 TNT 的人', mod: { heart: 2 } },
+  blast_boots: { name: '爆破靴', icon: '🥾', price: 50, kind: 'gear', desc: '移动速度+20%：爆炸推进（安全的）', mod: { speed: 1.2 } },
+  powder_charm: { name: '火药护符', icon: '🧿', price: 85, kind: 'gear', desc: '伤害+1：火药味缠身', mod: { dmgAdd: 1 } },
+  titan_heart: { name: '泰坦之心', icon: '💚', price: 180, kind: 'gear', desc: '最大血量+2、回血×2：泰坦的心脏扑通扑通', mod: { heart: 2, regen: 2 } },
+  creeper_cloak: { name: '绿皮斗篷', icon: '🧥', price: 95, kind: 'gear', desc: '20% 概率完全格挡：伪装成苦力怕', mod: { block: 0.2 } },
+};
+SKBOOKS[10] = [
+  ['sk10_tnt', 'TNT 投掷', '🧨', 240, '技能：扔出 TNT 22 伤（冷却 8 秒）'],
+  ['sk10_blast', '爆破冲击', '💥', 280, '技能：360° 爆炸波 18 伤（冷却 12 秒）'],
+  ['sk10_powder', '火药云雾', '🌫️', 220, '技能：灰雾 4.5 秒持续掉血（冷却 8 秒）'],
+  ['sk10_creep', '苦力怕连锁', '🟢', 250, '技能：绿链劈 3 只各 10 伤（冷却 7 秒）'],
+  ['sk10_mega', '巨型爆炸', '🎇', 450, '技能：一圈 30 伤的大爆炸（冷却 18 秒）'],
+  ['sk10_fuse', '引信电光', '⚡', 230, '技能：电光劈最近的怪 16 伤（冷却 6 秒）'],
+];
 /* 🐾 宠物（七关各 10 只，出战帮你咬怪；宠物继承，过关不收回！最多 3 只出战） */
 const PETS = {
   1: [ /* [key,名字,图标,价格,伤害,攻速秒,射程,特性] */
@@ -737,13 +818,27 @@ const PETS = {
     ['pet7_diamonddog', '钻石犬', '🐕', 405, 7.5, 0.8, 32, null], ['pet7_gembat', '晶翼蝙蝠', '🦇', 395, 7, 0.7, 36, null],
     ['pet7_leopard', '水晶豹', '🐆', 420, 8, 0.7, 34, null], ['pet7_lightdeer', '光之鹿', '🦌', 415, 7.5, 0.8, 34, 'knock'],
     ['pet7_crystaldragon', '水晶龙', '🐉', 480, 9, 0.8, 38, null], ['pet7_prismphoenix', '棱镜凤凰', '🐦‍🔥', 650, 13, 0.8, 40, 'dot'] ],
+  8: [   /* 💀 凋零之地宠物 ×7 */
+    ['pet8_coalbug', '煤炭虫', '🐛', 270, 5.5, 0.7, 28, null], ['pet8_soulbat', '灵魂蝙蝠', '🦇', 290, 6, 0.7, 34, null],
+    ['pet8_darkwolf', '暗狼', '🐺', 320, 7, 0.8, 32, null], ['pet8_blackskelly', '小黑骷髅', '💀', 300, 6.5, 0.8, 32, null],
+    ['pet8_netherdog', '下界犬', '🐕', 310, 6.5, 0.8, 30, null], ['pet8_withercat', '凋零小猫', '🐈‍⬛', 280, 6, 0.9, 30, null],
+    ['pet8_minwither', '小凋灵', '💀', 450, 9, 0.8, 36, null] ],
+  9: [   /* 🐉 末影之地宠物 ×7 */
+    ['pet9_endermite', '末影螨', '🐛', 330, 6.5, 0.7, 28, null], ['pet9_chorusbird', '紫颂鸟', '🐦', 340, 7, 0.8, 36, null],
+    ['pet9_endercat', '末影猫', '🐈‍⬛', 350, 7, 0.8, 32, null], ['pet9_shulker', '潜影贝', '🐚', 360, 7.5, 1.0, 30, null],
+    ['pet9_voidwolf', '紫影狼', '🐺', 370, 7.5, 0.8, 32, null], ['pet9_babydragon', '龙宝宝', '🐲', 520, 10, 0.8, 36, null],
+    ['pet9_voiddragon', '虚空小龙', '🐉', 480, 9, 0.8, 38, null] ],
+  10: [   /* 🧨 苦力怕矿洞宠物 ×6 */
+    ['pet10_powderrat', '火药鼠', '🐀', 350, 6.5, 0.7, 28, null], ['pet10_sparkbee', '火花蜂', '🐝', 355, 6.5, 0.7, 32, 'dot'],
+    ['pet10_blastfrog', '爆破蛙', '🐸', 360, 7, 0.8, 30, 'knock'], ['pet10_greendog', '绿皮犬', '🐕', 370, 7.5, 0.8, 30, null],
+    ['pet10_minicreep', '小苦力怕', '🟢', 380, 7.5, 0.9, 30, null], ['pet10_minititan', '小泰坦', '🦖', 550, 11, 0.9, 34, null] ],
 };
 /* ✨ 技能书+🐾 宠物并入七关商店 */
 {
-  const TBLS = { 1: SHOP, 2: SHOP2, 3: SHOP3, 4: SHOP4, 5: SHOP5, 6: SHOP6, 7: SHOP7 };
+  const TBLS = { 1: SHOP, 2: SHOP2, 3: SHOP3, 4: SHOP4, 5: SHOP5, 6: SHOP6, 7: SHOP7, 8: SHOP8, 9: SHOP9, 10: SHOP10 };
   const SPEC_TXT = { knock: '，把怪打飞', slow: '，让怪减速', dot: '，让怪中毒', crit: '，会暴击' };
-  for (const lv of [1, 2, 3, 4, 5, 6, 7]) for (const [k, n, i, p, d] of SKBOOKS[lv]) TBLS[lv][k] = { name: n, icon: i, price: p, kind: 'skill', desc: d };
-  for (const lv of [1, 2, 3, 4, 5, 6, 7]) for (const [k, n, i, p, dmg, cd, range, spec] of PETS[lv]) TBLS[lv][k] = { name: n, icon: i, price: p, kind: 'pet', desc: `宠物：帮你咬怪 ${dmg} 伤/${cd} 秒${SPEC_TXT[spec] || ''}（继承，过关不收回）`, pet: { dmg, cd, range, spec } };
+  for (const lv of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) for (const [k, n, i, p, d] of SKBOOKS[lv]) TBLS[lv][k] = { name: n, icon: i, price: p, kind: 'skill', desc: d };
+  for (const lv of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) for (const [k, n, i, p, dmg, cd, range, spec] of PETS[lv]) TBLS[lv][k] = { name: n, icon: i, price: p, kind: 'pet', desc: `宠物：帮你咬怪 ${dmg} 伤/${cd} 秒${SPEC_TXT[spec] || ''}（继承，过关不收回）`, pet: { dmg, cd, range, spec } };
 }
 /* ⛈️ 雷云精（第五关）：白云快飞，绕玩家 190 距离盘旋，直线射电光弹（比骷髅箭快） */
 const STORM = { hp: 7, r: 12, speed: 115, keepMin: 150, keepMax: 230, fireCd: 2, range: 460 };
