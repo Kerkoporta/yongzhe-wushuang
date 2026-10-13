@@ -121,7 +121,7 @@
   <div class="hsec">🌟 职业（打 BOSS 开宝箱拿「觉醒石」，随机觉醒，不许挑！）</div>
   <div class="htxt">🥷 <b>刺客</b>：射箭后点「⚡传送」瞬移到落点，落地一刀×2<br>🔮 <b>法师</b>：武器伤害+15%（法杖再+15%），挥剑放剑风、箭带燃烧——但只有 2.5 格血<br>⚔️ <b>战士</b>：双手各持一把武器轮流砍（攻速翻倍），双剑=300° 大扇形——法杖只能发挥九成<br>🛡️ <b>坦克</b>：点「格挡」举盾 0.5 秒免疫一切（站桩），冷却 2 秒——技能位只剩 4 格<br>🐺 <b>召唤师</b>：每 8 秒自动召唤一只狼（最多 3 只、每只 6 血），谁打怪怪就咬谁——只有 3 格血</div>
   <div class="hsec">🗺️ 更多玩法</div>
-  <div class="htxt">🎁 BOSS 宝箱三选一（武器/装备/技能/宠物/觉醒石）<br>🔷 武器店偶尔刷「升级石」，300 金币让工匠把手里的武器升一级（最高橙色传说）<br>🌈 品质天梯：灰粗糙→白普通→绿优秀→蓝精良→紫史诗→橙传说<br>🐾 宠物有血条啦：越贵越扛揍，被打倒下关复活（无尽过波也复活）<br>🏡 无尽模式打 3 遍解锁宁静小镇：商店街、买房、广场长椅随便坐<br>🌀 无尽模式：打完 7 关开启，一遍遍刷榜比谁撑得久</div>
+  <div class="htxt">🎁 BOSS 宝箱三选一（武器/装备/技能/宠物/觉醒石）<br>🔷 武器店偶尔刷「升级石」，300 金币让工匠把手里的武器升一级（最高橙色传说）<br>🌈 品质天梯：灰粗糙→白普通→绿优秀→蓝精良→紫史诗→橙传说<br>🐾 宠物有血条啦：越贵越扛揍，被打倒下关复活（无尽过波也复活）<br>💀 第八关·凋零之地：MC 凋零骷髅成群出没，BOSS 是三头凋灵——蓝骷髅头打中掉 2 血，红色冲锋走廊里掉 2.5 血，快闪！<br>🏡 通关第八关解锁宁静小镇：商店街、买房、广场长椅随便坐<br>🗼 小镇广场南边有座试炼塔：进去就是无尽挑战，一遍遍刷榜比谁爬得高</div>
   <button id="helpClose" style="margin-top:10px">知道啦！</button>
   <div style="margin-top:14px;padding-top:8px;border-top:1px solid rgba(255,255,255,.15);font-size:11px;opacity:.6;text-align:center">本游戏由杨恩泽出品<br>最终解释权归杨恩泽所有</div>
 </div></div>
@@ -517,14 +517,16 @@ const LEVELS = {
   5: { name: '天空雷域', grassA: '#a8d8f0', grassB: '#9ccfea', edge: '#6aa8c8', trunk: '#8ab8d8', leaf: '#ffffff', leafHi: '#f0f8ff', rock: '#c0d8e8', rockHi: '#dceaf4', enemy: 'storm', bossName: '⛈️ 雷霆法王' },
   6: { name: '虚空之境', grassA: '#1c1226', grassB: '#171020', edge: '#0c0814', trunk: '#241a30', leaf: '#3a2a52', leafHi: '#523a72', rock: '#2e2440', rockHi: '#403358', enemy: 'void', bossName: '🕳️ 虚空主宰' },
   7: { name: '水晶洞窟', grassA: '#1e3a44', grassB: '#1a333c', edge: '#0e2028', trunk: '#2a4a56', leaf: '#4ad8e8', leafHi: '#a8f2ff', rock: '#3a5a66', rockHi: '#56d8e8', enemy: 'crystal', bossName: '💎 水晶魔王' },
-  8: { name: '无尽回廊', grassA: '#3a1e52', grassB: '#331a48', edge: '#1e0e30', trunk: '#4a2a66', leaf: '#8a5ac8', leafHi: '#b48af2', rock: '#523a72', rockHi: '#6a4a92', enemy: 'zombie', bossName: '👹 僵尸王', endless: true },
+  8: { name: '凋零之地', grassA: '#14101c', grassB: '#100c18', edge: '#080610', trunk: '#241a30', leaf: '#3a2a52', leafHi: '#5a4a82', rock: '#1e1828', rockHi: '#342a44', enemy: 'wskeleton', bossName: '💀 凋灵' },
 };
 let level = 1, earrows = [], parrows = [], garrows = [], meteors = [], puddles = [], skillShots = [], clouds = [], fxLines = [], netOrbs = null, shocks = [];   // 各种飞行物与特效
-function spawnEnemy() {   // 按关卡出怪（第八关按波次）
-  if (level === 8) { waveSpawn(); return; }
+let towerMode = false;   // 🗼 试炼塔（无尽）中：第八关是凋零关主线，无尽搬进了小镇试炼塔
+function makeWSkel(x, y) { return { id: _id++, x, y, hp: 8, r: 11, ws: true, dead: false, flash: 0, walkT: Math.random() * 9, kind: 'wskeleton' }; }   // 💀 MC 凋零骷髅：黑高个，8 血，近战
+function spawnEnemy() {   // 按关卡出怪（试炼塔按波次）
+  if (towerMode) { waveSpawn(); return; }
   const s = pickSpawn(player, Math.random);
-  zombies.push(level === 2 ? makeSkeleton(s.x, s.y, Math.random) : level === 3 ? makeGhost(s.x, s.y, Math.random) : level === 4 ? makeLava(s.x, s.y, Math.random) : level === 5 ? makeStorm(s.x, s.y, Math.random) : level === 6 ? makeVoid(s.x, s.y, Math.random) : level === 7 ? makeCrystal(s.x, s.y, Math.random) : spawnZombie(player, Math.random));
-  zombies[zombies.length - 1].kind = ['', 'zombie', 'skeleton', 'ghost', 'lava', 'storm', 'voidw', 'crystal'][level];   // 📖 图鉴计数用
+  zombies.push(level === 2 ? makeSkeleton(s.x, s.y, Math.random) : level === 3 ? makeGhost(s.x, s.y, Math.random) : level === 4 ? makeLava(s.x, s.y, Math.random) : level === 5 ? makeStorm(s.x, s.y, Math.random) : level === 6 ? makeVoid(s.x, s.y, Math.random) : level === 7 ? makeCrystal(s.x, s.y, Math.random) : level === 8 ? makeWSkel(s.x, s.y) : spawnZombie(player, Math.random));
+  zombies[zombies.length - 1].kind = ['', 'zombie', 'skeleton', 'ghost', 'lava', 'storm', 'voidw', 'crystal', 'wskeleton'][level];   // 📖 图鉴计数用
 }
 function setBanner(t) { banner = { txt: t, t: 2.6 }; }
 /* 👹 BOSS 登场：击杀满 100（之后每 100 一只） */
@@ -533,7 +535,7 @@ function spawnBoss() {
   summonT = 10;   // 10 秒后开始召唤小怪
   const pos = pickSpawn(player, Math.random);
   const b = makeBoss(pos.x, pos.y);
-  if (level === 8) {   // 🌀 无尽模式：BOSS 类型按波次，血/速+2%×遍、攻+1%×遍
+  if (towerMode) {   // 🗼 试炼塔：BOSS 类型按波次，血/速+2%×遍、攻+1%×遍
     const w = endlessWave, R = endlessRound;
     b.skelBoss = w === 2; b.ghostBoss = w === 3; b.lavaBoss = w === 4; b.stormBoss = w === 5; b.voidBoss = w === 6; b.crystalBoss = w === 7;
     b.hp = b.maxHp = Math.round((BOSS.hp + (w - 1) * 15) * (1 + 0.02 * R));
@@ -550,14 +552,50 @@ function spawnBoss() {
   b.stormBoss = level === 5;   // ⛈️ 第五关出雷霆法王（落雷+电网）
   b.voidBoss = level === 6;    // 🕳️ 第六关出虚空主宰（裂隙+相位轰炸）
   b.crystalBoss = level === 7; // 💎 第七关出水晶魔王（分身+棱光齐射）
+  b.wither = level === 8;      // 💀 第八关出凋灵（蓝色骷髅头+直线冲锋）
   b.kind = 'boss' + level;     // 📖 图鉴计数用
   b.hp = b.maxHp = BOSS.hp + (level - 1) * 15;   // 🌡️ 难度爬坡：每关 BOSS 血更厚（40→55→70→85→100→115）
   zombies.push(b);
   setBanner('⚠️ ' + LEVELS[level].bossName + '出现了！');
   beep(90, 45, 0.6, 'sawtooth', 0.3); setTimeout(() => beep(60, 30, 0.8, 'sawtooth', 0.35), 200);
 }
+/* 💀 凋灵（第八关 BOSS）：普攻=蓝色凋灵骷髅头（命中 2 血）；技能=直线冲锋 3×10 格（96×320px），路径内 2.5 血，冷却 30 秒 */
+function pointSegDist(px, py, x1, y1, x2, y2) {
+  const dx = x2 - x1, dy = y2 - y1, L2 = dx * dx + dy * dy || 1;
+  let t = ((px - x1) * dx + (py - y1) * dy) / L2; t = Math.max(0, Math.min(1, t));
+  return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy));
+}
+function witherTick(z, dt) {
+  z.walkT += dt;
+  const dx = player.x - z.x, dy = player.y - z.y, d = Math.hypot(dx, dy) || 1;
+  if (!z.charge) { z.x += dx / d * 42 * dt; z.y += dy / d * 42 * dt; }   // 慢慢飘近
+  z.skullT = (z.skullT == null ? 1.5 : z.skullT) - dt;
+  if (z.skullT <= 0 && !z.charge) {   // 💙 普攻：蓝色凋灵骷髅头（击中才造成伤害，2 血）
+    z.skullT = 2;
+    earrows.push({ x: z.x, y: z.y - 20, vx: dx / d * 260, vy: dy / d * 260, t: 2, wskull: true, dmg: 2 });
+    burst(z.x, z.y - 20, '#4a6aff', 6); beep(300, 180, 0.15, 'sawtooth', 0.1);
+  }
+  z.chargeCd = (z.chargeCd == null ? 8 : z.chargeCd) - dt;
+  if (z.charge) {   // 💨 直线冲锋：只能直着冲，从起点冲到终点（10 格）；走廊 3 格宽内 2.5 血
+    z.charge.left -= 900 * dt;
+    z.x += z.charge.vx * dt; z.y += z.charge.vy * dt;
+    if (player.inv <= 0 && pointSegDist(player.x, player.y, z.charge.sx, z.charge.sy, z.x, z.y) < 60) {
+      player.hearts -= rollDmg(2.5); player.inv = 0.8; player.sinceHurt = 0; player.regenT = 0;
+      burst(player.x, player.y, '#4a6aff', 12); shakeT = 0.3; beep(200, 80, 0.25, 'sawtooth', 0.2);
+      if (player.hearts <= 0 && !angelSave()) { gameOver = true; document.getElementById('overScore').textContent = `你这局打败了 ${kills} 只怪物！`; document.getElementById('over').style.display = 'flex'; }
+    }
+    if (z.charge.left <= 0 || z.x < 30 || z.x > WORLD.w - 30 || z.y < 30 || z.y > WORLD.h - 30) { z.charge = null; z.chargeCd = 30; }   // 冷却 30 秒
+  } else if (z.chargeCd <= 0) {
+    if (z.chargeWarn == null) { z.chargeWarn = 0.7; z.warnDx = dx / d; z.warnDy = dy / d; setBanner('💀 凋灵要直线冲锋了！快闪出红线！'); beep(150, 90, 0.3, 'sawtooth', 0.2); }
+    z.chargeWarn -= dt;
+    if (z.chargeWarn <= 0) { z.charge = { sx: z.x, sy: z.y, vx: z.warnDx * 900, vy: z.warnDy * 900, left: 320 }; z.chargeWarn = null; }
+  }
+  const dmgW = rollDmg(1);   // 碰到也掉 1 心
+  if (touchHurt(player, z, dmgW)) { beep(300, 120, 0.2, 'sawtooth', 0.16); burst(player.x, player.y, '#4a6aff', 8); if (player.hearts <= 0 && !angelSave()) { gameOver = true; document.getElementById('overScore').textContent = `你这局打败了 ${kills} 只怪物！`; document.getElementById('over').style.display = 'flex'; saveGame(); } }
+}
 /* 👹 BOSS 每帧：砸地伤害结算+陀螺持续刮血+骷髅王巨箭/寒冰+鬼王魂火/夺魂 */
 function bossUpdate(z, dt) {
+  if (z.wither) { witherTick(z, dt); return; }   // 💀 凋灵有自己的大脑
   if (z.fake) {   // 💎 水晶魔王假身：只会慢慢飘过来吓人，不放技能、不给赏金
     z.walkT += dt;
     const dx = player.x - z.x, dy = player.y - z.y, d = Math.hypot(dx, dy) || 1;
@@ -681,6 +719,7 @@ function bossUpdate(z, dt) {
 function reset() {
   player = makePlayer(); zombies = []; kills = 0; spawnT = 1; summonT = 10; parts = []; gameOver = false;
   player.job = null; player.offhand = null; warriorHand = false; lastSwingKey = null;   // 🥷⚔️ 新冒险：无职业无副手，等宝箱觉醒
+  towerMode = false;   // 🗼 新冒险不在塔里
   pets = []; dexCounts = {}; coins = []; skillSlots = [];   // 🐾📖🪙✨ 新冒险从零开始
   endlessRound = 1; endlessWave = 1; waveKills = 0; overRecorded = false;   // 🌀 无尽从零开始
   chest = null; pendingNext = null; chestLatch = false; roomLatch = false; plazaSeen = false;   // 🎁 宝箱清空
@@ -702,7 +741,7 @@ function reset() {
   placePortal();   // 🕳️ 这关的山洞在哪呢
   placeShops();   // 🏪 地图上摆两个商店
 }
-function updateScore() { document.getElementById('score').textContent = '⚔️ 击败 ' + kills; document.getElementById('levelTag').textContent = townMode ? '🏡 宁静小镇' : level === 8 ? `🌀无尽 第${endlessRound}遍·第${endlessWave}波` : '🗺️ 第' + level + '关·' + LEVELS[level].name; }
+function updateScore() { document.getElementById('score').textContent = '⚔️ 击败 ' + kills; document.getElementById('levelTag').textContent = townMode ? '🏡 宁静小镇' : towerMode ? `🗼试炼塔 第${endlessRound}遍·第${endlessWave}波` : '🗺️ 第' + level + '关·' + LEVELS[level].name; }
 function updateGold() { document.getElementById('gold').textContent = '💰 ' + player.gold; }
 /* ================= 🏪 商店（买东西时游戏暂停） ================= */
 let paused = false;
@@ -1315,6 +1354,7 @@ function packSave() {
   const boss = zombies.find(z => z.boss && !z.dead && !z.fake);
   return { kills, gold: player.gold, weapon: player.weapon, owned: player.owned, hearts: player.hearts, bossAt, level, music: musicOn ? 1 : 0, rot: rotated ? 1 : 0, when: Date.now(), sid: mySid,
     job: player.job || null, offhand: player.offhand || null,   // 🥷⚔️ 职业和副手跟着存档走
+    towerMode: towerMode ? 1 : 0,   // 🗼 在不在试炼塔里
     bossAlive: boss ? 1 : 0, bossHp: boss ? boss.hp : 0,
     pets: pets.map(p => p.key), dex: dexCounts, bought: player.bought, skillSlots,
     mapShops, endlessRound, endlessWave, waveKills,
@@ -1325,6 +1365,7 @@ function packSave() {
 function applySave(s) {
   kills = s.kills || 0; player.gold = s.gold || 0; player.owned = s.owned || {};
   player.job = s.job || null;   // 🥷 职业回来
+  towerMode = s.towerMode != null ? !!s.towerMode : s.level === 8;   // 🗼 老存档没这字段：level 8 一律算在塔里（旧无尽）
   player.offhand = (s.offhand && ALLITEMS[s.offhand]) ? s.offhand : null;   // ⚔️ 副手回来（只认全物品表里的）
   player.bought = s.bought || Object.assign({}, player.owned);   // 🎒 老存档没有 bought：拿 owned 顶上
   if (s.music != null) { musicOn = !!s.music; document.getElementById('gearMusic').textContent = musicOn ? '🎵 音乐：开' : '🔇 音乐：关'; }
@@ -1396,7 +1437,7 @@ function showHome() {
   saveGame();   // 进主页先存好
   homeOpen = true; paused = true;   // 怪物全部罚站
   const bst = bestEndless();
-  document.getElementById('homeBest').textContent = bst ? `🏆 无尽榜最佳：第${bst.round}遍·第${bst.wave}波` : '🌀 无尽模式：通关第七关开启，比比谁打的遍数多！';
+  document.getElementById('homeBest').textContent = bst ? `🏆 无尽榜最佳：第${bst.round}遍·第${bst.wave}波` : '🗼 试炼塔：通关第八关去小镇，无尽挑战爬最高！';
   renderHome(); homeEl.style.display = 'flex';
 }
 function closeHome() {
@@ -1841,10 +1882,13 @@ function goNextLevel() {   // 🗺️ 真正过关（旧自动过渡搬到这里
   const what = pendingNext; pendingNext = null; chest = null;
   if (what === 'level') {
     level++;
-    setBanner((level === 2 ? '❄️ 第二关：骷髅雪原！' : level === 3 ? '👻 第三关：鬼魂地狱！' : level === 4 ? '🌋 第四关：熔岩火山！' : level === 5 ? '⛈️ 第五关：天空雷域！' : level === 6 ? '🕳️ 第六关：虚空之境！' : '💎 第七关：水晶洞窟！') + '全部家当都继承，商店已刷新！');
-  } else {
-    level = 8; endlessRound = 1; endlessWave = 1; waveKills = 0;
-    setBanner('🏆 通关！🌀 无尽模式开启：第 1 波僵尸来了！');
+    setBanner((level === 2 ? '❄️ 第二关：骷髅雪原！' : level === 3 ? '👻 第三关：鬼魂地狱！' : level === 4 ? '🌋 第四关：熔岩火山！' : level === 5 ? '⛈️ 第五关：天空雷域！' : level === 6 ? '🕳️ 第六关：虚空之境！' : level === 8 ? '💀 第八关：凋零之地！凋灵骷髅大举入侵！' : '💎 第七关：水晶洞窟！') + '全部家当都继承，商店已刷新！');
+  } else {   // what === 'town'：主线通关→剧情→进小镇（🗼 试炼塔在小镇广场南边）
+    townUnlocked = true; setBanner('🏆 主线通关！宁静小镇开启，试炼塔在等你！');
+    for (const o of zombies) o.dead = true;
+    player.hearts = player.maxHearts; updateGold(); revivePets(); updateScore(); saveGame();
+    setTimeout(startFaint, 900);
+    return;
   }
   for (const o of zombies) o.dead = true;
   earrows = []; parrows = []; garrows = []; meteors = []; puddles = []; skillShots = []; clouds = []; fxLines = []; netOrbs = null; shocks = [];
@@ -1877,21 +1921,32 @@ document.getElementById('faintStay').onclick = () => {   // ② 留在这里：�
 };
 /* ================= 🏡 宁静小镇（马路+商店街+小家） ================= */
 function enterTown() {
-  townMode = true; townUnlocked = true; inRoom = false; paused = false;
+  townMode = true; townUnlocked = true; inRoom = false; paused = false; towerMode = false;   // 🗼 出塔回镇
   for (const z of zombies) z.dead = true;
   earrows = []; parrows = []; garrows = []; meteors = []; puddles = []; skillShots = []; clouds = []; fxLines = []; netOrbs = null; shocks = []; chest = null;
   player.x = WORLD.w / 2; player.y = WORLD.h / 2 - 200;
   placeTownShops(); spawnTownNpcs(); applyGear(); updateScore();   // 🏡 装备失效+村民上街
   setBanner('🏡 宁静小镇：随便逛！马路两边全是商店（小镇里装备会休息哦）'); saveGame();
 }
-function exitTown() {   // ⚔️ 继续刷怪：回到无尽进度（遍/波原样）
+function exitTown() {   // ⚔️ 继续刷怪：回到试炼塔进度（遍/波原样）
   townMode = false; inRoom = false; paused = false; sittingBench = null;   // 🪑 回战场不能坐着
+  towerMode = true; level = 8;   // 🗼 回试炼塔
   for (const z of zombies) z.dead = true;
   earrows = []; parrows = []; garrows = []; meteors = []; puddles = []; skillShots = []; clouds = []; fxLines = []; netOrbs = null; shocks = [];
   player.x = WORLD.w / 2; player.y = WORLD.h / 2;
   placeShops(); placePortal(); applyGear(); updateScore();   // ⚔️ 回来装备重新生效
-  setBanner('🌀 回到无尽回廊：第' + endlessRound + '遍·第' + endlessWave + '波，接着刷！');
+  setBanner('🗼 回到试炼塔：第' + endlessRound + '遍·第' + endlessWave + '波，接着刷！');
   saveGame();
+}
+function enterTower() {   // 🗼 进试炼塔=开始新一轮无尽挑战
+  townMode = false; inRoom = false; paused = false; towerMode = true; level = 8;
+  endlessRound = 1; endlessWave = 1; waveKills = 0;
+  for (const z of zombies) z.dead = true;
+  earrows = []; parrows = []; garrows = []; meteors = []; puddles = []; skillShots = []; clouds = []; fxLines = []; netOrbs = null; shocks = [];
+  player.x = WORLD.w / 2; player.y = WORLD.h / 2;
+  placeShops(); placePortal(); applyGear(); updateScore();
+  setBanner('🗼 试炼塔开启：第 1 波来了！死了就掉下来，比比谁爬得高！');
+  beep(300, 700, 0.4, 'sawtooth', 0.2); saveGame();
 }
 document.getElementById('gearFight').onclick = () => { toggleGear(false); exitTown(); };
 document.getElementById('gearTown').onclick = () => { toggleGear(false); enterTown(); };
@@ -2090,7 +2145,7 @@ function rollShopItems(kind) {
   });
   // 🔷 升级石：武器店每件货 1% 概率变成石头（恩泽设计：稀有的工匠，一块升一级，封顶橙·传说）
   if (kind === 'weapon') for (let i = 0; i < items.length; i++) {
-    if (Math.random() < 0.01) items[i] = { stone: true, price: level === 8 ? 3000 : 300, sold: false };   // 无尽涨价（恩泽定的：普通 300 / 无尽 3000）
+    if (Math.random() < 0.01) items[i] = { stone: true, price: towerMode ? 3000 : 300, sold: false };   // 无尽涨价（恩泽定的：普通 300 / 无尽 3000）
   }
   return items;
 }
@@ -2174,8 +2229,7 @@ function endlessBossDown(z) {
   earrows = []; parrows = []; garrows = []; meteors = []; puddles = []; skillShots = []; clouds = []; fxLines = []; netOrbs = null; shocks = [];
   placeShops();   // 🏪 无尽每打完一波 BOSS：商店重新抽签（类型+位置+货全换新的）
   waveKills = 0; endlessWave++;
-  if (endlessWave > 7) { endlessWave = 1; endlessRound++; setBanner(`🌀 第 ${endlessRound} 遍开始！BOSS 又变强了！商店已刷新`); if (endlessRound === 3 && !faintDone && !townUnlocked) setTimeout(startFaint, 1600); }   // 💉 第三遍剧情
-  if ((endlessRound > 3 || (endlessRound === 3 && endlessWave > 1)) && !townUnlocked) { townUnlocked = true; faintDone = true; setBanner('🏡 小镇入口开启啦！点⚙️齿轮就能回小镇'); }   // 过了剧情点：直接解锁不再演戏
+  if (endlessWave > 7) { endlessWave = 1; endlessRound++; setBanner(`🌀 第 ${endlessRound} 遍开始！BOSS 又变强了！商店已刷新`); }
   else setBanner(`🌀 第 ${endlessWave} 波：${LEVELS[endlessWave].name}的怪来了！商店已刷新`);
   player.hearts = player.maxHearts; placePortal(); revivePets();   // 🐾 无尽过波也复活伙伴
   beep(600, 1200, 0.5, 'sine', 0.2); saveGame(); updateScore();
@@ -2190,6 +2244,7 @@ function ctxGo() {
   else if (c.act === 'next') askNext();
   else if (c.act === 'shop') openMapShop(nearShop());
   else if (c.act === 'bench' && c.bench) sitBench(c.bench);
+  else if (c.act === 'tower') enterTower();   // 🗼 进试炼塔
 }
 document.getElementById('enterBtn').onclick = ctxGo;
 let AC = null;
@@ -2355,7 +2410,7 @@ function killZombie(z) {
     return;
   }
   if (z.kind) { dexCounts[z.kind] = (dexCounts[z.kind] || 0) + 1; }   // 📖 图鉴计数
-  if (level === 8 && !z.boss) {   // 🌀 无尽模式：数 20 只小怪出 BOSS
+  if (towerMode && !z.boss) {   // 🗼 试炼塔：数 20 只小怪出 BOSS
     waveKills++;
     if (waveKills >= 20 && !zombies.some(b2 => b2.boss && !b2.dead && !b2.fake)) { spawnBoss(); updateScore(); }
   }
@@ -2375,20 +2430,20 @@ function killZombie(z) {
   if (z.boss) {   // 👹 BOSS 赏金 50 起、每关+25（越难的 BOSS 越值钱）；第一关 BOSS 死了→进入第二关！
     g = 50 + (level - 1) * 25; shakeT = 0.5;
     for (let i = 0; i < 26; i++) burst(z.x + (Math.random() - 0.5) * 100, z.y + (Math.random() - 0.5) * 100, ['#ffd24a', '#7ec850', '#ff8a5a'][i % 3]);
-    if (LEVELS[level].endless) {   // 🌀 无尽模式：BOSS 倒下→下一波/下一遍+商店刷新+宝箱
+    if (towerMode) {   // 🗼 试炼塔：BOSS 倒下→下一波/下一遍+商店刷新+宝箱
       g = 0;
       endlessBossDown(z);
       chest = { x: z.x, y: z.y, taken: false };
       setBanner('🌀 BOSS 倒下！宝箱掉下来啦，走过去打开！');
-    } else if (level < 7) {   // 🎁 普通关：掉宝箱，开完问要不要进下一关
+    } else if (level < 8) {   // 🎁 普通关：掉宝箱，开完问要不要进下一关
       pendingNext = 'level'; chest = { x: z.x, y: z.y, taken: false };
       setBanner('👑 BOSS 倒下！宝箱掉下来了，走过去打开！');
       saveGame();
-    } else {   // 🏆 第七关 BOSS 倒了：掉宝箱，开完问要不要进无尽模式
-      player.gold += 500; updateGold();
-      for (let i = 0; i < 40; i++) burst(player.x + (Math.random() - 0.5) * 300, player.y + (Math.random() - 0.5) * 300, ['#ffd24a', '#a8f2ff', '#ff8af2', '#7ec850'][i % 4]);
-      pendingNext = 'endless'; chest = { x: z.x, y: z.y, taken: false };
-      setBanner('🏆 水晶魔王倒下！宝箱掉下来了，走过去打开！');
+    } else {   // 💀 第八关凋灵倒了：主线通关！掉宝箱，开完进小镇（试炼塔等你）
+      player.gold += 800; updateGold();
+      for (let i = 0; i < 40; i++) burst(player.x + (Math.random() - 0.5) * 300, player.y + (Math.random() - 0.5) * 300, ['#ffd24a', '#4a6aff', '#a8f2ff', '#7ec850'][i % 4]);
+      pendingNext = 'town'; chest = { x: z.x, y: z.y, taken: false };
+      setBanner('💀 凋灵倒下！主线通关！宝箱掉下来了，走过去打开！');
       beep(600, 1200, 0.6, 'sine', 0.2); setTimeout(() => beep(800, 1600, 0.6, 'sine', 0.2), 250);
       saveGame();
     }
@@ -2628,6 +2683,8 @@ function update(dt) {
     if (townMode && !inRoom) {
       const fd = Math.hypot(player.x - 1200, player.y - 1840);   // ⛲ 喷泉挡路，绕圈走
       if (fd < 52 && fd > 0) { const fa = Math.atan2(player.y - 1840, player.x - 1200); player.x = 1200 + Math.cos(fa) * 52; player.y = 1840 + Math.sin(fa) * 52; }
+      const td = Math.hypot(player.x - 1200, player.y - 2080);   // 🗼 试炼塔挡路
+      if (td < 60 && td > 0) { const ta = Math.atan2(player.y - 2080, player.x - 1200); player.x = 1200 + Math.cos(ta) * 60; player.y = 2080 + Math.sin(ta) * 60; }
       if (!plazaSeen && player.x > 920 && player.x < 1480 && player.y > 1560 && player.y < 2120) { plazaSeen = true; setBanner('⛲ 发现小镇广场！喷泉好凉快~'); }
     }
     // 🎛️ 情境按钮：宝箱 > 商店 > 长椅（靠近两格内才出现，点了才动作）
@@ -2635,11 +2692,12 @@ function update(dt) {
     if (!gameOver && !paused && !sittingBench) {
       if (chest && !townMode && Math.hypot(player.x - chest.x, player.y - chest.y) < 64) ctxAct = chest.taken ? (pendingNext ? 'next' : null) : 'chest';
       else if (nearShop() >= 0) ctxAct = 'shop';
+      else if (townMode && !inRoom && Math.hypot(player.x - 1200, player.y - 2080) < 100) ctxAct = 'tower';   // 🗼 试炼塔门口
       else if (townMode && !inRoom) { for (const b of BENCHES) if (Math.hypot(player.x - b.x, player.y - b.y) < 64) { ctxAct = 'bench'; ctxBench = b; break; } }
     }
     const eb = document.getElementById('enterBtn');
     eb.style.display = ctxAct ? 'block' : 'none';
-    if (ctxAct) eb.textContent = ctxAct === 'chest' ? '🎁 打开宝箱' : ctxAct === 'next' ? '🗺️ 下一关' : ctxAct === 'bench' ? '🪑 坐下' : '🚪 进入';
+    if (ctxAct) eb.textContent = ctxAct === 'chest' ? '🎁 打开宝箱' : ctxAct === 'next' ? '🗺️ 下一关' : ctxAct === 'tower' ? '🗼 进入试炼塔' : ctxAct === 'bench' ? '🪑 坐下' : '🚪 进入';
     window.__ctx = { act: ctxAct, bench: ctxBench };   // B 键/按钮共用
     if (townMode && !paused && !gameOver) {   // 🏡 小镇里的家：门/床/柜子
       if (ownedHouse && !inRoom && Math.hypot(player.x - 1200, player.y - 700) < 40) { inRoom = true; player.x = 1200; player.y = 1380; setBanner('🏠 到家啦！'); }
@@ -2855,7 +2913,7 @@ function update(dt) {
     for (const a of earrows) {
       a.t -= dt; a.x += a.vx * dt; a.y += a.vy * dt;
       if (a.t > 0 && !gameOver && !(player.tpT > 0) && Math.hypot(a.x - player.x, a.y - player.y) < 12 && player.inv <= 0) {
-        const dmgA = rollDmg(0.5);
+        const dmgA = rollDmg(a.dmg != null ? a.dmg : 0.5);   // 💀 凋灵骷髅头命中=2 血，别的箭半心
         player.hearts -= dmgA; player.inv = 0.6; player.sinceHurt = 0; player.regenT = 0;
         beep(dmgA === 0 ? 700 : 500, dmgA === 0 ? 900 : 200, 0.12, 'square', 0.1);
         burst(player.x, player.y, dmgA === 0 ? '#ffe84a' : '#e84a4a', 6);
@@ -2900,9 +2958,9 @@ function update(dt) {
 let last = performance.now();
 function loop(now) {
   const dt = Math.min(0.05, (now - last) / 1000); last = now;
-  if (gameOver && !overRecorded) {   // 🏆 结算：无尽模式记排行榜
+  if (gameOver && !overRecorded) {   // 🏆 结算：试炼塔记排行榜
     overRecorded = true;
-    if (level === 8) {
+    if (towerMode) {
       recordEndless();
       const bst = bestEndless();
       document.getElementById('overScore').textContent = `🌀 无尽打到：第${endlessRound}遍·第${endlessWave}波（共击败 ${kills} 只）🏆 最佳：第${bst.round}遍·第${bst.wave}波`;
@@ -2914,6 +2972,30 @@ function loop(now) {
 /* ================= 画面 ================= */
 /* 👹 BOSS 画法：举臂预警圈、陀螺旋转、受击闪白 */
 function drawBoss(z) {
+  if (z.wither) {   // 💀 凋灵：三头黑骨架+蓝色幽光+冲锋红线预警
+    const wx = Math.round(z.x), wy = Math.round(z.y - 30), wbob = Math.sin(z.walkT * 2) * 4;
+    if (z.chargeWarn != null) {   // 冲锋预警：3 格宽的红色走廊
+      ctx.save(); ctx.globalAlpha = 0.3 + 0.25 * Math.sin(z.walkT * 14); ctx.strokeStyle = '#ff4a3a'; ctx.lineWidth = 96;
+      ctx.beginPath(); ctx.moveTo(z.x, z.y); ctx.lineTo(z.x + z.warnDx * 320, z.y + z.warnDy * 320); ctx.stroke(); ctx.restore(); ctx.globalAlpha = 1;
+    }
+    ctx.save(); ctx.translate(wx, wy + wbob);
+    if (z.charge) ctx.translate(Math.sin(z.walkT * 40) * 2, 0);   // 冲锋抖动
+    ctx.globalAlpha = 0.2; ctx.fillStyle = '#4a6aff'; ctx.beginPath(); ctx.arc(0, -8, 60, 0, 6.3); ctx.fill(); ctx.globalAlpha = 1;   // 蓝色幽光
+    ctx.fillStyle = '#16121a'; ctx.fillRect(-22, -6, 44, 26);   // 肋骨架
+    ctx.fillStyle = '#3a3440'; ctx.fillRect(-22, 0, 44, 3); ctx.fillRect(-22, 7, 44, 3); ctx.fillRect(-22, 14, 44, 3);
+    ctx.fillStyle = '#16121a'; ctx.fillRect(-4, 20, 8, 12);   // 脊椎尾
+    const whead = (hx, hy, s) => {   // 黑色骷髅头+蓝眼窝
+      ctx.fillStyle = '#16121a'; ctx.fillRect(hx - 8 * s, hy - 8 * s, 16 * s, 14 * s);
+      ctx.fillStyle = '#7ab8ff'; ctx.fillRect(hx - 5 * s, hy - 4 * s, 4 * s, 3 * s); ctx.fillRect(hx + 1 * s, hy - 4 * s, 4 * s, 3 * s);
+      ctx.fillStyle = '#16121a'; ctx.fillRect(hx - 2 * s, hy + 3 * s, 4 * s, 3 * s);
+    };
+    whead(0, -22, 1.3); whead(-26, -10, 0.9); whead(26, -10, 0.9);   // 中间大头+两侧小头
+    ctx.restore();
+    if (z.flash > 0) { ctx.globalAlpha = Math.min(1, z.flash * 8); ctx.fillStyle = 'rgba(255,255,255,.7)'; ctx.fillRect(z.x - 40, z.y - 80, 80, 80); ctx.globalAlpha = 1; }
+    ctx.fillStyle = '#0008'; ctx.fillRect(z.x - 30, z.y - 86, 60, 6);
+    ctx.fillStyle = '#e84a4a'; ctx.fillRect(z.x - 30, z.y - 86, 60 * (z.hp / z.maxHp), 6);
+    return;
+  }
   const hop = Math.abs(Math.sin(z.walkT * 6)) * 3;
   if (z.state === 'windup') {   // 💥 预警圈：红圈越缩越紧
     const p = 1 - z.stateT / BOSS.slamWind;
@@ -3036,6 +3118,16 @@ function draw() {
       for (const fpos of [[1090, 1680], [1310, 1680], [1090, 2000], [1310, 2000]]) drawFlowerBed(fpos[0], fpos[1]);   // 🌸 四个花坛
       for (const b of BENCHES) drawBench(b.x, b.y, b.face);   // 🪑 两张长椅面朝喷泉
       drawStatue(1100, 1500); drawStatue(1300, 1500);   // 🗿 广场北门口两座勇者石像
+      /* 🗼 试炼塔（广场南边）：无尽挑战入口 */
+      const ttw = performance.now() / 1000;
+      ctx.fillStyle = '#0e0a16'; ctx.fillRect(1178, 1980, 44, 100);   // 塔身
+      ctx.fillStyle = '#1a1428'; ctx.fillRect(1172, 1974, 56, 12);   // 塔檐
+      ctx.fillStyle = '#0a0712'; ctx.fillRect(1190, 2046, 20, 34);   // 门口
+      ctx.strokeStyle = '#4a6aff'; ctx.globalAlpha = 0.5 + Math.sin(ttw * 3) * 0.3; ctx.lineWidth = 3;
+      ctx.strokeRect(1190, 2046, 20, 34);   // 门口蓝光脉动
+      ctx.globalAlpha = 1;
+      ctx.font = '16px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('💀', 1200, 1996 + Math.sin(ttw * 2) * 2); ctx.textAlign = 'left';
+      ctx.fillStyle = '#b8b8d0'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('试炼塔', 1200, 2096); ctx.textAlign = 'left';
       // ⭐ 喷泉周围地砖拼花（八角星）
       ctx.strokeStyle = 'rgba(255,255,255,.25)'; ctx.lineWidth = 3; ctx.beginPath();
       for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4; ctx.moveTo(1200 + Math.cos(a) * 62, 1840 + Math.sin(a) * 62); ctx.lineTo(1200 + Math.cos(a + 0.5) * 78, 1840 + Math.sin(a + 0.5) * 78); }
@@ -3123,6 +3215,30 @@ function draw() {
       if (z.freezeT > 0) { ctx.fillStyle = 'rgba(140,210,255,.45)'; ctx.fillRect(z.x - 10, z.y - 24 - hop2, 20, 28); }
       ctx.fillStyle = '#0008'; ctx.fillRect(z.x - 12, z.y - 32 - hop2, 24, 4);
       ctx.fillStyle = '#e84a4a'; ctx.fillRect(z.x - 12, z.y - 32 - hop2, 24 * (z.hp / VOIDW.hp), 4);
+      continue;
+    }
+    if (z.ws) {   // 💀 MC 凋零骷髅：黑色高个骷髅，正面/侧面走路，手拿石剑
+      const wside = Math.abs(player.x - z.x) > Math.abs(player.y - z.y), wflip = wside && z.x < player.x;
+      const wstep = Math.sin(z.walkT * 8) * 3;   // 走路腿交替
+      ctx.save(); ctx.translate(Math.round(z.x), Math.round(z.y)); if (wflip) ctx.scale(-1, 1);
+      ctx.fillStyle = '#16121a';
+      ctx.fillRect(-5, -10 + Math.max(0, wstep), 4, 10 - Math.max(0, wstep));   // 左腿
+      ctx.fillRect(1, -10 + Math.max(0, -wstep), 4, 10 - Math.max(0, -wstep));   // 右腿
+      ctx.fillRect(-6, -26, 12, 16);   // 躯干
+      ctx.fillStyle = '#3a3440';
+      ctx.fillRect(-6, -23, 12, 2); ctx.fillRect(-6, -19, 12, 2); ctx.fillRect(-6, -15, 12, 2);   // 肋线
+      ctx.fillStyle = '#16121a';
+      if (wside) { ctx.fillRect(6, -24, 8, 3); ctx.fillStyle = '#8a8a92'; ctx.fillRect(14, -28, 3, 13); }   // 侧面：手臂前伸+石剑
+      else { ctx.fillRect(-10, -24, 3, 10); ctx.fillRect(7, -24, 3, 10); ctx.fillStyle = '#8a8a92'; ctx.fillRect(7, -14, 3, 10); }   // 正面：双臂+一手垂剑
+      ctx.fillStyle = '#16121a'; ctx.fillRect(-6, -38, 12, 12);   // 骷髅头
+      ctx.fillStyle = '#e8e8f0';
+      if (wside) { ctx.fillRect(2, -35, 3, 3); } else { ctx.fillRect(-4, -35, 3, 3); ctx.fillRect(1, -35, 3, 3); }   // 眼窝
+      ctx.fillStyle = '#16121a'; ctx.fillRect(-2, -29, 4, 3);   // 嘴
+      ctx.restore();
+      if (z.flash > 0) { ctx.globalAlpha = Math.min(1, z.flash * 8); ctx.fillStyle = 'rgba(255,255,255,.75)'; ctx.fillRect(z.x - 12, z.y - 40, 24, 40); ctx.globalAlpha = 1; }
+      if (z.freezeT > 0) { ctx.fillStyle = 'rgba(140,210,255,.45)'; ctx.fillRect(z.x - 12, z.y - 40, 24, 40); }
+      ctx.fillStyle = '#0008'; ctx.fillRect(z.x - 12, z.y - 44, 24, 4);
+      ctx.fillStyle = '#e84a4a'; ctx.fillRect(z.x - 12, z.y - 44, 24 * (z.hp / 8), 4);
       continue;
     }
     const hop = Math.abs(Math.sin(z.walkT * 6)) * 2;
@@ -3286,6 +3402,9 @@ function draw() {
       ctx.strokeStyle = '#7ae8f2'; ctx.globalAlpha = 0.85; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(-14, 0); ctx.lineTo(8, 0); ctx.stroke();
       ctx.strokeStyle = '#fff'; ctx.globalAlpha = 1; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-14, 0); ctx.lineTo(8, 0); ctx.stroke();
       ctx.restore();
+    } else if (a.wskull) {   // 💙 蓝色凋灵骷髅头
+      ctx.fillStyle = '#4a6aff'; ctx.beginPath(); ctx.arc(a.x, a.y, 7, 0, 6.3); ctx.fill();
+      ctx.fillStyle = '#cfe0ff'; ctx.fillRect(a.x - 4, a.y - 2, 3, 3); ctx.fillRect(a.x + 1, a.y - 2, 3, 3);
     } else a.soul ? drawArrow(a, '#4ac8c0', '#8ff2ea') : a.volt ? drawArrow(a, '#8a8a1a', '#ffe84a') : drawArrow(a, '#8a6a38', '#f0e6b0');
   }
   for (const a of parrows) {
