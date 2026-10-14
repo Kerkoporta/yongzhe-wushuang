@@ -1557,7 +1557,7 @@ function applySave(s) {
   player.bought = s.bought || Object.assign({}, player.owned);   // 🎒 老存档没有 bought：拿 owned 顶上
   if (s.music != null) { musicOn = !!s.music; document.getElementById('gearMusic').textContent = musicOn ? '🎵 音乐：开' : '🔇 音乐：关'; }
   if (!!s.rot !== rotated) toggleRotate();   // 🔄 转屏状态跟着存档走
-  bossAt = s.bossAt || 100; level = (s.level >= 2 && s.level <= 8) ? s.level : 1;   // 先定关卡，再校验武器
+  bossAt = s.bossAt || 100; level = (s.level >= 1 && s.level <= 11) ? s.level : 1;   // 🐛 修"第9关以后读档回第一关"：旧钳制只认 2~8 关（八关时代的化石），现在放到 11 关
   fixOldBought();   // 🌈 老存档的武器/装备升级成正式品质条目
   endlessRound = s.endlessRound || 1; endlessWave = s.endlessWave || 1; waveKills = s.waveKills || 0;   // 🌀 无尽进度回来
   chest = s.chest || null; pendingNext = s.pendingNext || null;   // 🎁 没开的宝箱回来
