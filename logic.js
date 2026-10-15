@@ -105,7 +105,7 @@ const SHOP2 = {
 };
 let _id = 1;
 function makePlayer() {
-  return { x: WORLD.w / 2, y: WORLD.h / 2, dir: 0, hearts: PLAYER.hearts, atkT: 0, cd: 0, inv: 0, walkT: 0, moving: false, sinceHurt: 99, regenT: 0, gold: 0, weapon: null, armor: false, owned: {}, bought: {}, maxHearts: PLAYER.hearts, speedMul: 1, dmgAdd: 0, diamonds: 0, slots: { off: 0, pet: 0, skill: 0 }, offhands2: [] };   // 💎 钻石+扩展槽（小镇钻石商店）
+  return { x: WORLD.w / 2, y: WORLD.h / 2, dir: 0, hearts: PLAYER.hearts, atkT: 0, cd: 0, inv: 0, walkT: 0, moving: false, sinceHurt: 99, regenT: 0, gold: 0, weapon: null, armor: false, owned: {}, bought: {}, maxHearts: PLAYER.hearts, speedMul: 1, dmgAdd: 0, diamonds: 0, slots: { off: 0, pet: 0, skill: 0 }, offhands2: [], items: {} };   // 💎 钻石+扩展槽+🍗道具袋
 }
 /* 在人物周围一圈圆环上挑生成点（不刷脸上，也不刷出世界） */
 function pickSpawn(p, rnd) {
@@ -774,6 +774,15 @@ SKBOOKS[10] = [
   ['sk10_mega', '巨型爆炸', '🎇', 450, '技能：一圈 30 伤的大爆炸（冷却 18 秒）'],
   ['sk10_fuse', '引信电光', '⚡', 230, '技能：电光劈最近的怪 16 伤（冷却 6 秒）'],
 ];
+/* 🍗 一次性道具（用了就没了，但无限购！背包里点一下就吃/喝/扔） */
+const USE_ITEMS = {
+  use_chicken: { name: '烤鸡', icon: '🍗', price: 30, kind: 'use', desc: '咬一口香哭的烤鸡，立刻回 2 格血' },
+  use_power: { name: '力量药水', icon: '💪', price: 80, kind: 'use', desc: '20 秒内伤害 ×1.5' },
+  use_iron: { name: '铁皮药水', icon: '🛡️', price: 100, kind: 'use', desc: '5 秒无敌，怪咬不动你' },
+  use_speed: { name: '疾跑药水', icon: '⚡', price: 50, kind: 'use', desc: '15 秒跑得飞快（+40%）' },
+  use_bomb: { name: '手雷', icon: '💣', price: 60, kind: 'use', desc: '朝面前扔出，轰！周围怪掉 8 血' },
+  use_totem: { name: '复活图腾', icon: '❤️‍🔥', price: 200, kind: 'use', desc: '放背包就行：倒下时自动满血复活一次' },
+};
 /* 🐾 宠物（七关各 10 只，出战帮你咬怪；宠物继承，过关不收回！最多 3 只出战） */
 const PETS = {
   1: [ /* [key,名字,图标,价格,伤害,攻速秒,射程,特性] */
