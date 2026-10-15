@@ -150,6 +150,15 @@
 <div id="pvpLob"><div id="pvpCard">
   <div style="font-size:22px;font-weight:bold;margin-bottom:4px">🌐 联机大厅</div>
   <div id="pvpList" style="overflow-y:auto;flex:1;min-height:0"></div>
+  <div style="margin-top:10px;border-top:1px solid rgba(255,255,255,.15);padding-top:8px">
+    <div style="font-weight:bold;color:#6ab8f2">🌍 联网对战（实验）：两台设备真联机！</div>
+    <div class="htxt">创建房间得到 4 位密码，发给小伙伴；他点「加入」输密码就能打（走网络中转站，不用同一台设备）</div>
+    <div style="display:flex;gap:6px;margin-top:6px">
+      <input id="pvpNetCode" placeholder="4位密码" maxlength="4" inputmode="numeric" style="flex:1;padding:8px;border-radius:8px;border:2px solid #4a6aff;background:#0e1622;color:#fff;font-size:16px;text-align:center;font-weight:bold">
+      <button id="pvpNetCreate" style="padding:8px 12px;border:0;border-radius:8px;background:#7ec850;color:#14300e;font-weight:bold;cursor:pointer">➕ 创建</button>
+      <button id="pvpNetJoin" style="padding:8px 12px;border:0;border-radius:8px;background:#4a6aff;color:#fff;font-weight:bold;cursor:pointer">⚔️ 加入</button>
+    </div>
+  </div>
   <button id="pvpClose" style="margin-top:10px">🚪 回主页</button>
 </div></div>
 <div id="dex"><div id="dexCard">
@@ -983,7 +992,7 @@ function reset() {
   placePortal();   // 🕳️ 这关的山洞在哪呢
   placeShops();   // 🏪 地图上摆两个商店
 }
-function updateScore() { document.getElementById('score').textContent = '⚔️ 击败 ' + kills; document.getElementById('levelTag').textContent = pvpMode ? '⚔️ PVP 擂台 #' + pvpMode : townMode ? '🏡 宁静小镇' : towerMode ? `🗼试炼塔 第${endlessRound}遍·第${endlessWave}波` : '🗺️ 第' + level + '关·' + LEVELS[level].name; }
+function updateScore() { document.getElementById('score').textContent = '⚔️ 击败 ' + kills; document.getElementById('levelTag').textContent = pvpMode ? '🌍 PVP 擂台 #' + String(pvpMode).replace('net', '') : townMode ? '🏡 宁静小镇' : towerMode ? `🗼试炼塔 第${endlessRound}遍·第${endlessWave}波` : '🗺️ 第' + level + '关·' + LEVELS[level].name; }
 function updateGold() { document.getElementById('gold').textContent = '💰 ' + player.gold; updateDia(); }
 function updateDia() { document.getElementById('dia').textContent = '💎 ' + (player.diamonds || 0); }   // 💎 钻石只认试炼塔
 /* ================= 🏪 商店（买东西时游戏暂停） ================= */
@@ -2302,6 +2311,73 @@ function pvpRead() {   // 📡 读对面的存档 → 幻影对手出现在我�
     leavePvpSilent(); return;
   }
 }
+/* 🌍 联网 PVP：公共 MQTT 中转站（实测通了，~300ms）——两台设备真联机 */
+let netClient = null, netTopic = null, netReady = false, netWon = false;
+function mqttLoad() {
+  return new Promise((res, rej) => {
+    if (window.mqtt) return res();
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/mqtt@5.10.1/dist/mqtt.min.js';
+    s.onload = res; s.onerror = () => rej(new Error('加载失败'));
+    document.head.appendChild(s);
+    setTimeout(() => rej(new Error('加载超时')), 12000);
+  });
+}
+async function netStart(code, side) {
+  try {
+    setBanner('🌍 正在连接中转站……');
+    await mqttLoad();
+    if (!netClient) {
+      netClient = window.mqtt.connect('wss://broker.emqx.io:8084/mqtt', { connectTimeout: 9000, reconnectPeriod: 2000 });
+      await new Promise((res, rej) => { netClient.on('connect', res); netClient.on('error', rej); setTimeout(() => rej(new Error('连接超时')), 9000); });
+    }
+    netTopic = 'zfpvp/room' + code;
+    netClient.removeAllListeners('message');
+    netClient.subscribe(netTopic, { qos: 0 });
+    netClient.on('message', (t, m) => { if (t !== netTopic) return; try { const o = JSON.parse(m.toString()); if (o.side === pvpSide) return; netOnMsg(o); } catch (e) {} });
+    netReady = true; netWon = false;
+    enterPvp('net' + code, side);   // 复用 PVP 流程
+    if (side === 1) setBanner('🌍 房间开好！密码【' + code + '】发给小伙伴，等他踢馆！');
+    else setBanner('🌍 踢馆成功！开打！');
+  } catch (e) { setBanner('😵 联网失败：' + e.message + '（可以玩同设备本地模式）'); beep(300, 150, 0.2, 'square', 0.12); }
+}
+function netSend(o) { if (netReady && netClient) { try { o.side = pvpSide; netClient.publish(netTopic, JSON.stringify(o), { qos: 0 }); } catch (e) {} } }
+function netOnMsg(o) {   // 📡 对面消息进游戏
+  if (!pvpMode) return;
+  if (o.type === 'win' || o.type === 'leave') {   // 分出胜负/对面跑了
+    if (netWon) return; netWon = true;
+    const iWin = o.type === 'leave' ? true : o.winner === pvpSide;
+    setBanner(iWin ? '🏆 你赢了！+200 金币 +10💎' : '😵 被打败了……再接再厉');
+    if (iWin) playReward(200, 10);
+    netReady = false; leavePvpSilent(); return;
+  }
+  pvpFoe = o; pvpFoe.stale = false;
+  for (const hit of (o.hits || [])) {   // 对面挥中我：扣血
+    if (hit.s > pvpSeen) { pvpSeen = hit.s;
+      if (player.inv <= 0) { player.hearts -= hit.d; player.inv = 0.5; player.sinceHurt = 0; player.regenT = 0; burst(player.x, player.y, '#ff5a5a', 10); beep(300, 120, 0.15, 'sawtooth', 0.15); } }
+  }
+  if (o.hearts <= 0 && !netWon) { netWon = true; netSend({ type: 'win', winner: pvpSide }); setBanner('🏆 PVP 胜利！+200 金币 +10💎'); playReward(200, 10); netReady = false; leavePvpSilent(); }
+}
+/* 双通道：联网走中转站，本地走 localStorage */
+const _pvpWriteRaw = pvpWrite;
+pvpWrite = function () {
+  if (!pvpMode) return;
+  if (netReady) {
+    netSend({ type: 'state', x: Math.round(player.x), y: Math.round(player.y), hearts: player.hearts, maxHearts: player.maxHearts, weapon: player.weapon, dir: player.dir, moving: player.moving, walkT: player.walkT, swing: player.atkT > 0, hits: pvpHits.slice(-5), when: Date.now() });
+    return;
+  }
+  _pvpWriteRaw();
+};
+const _pvpReadRaw = pvpRead;
+pvpRead = function () {
+  if (!pvpMode) { pvpFoe = null; return; }
+  if (netReady) { if (pvpFoe && Date.now() - (pvpFoe.when || 0) > 3000) pvpFoe.stale = true; return; }   // 联网版消息驱动，这里只管掉线检测
+  _pvpReadRaw();
+};
+const _leavePvpRaw = leavePvp;
+leavePvp = function () { if (pvpMode && netReady) { netSend({ type: 'leave' }); netReady = false; } _leavePvpRaw(); };
+document.getElementById('pvpNetCreate').onclick = () => { const code = String(1000 + Math.floor(Math.random() * 9000)); netStart(code, 1); };
+document.getElementById('pvpNetJoin').onclick = () => { const code = (document.getElementById('pvpNetCode').value || '').trim(); if (!/^\d{4}$/.test(code)) { setBanner('😅 密码是 4 位数字！'); return; } netStart(code, 2); };
 /* ================= ⚙️ 齿轮设置面板（暂停） ================= */
 let gearOpen = false;
 function toggleGear(force) {
