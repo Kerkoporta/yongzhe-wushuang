@@ -841,6 +841,22 @@ function wardenTick(z, dt) {
   }
 }
 /* 👹 BOSS 每帧：砸地伤害结算+陀螺持续刮血+骷髅王巨箭/寒冰+鬼王魂火/夺魂 */
+/* 🔥 DoT 结算（燃烧/法师附火/中毒冻伤）：每 0.1 秒一跳，死掉返回 true */
+function dotTick(z, dt) {
+  if (z.mageBurnT > 0) {
+    z.mageBurnT -= dt; z.mageBurnAcc = (z.mageBurnAcc || 0) + dt;
+    if (z.mageBurnAcc >= 0.1) { z.mageBurnAcc -= 0.1; z.hp -= 0.1; z.flash = 0.1; dotBurst(z.x, z.y, '#ff9a3d'); if (z.hp <= 0) { killZombie(z); return true; } }
+  }
+  if (z.burnT > 0) {
+    z.burnT -= dt; z.burnAcc = (z.burnAcc || 0) + dt;
+    if (z.burnAcc >= 0.1) { z.burnAcc -= 0.1; z.hp -= dotDmg(z); z.flash = 0.1; dotBurst(z.x, z.y, '#ff9a3d'); if (z.hp <= 0) { killZombie(z); return true; } }
+  }
+  if (z.poiT > 0) {
+    z.poiT -= dt; z.poiAcc = (z.poiAcc || 0) + dt;
+    if (z.poiAcc >= 0.1) { z.poiAcc -= 0.1; z.hp -= dotDmg(z); z.flash = 0.1; dotBurst(z.x, z.y, z.poiColor || '#7ee85a'); if (z.hp <= 0) { killZombie(z); return true; } }
+  }
+  return false;
+}
 function bossUpdate(z, dt) {
   if (z.warden) { wardenTick(z, dt); return; }   // 👿 坚守者有自己的大脑
   if (z.ghast) { ghastTick(z, dt); return; }   // 👻 恶魂有自己的大脑
@@ -3553,20 +3569,9 @@ function update(dt) {
     } else if (!townMode && spawnT <= 0 && zombies.filter(z => !z.dead).length < cap) { spawnT = SPAWN.interval * (SPAWN_MUL[level] || 1); spawnEnemy(); }
     if (!townMode && kills >= bossAt) { bossAt += 100; spawnBoss(); }   // 👹 每满 100 杀出一只 BOSS
     for (const z of zombies) { if (z.dead) continue;
-      if (z.boss) { bossUpdate(z, dt); continue; }   // 👹 BOSS 有自己的大脑
+      if (z.boss) { if (dotTick(z, dt)) continue; bossUpdate(z, dt); continue; }   // 👹 BOSS 有自己的大脑（🔥 但燃烧/中毒照掉血——恩泽点名末影龙要吃燃烧）
       z.flash = Math.max(0, z.flash - dt); z.walkT += dt; z.zapT = Math.max(0, (z.zapT || 0) - dt);
-      if (z.mageBurnT > 0) {   // 🔮 法师附火：每 0.1 秒掉 0.1 血（2 秒共 2 血，恩泽定的数值）
-        z.mageBurnT -= dt; z.mageBurnAcc = (z.mageBurnAcc || 0) + dt;
-        if (z.mageBurnAcc >= 0.1) { z.mageBurnAcc -= 0.1; z.hp -= 0.1; z.flash = 0.1; dotBurst(z.x, z.y, '#ff9a3d'); if (z.hp <= 0) { killZombie(z); continue; } }
-      }
-      if (z.burnT > 0) {   // 🔥 点燃掉血：每 0.1 秒掉十分之一
-        z.burnT -= dt; z.burnAcc = (z.burnAcc || 0) + dt;
-        if (z.burnAcc >= 0.1) { z.burnAcc -= 0.1; z.hp -= dotDmg(z); z.flash = 0.1; dotBurst(z.x, z.y, '#ff9a3d'); if (z.hp <= 0) { killZombie(z); continue; } }
-      }
-      if (z.poiT > 0) {   // 🐍🐉 中毒/冻伤掉血：每 0.1 秒掉十分之一
-        z.poiT -= dt; z.poiAcc = (z.poiAcc || 0) + dt;
-        if (z.poiAcc >= 0.1) { z.poiAcc -= 0.1; z.hp -= dotDmg(z); z.flash = 0.1; dotBurst(z.x, z.y, z.poiColor || '#7ee85a'); if (z.hp <= 0) { killZombie(z); continue; } }
-      }
+      if (dotTick(z, dt)) continue;   // 🔥 DoT 结算（燃烧/附火/中毒）
       if (z.freezeT > 0) { z.freezeT -= dt; continue; }   // 🏹 冰冻：动不了也咬不了人
       if (z.slowT > 0) z.slowT -= dt;   // 🐾 宠物减速
       const slowF = z.slowT > 0 ? 0.5 : 1;   // 🐾 被宠物黏住：速度减半
