@@ -104,6 +104,8 @@
 <button id="enterBtn">🚪 进入</button>
 <button id="tpBtn" style="display:none;position:fixed;left:50%;bottom:150px;transform:translateX(-50%);z-index:7;background:linear-gradient(#7a4ad4,#5a2ab0);color:#fff;border:3px solid #b48aff;border-radius:16px;padding:12px 26px;font-weight:bold;font-size:19px;box-shadow:0 4px 14px rgba(120,60,220,.55);cursor:pointer">⚡ 传送</button>
 <button id="blockBtn" style="display:none;position:fixed;left:calc(50% - 160px);bottom:150px;transform:translateX(-50%);z-index:7;background:linear-gradient(#3a6ad4,#2a4ab0);color:#fff;border:3px solid #7ab8ff;border-radius:16px;padding:12px 26px;font-weight:bold;font-size:19px;box-shadow:0 4px 14px rgba(60,120,220,.55);cursor:pointer">🛡️ 格挡</button>
+<button id="bearBtn" style="display:none;position:fixed;left:calc(50% + 110px);bottom:150px;transform:translateX(-50%);z-index:7;background:linear-gradient(#8a5a2a,#6a3f1a);color:#fff;border:3px solid #d8a05a;border-radius:16px;padding:12px 26px;font-weight:bold;font-size:19px;box-shadow:0 4px 14px rgba(140,90,40,.55);cursor:pointer;touch-action:manipulation">🐻 变熊</button>
+<button id="jobSwap" style="display:none;position:fixed;left:12px;top:182px;z-index:7;background:linear-gradient(#5a4ad4,#3a2ab0);color:#fff;border:3px solid #b48aff;border-radius:14px;padding:8px 12px;font-weight:bold;font-size:15px;box-shadow:0 4px 14px rgba(120,60,220,.5);cursor:pointer;touch-action:manipulation">⇄</button>
 <div id="gear"><div id="gearCard">
   <div style="font-size:22px;font-weight:bold;margin-bottom:8px">⚙️ 设置</div>
   <button id="gearBag">🎒 背包</button>
@@ -127,11 +129,11 @@
   <div class="hsec">💡 小提示</div>
   <div class="htxt">法杖射得快、枪打得痛、弓箭居中；宠物最多 3 只一起出战；地图上有发光的山洞，走进去有惊喜！</div>
   <div class="hsec">🌟 职业（打 BOSS 开宝箱拿「觉醒石」，随机觉醒，不许挑！）</div>
-  <div class="htxt">🥷 <b>刺客</b>：射箭后点「⚡传送」瞬移到落点，落地一刀×2<br>🔮 <b>法师</b>：武器伤害+15%（法杖再+15%），挥剑放剑风、箭带燃烧——但只有 2.5 格血<br>⚔️ <b>战士</b>：双手各持一把武器轮流砍（攻速翻倍），双剑=300° 大扇形——法杖只能发挥九成<br>🛡️ <b>坦克</b>：点「格挡」举盾 0.5 秒免疫一切（站桩），冷却 2 秒——技能位只剩 4 格<br>🐺 <b>召唤师</b>：每 8 秒自动召唤一只狼（最多 3 只、每只 6 血），谁打怪怪就咬谁——只有 3 格血</div>
+  <div class="htxt">第一颗觉醒石=<b>主职业</b>，第二颗=<b>副职业</b>，点左上角「⇄」一键切换！15 个职业每个玩法都不一样：<br>🥷 <b>刺客</b>：射箭→传送→落地一刀×2 ｜ 🔮 <b>法师</b>：附魔+剑风+燃烧箭，血少 ｜ ⚔️ <b>战士</b>：双持轮砍攻速翻倍 ｜ 🛡️ <b>坦克</b>：格挡无敌站桩 ｜ 🐺 <b>召唤师</b>：自动召唤狼群，血少<br>🩸 <b>狂战士</b>：血越少攻越高 ｜ 🏹 <b>游侠</b>：双箭齐发还能穿透 ｜ 💚 <b>牧师</b>：全队持续回血、克制亡灵 ｜ 🃏 <b>盗贼</b>：金币双倍+背刺+商店 8 折 ｜ ⏳ <b>时空术士</b>：冷却快+定时全场冻结<br>🧲 <b>工程师</b>：自动部署炮塔 ｜ 🍀 <b>幸运星</b>：刀刀暴击 ｜ 🐻 <b>德鲁伊</b>：点按钮变熊 6 秒 ｜ ☠️ <b>死灵法师</b>：杀死的怪变骷髅小弟 ｜ ⚗️ <b>炼金术士</b>：道具效果翻倍</div>
   <div class="hsec">🗺️ 更多玩法</div>
-  <div class="htxt">🎁 BOSS 宝箱三选一（武器/装备/技能/宠物/觉醒石）<br>🔷 武器店偶尔刷「升级石」，300 金币让工匠把手里的武器升一级（最高橙色传说）<br>🌈 品质天梯：灰粗糙→白普通→绿优秀→蓝精良→紫史诗→橙传说<br>🐾 宠物有血条啦：越贵越扛揍，被打倒下关复活（无尽过波也复活）<br>💀 第八关·凋零之地：MC 凋零骷髅成群出没，BOSS 是三头凋灵——蓝骷髅头打中掉 2 血，红色冲锋走廊里掉 2.5 血，快闪！<br>🐉 第九关·末影之地：全关只有末影龙（10000 血）——紫龙息落地成雾（站雾里一直掉血），被俯冲顶飞落地掉 3 血！<br>🧨 第十关·苦力怕矿洞：MC 苦力怕悄悄摸近你就自爆（跑远 2 格引信熄灭）；BOSS 泰坦苦力怕——TNT 雨 2.5 秒后炸 2.5 血（有一个瞄准你），被扑咬掉 3 血！<br>🟢 第十一关·史莱姆沼泽：MC 史莱姆打死会分裂（大→中→小）；BOSS 恶魂喷火球掉 2 血——挥刀把火球打回去，砸中它掉 15 血！<br>👿 第十二关·深邃古城：蝙蝠乱飞；BOSS 坚守者 50 万血——它是瞎子，你站着不动 1.5 秒它就找不到你（MC 潜行同款）！音波炮蓄力时快躲直线，贴身震地 3.5 血！<br>🍗 商店新增一次性道具（无限购！）：烤鸡回血/力量药水/铁皮无敌/疾跑/手雷/复活图腾<br>🛍️ 新三关还藏了 80 件新宝贝（武器/装备/宠物/技能各 20 件）：全混在商店随机池里，第一关的商店也能抽到！<br>🏡 通关第十二关解锁宁静小镇：商店街、买房、广场长椅随便坐<br>💎 试炼塔里怪物掉钻石（第 1 波僵尸掉 1 颗，波数越高掉越多，BOSS 掉 10×波数）；小镇商店街尽头有「钻石商店」：副手槽（限购 1 次）/宠物槽/技能槽/随机转职石/指定转职石，价格很贵，多爬塔！<br>🗼 小镇广场南边有座试炼塔：进去就是无尽挑战，一遍遍刷榜比谁爬得高<br>🎡 广场两圈还有游乐场：打地鼠/射箭/钓鱼/转盘/抓娃娃/跑酷/猜宝箱/投篮/擂台赛/迷宫寻宝——赢金币还能赢钻石！<br>🌐 主页新增「联机大厅」：同一台设备开两个窗口，一个创建房间一个踢馆，双人 PVP！胜利 +200 金 +10💎</div>
+  <div class="htxt">🎁 BOSS 宝箱三选一（武器/装备/技能/宠物/觉醒石）<br>🔷 武器店偶尔刷「升级石」，300 金币让工匠把手里的武器升一级（最高橙色传说）<br>🌈 品质天梯：灰粗糙→白普通→绿优秀→蓝精良→紫史诗→橙传说<br>🐾 宠物有血条啦：越贵越扛揍，被打倒下关复活（无尽过波也复活）<br>💀 第八关·凋零之地：MC 凋零骷髅成群出没，BOSS 是三头凋灵——蓝骷髅头打中掉 2 血，红色冲锋走廊里掉 2.5 血，快闪！<br>🐉 第九关·末影之地：全关只有末影龙（10000 血）——紫龙息落地成雾（站雾里一直掉血），被俯冲顶飞落地掉 3 血！<br>🧨 第十关·苦力怕矿洞：MC 苦力怕悄悄摸近你就自爆（跑远 2 格引信熄灭）；BOSS 泰坦苦力怕——TNT 雨 2.5 秒后炸 2.5 血（有一个瞄准你），被扑咬掉 3 血！<br>🟢 第十一关·史莱姆沼泽：MC 史莱姆打死会分裂（大→中→小）；BOSS 恶魂喷火球掉 2 血——挥刀把火球打回去，砸中它掉 15 血！<br>👿 第十二关·深邃古城：蝙蝠乱飞；BOSS 坚守者 50 万血——它是瞎子，你站着不动 1.5 秒它就找不到你（MC 潜行同款）！音波炮蓄力时快躲直线，贴身震地 3.5 血！<br>🍗 商店新增一次性道具（无限购！）：烤鸡回血/力量药水/铁皮无敌/疾跑/手雷/复活图腾<br>🛍️ 新三关还藏了 80 件新宝贝（武器/装备/宠物/技能各 20 件）：全混在商店随机池里，第一关的商店也能抽到！<br>🏡 通关第十二关解锁宁静小镇：商店街、买房、广场长椅随便坐<br>💎 试炼塔里怪物掉钻石（第 1 波僵尸掉 1 颗，波数越高掉越多，BOSS 掉 10×波数）；小镇商店街尽头有「钻石商店」：副手槽（限购 1 次）/宠物槽/技能槽/随机转职石/指定转职石，价格很贵，多爬塔！<br>🗼 小镇广场南边有座试炼塔：进去就是无尽挑战，一遍遍刷榜比谁爬得高<br>🌲 小镇广场东边有「哥布林森林」副本：杀 12 只绿皮哥布林引出哥布林王——它的鞭子横扫一鞭 5 血，看到红区快跑！在副本里倒下不会真死，只会被抬回小镇；通关 +300 金 +10💎<br>🎡 广场两圈还有游乐场：打地鼠/射箭/钓鱼/转盘/抓娃娃/跑酷/猜宝箱/投篮/擂台赛/迷宫寻宝——赢金币还能赢钻石！<br>🌐 主页新增「联机大厅」：同一台设备开两个窗口，一个创建房间一个踢馆，双人 PVP！胜利 +200 金 +10💎</div>
   <button id="helpClose" style="margin-top:10px">知道啦！</button>
-  <div style="margin-top:14px;padding-top:8px;border-top:1px solid rgba(255,255,255,.15);font-size:11px;opacity:.6;text-align:center">本游戏由杨恩泽出品<br>最终解释权归杨恩泽所有<br>版本 v75</div>
+  <div style="margin-top:14px;padding-top:8px;border-top:1px solid rgba(255,255,255,.15);font-size:11px;opacity:.6;text-align:center">本游戏由杨恩泽出品<br>最终解释权归杨恩泽所有<br>版本 v78</div>
 </div></div>
 <div id="play"><div id="playCard">
   <div id="playTitle" style="font-size:20px;font-weight:bold"></div>
@@ -224,7 +226,7 @@
   <button id="overHome" style="margin-top:10px">🏠 回主页</button>
 </div></div>
 </div>
-<script src="logic.js?v=25"></script>
+<script src="logic.js?v=26"></script>
 <script>
 'use strict';
 /* ================= 像素小人 & 僵尸（字符串画出来的，MC 风） ================= */
@@ -664,9 +666,9 @@ let playerFlyT = 0;   // 被顶飞中（不能动，落地结算）
 function enderTick(z, dt) {
   z.walkT += dt;
   const dx = player.x - z.x, dy = player.y - z.y, d = Math.hypot(dx, dy) || 1;
-  z.flyA = (z.flyA || 0) + dt * 0.9;   // 平时绕玩家盘旋
+  z.flyA = (z.flyA || 0) + dt * 0.55;   // 🐉 绕地图中心盘旋（MC 绕喷泉同款，恩泽点名改的）
   if (!z.dive) {
-    const tx = player.x + Math.cos(z.flyA) * 220, ty = player.y + Math.sin(z.flyA) * 220;
+    const tx = WORLD.w / 2 + Math.cos(z.flyA) * 320, ty = WORLD.h / 2 + Math.sin(z.flyA) * 240;
     const ddx = tx - z.x, ddy = ty - z.y, dd = Math.hypot(ddx, ddy) || 1;
     z.x += ddx / dd * 200 * dt; z.y += ddy / dd * 200 * dt;
   }
@@ -840,6 +842,61 @@ function wardenTick(z, dt) {
     }
   }
 }
+/* 🧨 MC 苦力怕统一画法：高绿柱躯干+迷彩斑块+四条小短腿+经典苦脸（小怪/泰坦/宠物共用，s=缩放） */
+function drawCreeper(cx, cy, s, opt) {
+  opt = opt || {};
+  const fusing = opt.fuseT != null, flashOn = fusing && Math.floor(opt.fuseT * 10) % 2 === 0;
+  const grow = fusing ? 1 + (0.8 - opt.fuseT) * 0.25 : 1;
+  const wob = Math.sin((opt.walkT || 0) * 8) * 2.2;
+  ctx.save(); ctx.translate(Math.round(cx), Math.round(cy)); ctx.scale(s * grow, s * grow);
+  ctx.fillStyle = flashOn ? '#c8e8b0' : '#3a7a22';   // 四条小短腿（前后交替迈步）
+  ctx.fillRect(-7, -4 + Math.max(0, wob), 4, 4 - Math.max(0, wob)); ctx.fillRect(3, -4 + Math.max(0, wob), 4, 4 - Math.max(0, wob));
+  ctx.fillRect(-7, -4 + Math.max(0, -wob), 4, 4 - Math.max(0, -wob)); ctx.fillRect(3, -4 + Math.max(0, -wob), 4, 4 - Math.max(0, -wob));
+  ctx.fillStyle = flashOn ? '#e8f8dc' : '#55a02e'; ctx.fillRect(-8, -28, 16, 24);   // 高躯干
+  if (!flashOn) {   // 迷彩斑块（MC 苦力怕的花皮）
+    ctx.fillStyle = '#478a26'; ctx.fillRect(-6, -25, 5, 4); ctx.fillRect(2, -18, 5, 5); ctx.fillRect(-7, -10, 4, 4); ctx.fillRect(3, -26, 4, 3);
+    ctx.fillStyle = '#63b436'; ctx.fillRect(0, -24, 4, 4); ctx.fillRect(-5, -16, 4, 5); ctx.fillRect(2, -7, 5, 3);
+  }
+  ctx.fillStyle = 'rgba(0,0,0,.15)'; ctx.fillRect(5, -28, 3, 24);   // 右侧阴影
+  ctx.fillStyle = flashOn ? '#4a5a3a' : '#101408';   // 经典苦脸
+  ctx.fillRect(-6, -25, 4, 4); ctx.fillRect(2, -25, 4, 4);   // 两眼
+  ctx.fillRect(-2, -20, 4, 5);   // 中间竖嘴
+  ctx.fillRect(-5, -16, 3, 4); ctx.fillRect(2, -16, 3, 4);   // 嘴角下撇
+  ctx.restore();
+  if (fusing) { ctx.fillStyle = '#ffe84a'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('!', Math.round(cx), Math.round(cy) - 36 * s); ctx.textAlign = 'left'; }
+}
+/* 🌲 哥布林统一画法：绿皮小个子+尖耳朵+黄眼尖牙+手里抡木棍（小怪/王共用，s=缩放，face=-1 朝左） */
+function drawGoblin(cx, cy, s, opt) {
+  opt = opt || {};
+  const step = Math.sin((opt.walkT || 0) * 8) * 2;
+  ctx.save(); ctx.translate(Math.round(cx), Math.round(cy)); ctx.scale(s * (opt.face < 0 ? -1 : 1), s);
+  ctx.fillStyle = '#3a5a22'; ctx.fillRect(-5, -6, 4, 6 + Math.max(0, step)); ctx.fillRect(1, -6, 4, 6 + Math.max(0, -step));   // 腿倒腾
+  ctx.fillStyle = '#4a8a2a'; ctx.fillRect(-7, -20, 14, 14);   // 绿皮身体
+  ctx.fillStyle = '#3a6a20'; ctx.fillRect(-7, -20, 14, 3);   // 肩膀阴影
+  ctx.fillStyle = '#55a02e'; ctx.fillRect(-6, -30, 12, 10);   // 头
+  ctx.fillStyle = '#4a8a2a';   // 尖耳朵两边伸出
+  ctx.beginPath(); ctx.moveTo(-6, -27); ctx.lineTo(-12, -30); ctx.lineTo(-6, -24); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(6, -27); ctx.lineTo(12, -30); ctx.lineTo(6, -24); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#e8d24a'; ctx.fillRect(-4, -27, 3, 3); ctx.fillRect(1, -27, 3, 3);   // 黄眼睛
+  ctx.fillStyle = '#1a1a1a'; ctx.fillRect(-3, -26, 2, 2); ctx.fillRect(2, -26, 2, 2);   // 瞳
+  ctx.fillStyle = '#2a4a18'; ctx.fillRect(-3, -22, 6, 2);   // 嘴
+  ctx.fillStyle = '#fff'; ctx.fillRect(-3, -22, 1.6, 2.6); ctx.fillRect(1.4, -22, 1.6, 2.6);   // 尖牙
+  const clubA = opt.clubA != null ? opt.clubA : Math.sin((opt.walkT || 0) * 4) * 0.4 + 0.5;   // 木棍（抡鞭时举高）
+  ctx.save(); ctx.translate(8, -14); ctx.rotate(clubA);
+  ctx.fillStyle = '#7a5a2a'; ctx.fillRect(0, -2.5, 16, 5);   // 棍身
+  ctx.fillStyle = '#5a3f1a'; ctx.fillRect(12, -3.5, 6, 7);   // 棍头粗端
+  ctx.restore();
+  ctx.restore();
+}
+/* 🌲 副本大树：深绿松树（树干+两层针叶） */
+function drawDgnTree(x, y) {
+  ctx.fillStyle = '#3a2a18'; ctx.fillRect(x + 18, y + 34, 10, 16);
+  ctx.fillStyle = '#24401c';
+  ctx.beginPath(); ctx.moveTo(x + 23, y); ctx.lineTo(x + 6, y + 22); ctx.lineTo(x + 40, y + 22); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(x + 23, y + 10); ctx.lineTo(x + 2, y + 34); ctx.lineTo(x + 44, y + 34); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#2e5524';
+  ctx.beginPath(); ctx.moveTo(x + 23, y + 4); ctx.lineTo(x + 10, y + 20); ctx.lineTo(x + 36, y + 20); ctx.closePath(); ctx.fill();
+}
 /* 👹 BOSS 每帧：砸地伤害结算+陀螺持续刮血+骷髅王巨箭/寒冰+鬼王魂火/夺魂 */
 /* 🔥 DoT 结算（燃烧/法师附火/中毒冻伤）：每 0.1 秒一跳，死掉返回 true */
 function dotTick(z, dt) {
@@ -858,6 +915,7 @@ function dotTick(z, dt) {
   return false;
 }
 function bossUpdate(z, dt) {
+  if (z.dgnKing) { dgnKingTick(z, dt); return; }   // 👑 哥布林王有自己的大脑
   if (z.warden) { wardenTick(z, dt); return; }   // 👿 坚守者有自己的大脑
   if (z.ghast) { ghastTick(z, dt); return; }   // 👻 恶魂有自己的大脑
   if (z.titan) { titanTick(z, dt); return; }   // 🧨 泰坦苦力怕有自己的大脑
@@ -985,22 +1043,25 @@ function bossUpdate(z, dt) {
 }
 function reset() {
   player = makePlayer(); zombies = []; kills = 0; spawnT = 1; summonT = 10; parts = []; gameOver = false;
-  player.job = null; player.offhand = null; warriorHand = false; lastSwingKey = null;   // 🥷⚔️ 新冒险：无职业无副手，等宝箱觉醒
+  player.job = null; player.job2 = null; player.offhand = null; warriorHand = false; lastSwingKey = null;   // 🥷⚔️ 新冒险：无职业无副手，等宝箱觉醒
   towerMode = false; campaignLv = 1;   // 🗼🧭 新冒险不在塔里，主线从第一关开始
   pets = []; dexCounts = {}; coins = []; skillSlots = [];   // 🐾📖🪙✨ 新冒险从零开始
   endlessRound = 1; endlessWave = 1; waveKills = 0; overRecorded = false;   // 🌀 无尽从零开始
   chest = null; pendingNext = null; chestLatch = false; roomLatch = false; plazaSeen = false;   // 🎁 宝箱清空
   faintDone = false; townMode = false; townUnlocked = false; ownedHouse = false; inRoom = false; storage = {}; sittingBench = null;   // 💉🏡 剧情小镇清零（🪑屁股也起来）
+  dungeonMode = false; dgnKills = 0; dgnKingSpawned = false; dgnExit = null;   // 🌲 副本清零
   document.getElementById('faint').style.display = 'none'; document.getElementById('bed').style.display = 'none'; storeEl.style.display = 'none';
   bossAt = 100; banner = { txt: '', t: 0 }; shakeT = 0; slamFx = null;
   hurtT = 0; deathT = 0; swingDir = 1; prevHearts = 99;   // 💥💀↔️ 动作状态清零
   tpWindowT = 0; tpLand = null; prevBow = null; assassinStrike = false; assassinSwapT = 0;   // 🥷 刺客状态清零
   blockT = 0; blockCd = 0;   // 🛡️ 格挡清零
   wolves = []; wolfT = 0;   // 🐺 狼群解散
+  minions = []; turrets = [];   // ☠️🧲 小弟炮塔解散
+  bearCd = 0; freezeAllT = 0; chronoT = 20; clericT = 2; turretT = 6;   // 🌟 职业被动计时器归零
   level = 1; earrows = []; parrows = [];
   autoOn = false; holdAtk = false; autoT = 0; autoBtn.classList.remove('on');
   skillShots = []; clouds = []; fxLines = []; netOrbs = null; shocks = [];
-  renderSkills();
+  renderSkills(); updateJobSwap();   // ⇄ 新冒险：切换钮藏起来
   deco = [];   // 树和石头点缀（固定随机，玩久了认得路）
   let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
   for (let i = 0; i < 90; i++) deco.push({ x: 60 + rnd() * (WORLD.w - 120), y: 60 + rnd() * (WORLD.h - 120), t: rnd() < 0.65 ? 'tree' : 'rock' });
@@ -1008,7 +1069,7 @@ function reset() {
   placePortal();   // 🕳️ 这关的山洞在哪呢
   placeShops();   // 🏪 地图上摆两个商店
 }
-function updateScore() { document.getElementById('score').textContent = '⚔️ 击败 ' + kills; document.getElementById('levelTag').textContent = pvpMode ? '🌍 PVP 擂台 #' + String(pvpMode).replace('net', '') : townMode ? '🏡 宁静小镇' : towerMode ? `🗼试炼塔 第${endlessRound}遍·第${endlessWave}波` : '🗺️ 第' + level + '关·' + LEVELS[level].name; }
+function updateScore() { document.getElementById('score').textContent = '⚔️ 击败 ' + kills; document.getElementById('levelTag').textContent = pvpMode ? '🌍 PVP 擂台 #' + String(pvpMode).replace('net', '') : dungeonMode ? '🌲 哥布林森林 ' + dgnKills + '/' + DGN_GOAL + (dgnKingSpawned ? ' 👑王来了！' : '') : townMode ? '🏡 宁静小镇' : towerMode ? `🗼试炼塔 第${endlessRound}遍·第${endlessWave}波` : '🗺️ 第' + level + '关·' + LEVELS[level].name; }
 function updateGold() { document.getElementById('gold').textContent = '💰 ' + player.gold; updateDia(); }
 function updateDia() { document.getElementById('dia').textContent = '💎 ' + (player.diamonds || 0); }   // 💎 钻石只认试炼塔
 /* ================= 🏪 商店（买东西时游戏暂停） ================= */
@@ -1026,7 +1087,7 @@ function renderShop() {
     for (const key in TBL) {
       const it = TBL[key]; if (it.kind !== kind) continue;
       const owned = !!player.bought[key];   // 🎒 买过=已拥有（卸下也算有）
-      const disc = player.owned.charm ? 0.1 : 0;   // 🪙 金币护符全场 9 折
+      const disc = shopDisc();   // 🪙🃏 金币护符 9 折 + 盗贼 8 折
       const price = Math.ceil(it.price * (1 - disc));
       const priceTxt = disc ? `💰${price} <s style="opacity:.5;font-size:11px">${it.price}</s>` : `💰${price}`;
       let btn;
@@ -1081,6 +1142,8 @@ function applyGear() {
     + modVal('heart');
   if (player.job === 'mage') player.maxHearts = 2.5 + (player.maxHearts - PLAYER.hearts) * 0.5;   // 🔮 法师代价：初始 2.5 格血，加血装备只发挥一半
   if (player.job === 'summoner') player.maxHearts = 3 + (player.maxHearts - PLAYER.hearts) * 0.5;   // 🐺 召唤师代价：3 格血，加血装备减半
+  if (player.job === 'necro') player.maxHearts = 3 + (player.maxHearts - PLAYER.hearts) * 0.5;   // ☠️ 死灵法师：也是 3 格血
+  if (player.job === 'berserker') player.maxHearts = Math.max(1, player.maxHearts - 1);   // 🩸 狂战士：血上限 -1
   player.regenDelay = o.medkit ? REGEN.delay / 2 : REGEN.delay;
   if (o.snow_medkit || o.hell_map || o.cosmic_map || modVal('map')) player.regenDelay = Math.max(1, player.regenDelay - 1);
   player.regenEvery = (o.medkit || o.warm_hearth || o.soul_heart || o.magma_core_heart || o.thunder_heart || o.abyss_heart || modVal('regen') >= 2) ? REGEN.every / 2 : REGEN.every;
@@ -1121,6 +1184,8 @@ function rollDmg(dmg) {
   if (player.owned.sky_armor && Math.random() < 0.25) dmg *= 0.5;
   if (player.owned.dimension_armor && Math.random() < 0.25) dmg *= 0.5;
   if (modVal('half') && Math.random() < modVal('half')) dmg *= 0.5;   // 💎 水晶减半
+  if (player.job === 'rogue') dmg *= 1.15;   // 🃏 盗贼短板：被打更疼
+  if (player.bearT > 0) dmg *= 0.5;   // 🐻 熊形态：受伤减半
   return dmg;
 }
 /* 👼 致命保护：天使/冰晶/魂/火种留 1 心，轮回石 2 心，凤凰之羽 3 心（最强）。每局一次。返回 true=被救了 */
@@ -1527,6 +1592,16 @@ function doBlock() {
   setBanner('🛡️ 格挡！'); beep(200, 420, 0.15, 'square', 0.16);
 }
 document.getElementById('blockBtn').onclick = doBlock;
+document.getElementById('jobSwap').onclick = swapJob;   // ⇄ 左上角：主副职业一键切换
+/* 🐻 德鲁伊变熊：6 秒熊形态（攻×2.5、受伤减半），冷却 25 秒 */
+let bearCd = 0;
+function doBear() {
+  if (player.job !== 'druid' || bearCd > 0 || player.bearT > 0 || gameOver || paused) return;
+  player.bearT = 6; bearCd = 25;
+  setBanner('🐻 变熊！6 秒内攻×2.5、受伤减半！'); beep(180, 420, 0.3, 'sawtooth', 0.2);
+  burst(player.x, player.y, '#a06a3a', 16);
+}
+document.getElementById('bearBtn').onclick = doBear;
 /* 🥷 刺客（v54）：状态组 */
 let tpWindowT = 0, tpLand = null, prevBow = null, assassinStrike = false, assassinSwapT = 0;
 /* 🐺 召唤师（v59）：狼群。8 秒补一只、上限 3、每只 6 血；怪咬狼一口 2 血；仇恨=谁打怪怪咬谁 */
@@ -1569,6 +1644,26 @@ function wolvesTick(dt) {
     }
   }
 }
+/* ☠️ 死灵骷髅小弟：10 秒寿命，追怪咬一口 1 血（杀怪 30% 拉起来，上限 3 只） */
+function minionsTick(dt) {
+  for (let i = minions.length - 1; i >= 0; i--) {
+    const mn = minions[i];
+    if (!mn) continue;
+    mn.t -= dt; mn.cd = Math.max(0, (mn.cd || 0) - dt); mn.animT = (mn.animT || 0) + dt;
+    if (mn.t <= 0 || townMode) { burst(mn.x, mn.y, '#c8f4ff', 6); minions.splice(i, 1); continue; }   // 时间到化成光
+    let tgt = null, bd = 320;
+    for (const z of zombies) { if (z.dead || z.fake) continue; const dd = Math.hypot(z.x - mn.x, z.y - mn.y); if (dd < bd) { bd = dd; tgt = z; } }
+    if (tgt) {
+      const dx = tgt.x - mn.x, dy = tgt.y - mn.y, d = Math.hypot(dx, dy) || 1;
+      mn.face = dx < 0 ? -1 : 1;
+      if (d > (tgt.r || 10) + 8) { mn.x += dx / d * 160 * dt; mn.y += dy / d * 160 * dt; }
+      else if (mn.cd <= 0) { mn.cd = 0.9; tgt.hp -= 1; tgt.flash = 0.12; burst(tgt.x, tgt.y - 6, '#c8f4ff', 3); beep(600, 800, 0.04, 'square', 0.03); if (tgt.hp <= 0) killZombie(tgt); }
+    } else {
+      const dx = player.x - mn.x, dy = player.y - mn.y, d = Math.hypot(dx, dy) || 1;
+      if (d > 60) { mn.x += dx / d * 150 * dt; mn.y += dy / d * 150 * dt; mn.face = dx < 0 ? -1 : 1; }
+    }
+  }
+}
 /* ================= 🕳️ 神秘山洞（每关一个：金色精英怪守着金币） ================= */
 let portalDone = false;   // 打没打过也记档（防读档重打刷奖励）
 let hurtT = 0, deathT = 0, swingDir = 1, prevHearts = 99;   // 💥受击后仰/💀死亡倒下/↔️左右挥剑（v53）
@@ -1605,6 +1700,7 @@ const DEX_LIST = [
   ['boss1', '👹', '僵尸王', '砸地+陀螺'], ['boss2', '💀', '骷髅王', '巨箭追踪+寒冰'],
   ['boss3', '👻', '鬼王', '魂火连珠+夺魂锁链'], ['boss4', '🌋', '熔岩魔王', '火雨+冲锋'],
   ['boss5', '⛈️', '雷霆法王', '万雷天引+电网'], ['boss6', '🕳️', '虚空主宰', '裂隙+相位轰炸'], ['boss7', '💎', '水晶魔王', '分身+棱光齐射，假身没钱'],
+  ['goblin', '👺', '哥布林', '副本森林小怪：绿皮尖牙抡木棍'], ['bossDgn', '👑', '哥布林王', '副本老大：鞭子横扫一鞭 5 血'],
 ];
 const dexEl = document.getElementById('dex'), dexList = document.getElementById('dexList');
 let dexOpen = false;
@@ -1632,7 +1728,7 @@ let saveT = 2;
 function packSave() {
   const boss = zombies.find(z => z.boss && !z.dead && !z.fake);
   return { kills, gold: player.gold, weapon: player.weapon, owned: player.owned, hearts: player.hearts, bossAt, level, music: musicOn ? 1 : 0, rot: rotated ? 1 : 0, when: Date.now(), sid: mySid,
-    job: player.job || null, offhand: player.offhand || null,   // 🥷⚔️ 职业和副手跟着存档走
+    job: player.job || null, job2: player.job2 || null, offhand: player.offhand || null,   // 🥷⚔️ 主副职业和副手跟着存档走
     dia: player.diamonds || 0, slots: player.slots, off2: player.offhands2 || [],   // 💎 钻石+扩展槽跟着存档走
     items: player.items || {},   // 🍗 道具袋跟着存档走
     towerMode: towerMode ? 1 : 0,   // 🗼 在不在试炼塔里
@@ -1642,11 +1738,12 @@ function packSave() {
     mapShops, endlessRound, endlessWave, waveKills,
     chest: chest && { x: chest.x, y: chest.y, taken: chest.taken }, pendingNext,
     portal: portal && { x: portal.x, y: portal.y }, portalDone: portalDone ? 1 : 0,   // 🕳️ 山洞位置+打没打过
-    faintDone: faintDone ? 1 : 0, townMode: townMode ? 1 : 0, townUnlocked: townUnlocked ? 1 : 0, ownedHouse: ownedHouse ? 1 : 0, storage };   // 💉🏡剧情小镇也跟着存档走
+    faintDone: faintDone ? 1 : 0, townMode: (townMode || dungeonMode) ? 1 : 0, townUnlocked: townUnlocked ? 1 : 0, ownedHouse: ownedHouse ? 1 : 0, storage };   // 💉🏡剧情小镇也跟着存档走（🌲 副本属于小镇：存档=在小镇）
 }
 function applySave(s) {
   kills = s.kills || 0; player.gold = s.gold || 0; player.owned = s.owned || {};
   player.job = s.job || null;   // 🥷 职业回来
+  player.job2 = s.job2 || null;   // 🌟 副职业也回来
   towerMode = s.towerMode != null ? !!s.towerMode : s.level === 8;   // 🗼 老存档没这字段：level 8 一律算在塔里（旧无尽）
   campaignLv = s.campaignLv || (s.towerMode ? 8 : s.level) || 1;   // 🧭 老存档：塔里的算通关过，塔外的按当前关
   player.offhand = (s.offhand && ALLITEMS[s.offhand]) ? s.offhand : null;   // ⚔️ 副手回来（只认全物品表里的）
@@ -1662,6 +1759,7 @@ function applySave(s) {
   endlessRound = s.endlessRound || 1; endlessWave = s.endlessWave || 1; waveKills = s.waveKills || 0;   // 🌀 无尽进度回来
   chest = s.chest || null; pendingNext = s.pendingNext || null;   // 🎁 没开的宝箱回来
   faintDone = !!s.faintDone; townMode = !!s.townMode; townUnlocked = !!s.townUnlocked; ownedHouse = !!s.ownedHouse; storage = s.storage || {}; inRoom = false;   // 💉🏡 剧情进度回来（进门状态不存）
+  dungeonMode = false; dgnKills = 0; dgnKingSpawned = false; dgnExit = null;   // 🌲 副本不跟档走：读档永远落在副本外
   if (level === 8 && (endlessRound > 3 || (endlessRound === 3 && endlessWave > 1))) { townUnlocked = true; faintDone = true; }   // 🏡 过了剧情点的老存档：直接解锁小镇
   if (townMode) placeTownShops(); else if (Array.isArray(s.mapShops) && s.mapShops.length === 2) mapShops = s.mapShops;   // 🏪 小镇摆商店街，冒险用存档商店
   player.weapon = (s.weapon && ALLITEMS[s.weapon]) ? s.weapon : null;   // 🌈 武器全继承：读全物品表
@@ -1669,6 +1767,7 @@ function applySave(s) {
   player.hearts = Math.min(player.maxHearts, Math.max(1, s.hearts || player.maxHearts));
   prevHearts = player.hearts;   // 要在血量恢复之后再对表
   zombies = []; garrows = []; meteors = []; puddles = []; shocks = []; netOrbs = null;   // 读档清场重摆
+  minions = []; turrets = []; freezeAllT = 0;   // ☠️🧲⏳ 职业召唤物/冻结不跟档走（重进重新攒）
   if (s.bossAlive) {   // 👹 存档时场上有 BOSS：立刻召唤回来，血还是原来那些
     spawnBoss();
     const b = zombies[zombies.length - 1];
@@ -1685,6 +1784,7 @@ function applySave(s) {
   if (!portal && !portalDone && !townMode) placePortal();   // 老存档没记过山洞：才新刷一个
   if (!Array.isArray(s.mapShops) || (s.mapShops.length !== 2 && !townMode)) { if (!townMode) placeShops(); }   // 🏪 存档没商店就重摆
   renderSkills();   // ✨ 读档后技能按钮跟着来
+  updateJobSwap();   // ⇄ 主副切换钮跟着来
   updateScore(); updateGold();
 }
 let saveGen = 0;
@@ -1693,14 +1793,14 @@ function saveGame() {
   if (pvpMode) return;   // 📡 PVP 不写主档（血量不沾主线），PVP 有 0.1 秒专属存档
   try {
     const data = JSON.stringify(packSave());
-    if (townMode) { localStorage.setItem(SAVE_KEY_TOWN, data); return; }   // 🏡 在小镇：只写小镇档，不动冒险自动档
+    if (townMode || dungeonMode) { localStorage.setItem(SAVE_KEY_TOWN, data); return; }   // 🏡🌲 在小镇/副本：只写小镇档，不动冒险自动档
     saveGen = 1 - saveGen;
     localStorage.setItem(SAVE_KEY + '_g' + saveGen, data);   // 🧬 双代轮换：先写新一代
     localStorage.setItem(SAVE_KEY, data);                    // 再写主档（写坏主档也有上一代兜底）
   } catch (e) {}
 }
 function loadGame() {
-  const s = readSave(townMode ? SAVE_KEY_TOWN : SAVE_KEY);   // 🐛 修"回前台掉回第一关"：在哪个世界读哪个档（以前一刀切读冒险主档，小镇/平板切后台回来就被旧档盖掉）
+  const s = readSave((townMode || dungeonMode) ? SAVE_KEY_TOWN : SAVE_KEY);   // 🐛 修"回前台掉回第一关"：在哪个世界读哪个档（以前一刀切读冒险主档，小镇/平板切后台回来就被旧档盖掉）
   if (!s) return false;
   applySave(s);
   return true;
@@ -2259,6 +2359,9 @@ function startPlay(i) {
 /* ================= 🌐 联机大厅 PVP（恩泽设计：存档直通，0.1 秒一存——同一台设备开两个窗口就能对战，不用网络！） ================= */
 const PVP_ROOMS_KEY = 'zf_pvp_rooms_v1';
 let pvpMode = null, pvpSide = 0, pvpFoe = null, pvpT = 0, pvpHitSeq = 0, pvpHits = [], pvpSeen = 0, pvpPreHearts = 0;
+let dungeonMode = false, dgnKills = 0, dgnKingSpawned = false, dgnExit = null;   // 🌲 副本状态
+let minions = [], turrets = [];   // ☠️ 骷髅小弟 + 🧲 工程师炮塔
+let clericT = 2, chronoT = 20, freezeAllT = 0, turretT = 6;   // 🌟 职业被动计时器（牧师/时空/工程师）
 function pvpRooms() { try { return JSON.parse(localStorage.getItem(PVP_ROOMS_KEY)) || []; } catch (e) { return []; } }
 function pvpSaveRooms(rs) { try { localStorage.setItem(PVP_ROOMS_KEY, JSON.stringify(rs)); } catch (e) {} }
 function pvpRoomKey(id) { return 'zf_pvp_room_' + id; }
@@ -2437,18 +2540,12 @@ function renderBag() {
   const btn = (k, it, state, on) => { const b2 = invB(k); return `<button class="bagIt ${on ? 'on' : 'off'}" data-bag="${k}"><span class="bi">${it.icon}</span><span class="bn">${it.name}${tierOf(k)}</span><span class="bs">${state}</span>${b2 ? `<span class="bs" data-sell="${k}" style="background:#8a6a3a;border-radius:8px;padding:2px 6px">💰卖${Math.round(ALLITEMS[k].price * (b2.t + 1) * 0.5)}</span>` : ''}</button>`; };   // 🔧 合成按钮已随系统退役（v52）
   const grid = arr => `<div class="bagGrid">${arr.join('')}</div>`;
   let h = '';
-  /* 🌟 职业展示卡（v60）：背包最顶上亮明身份 */
-  const JOBS = {
-    assassin: ['🥷', '刺客', '射箭后点「⚡传送」瞬移到落点，落地一刀×2！'],
-    mage: ['🔮', '法师', '武器附魔+15%（法杖再+15%）、挥剑放剑风、箭带燃烧——但只有 2.5 格血'],
-    warrior: ['⚔️', '战士', '双持同类型武器轮流砍（攻速翻倍）；双剑=300° 大扇形；法杖只能发挥九成'],
-    tank: ['🛡️', '坦克', '格挡 0.5 秒免疫一切（站桩，冷却 2 秒）；技能位 4 格，格挡永不下场'],
-    summoner: ['🐺', '召唤师', '每 8 秒召唤一只狼（上限 3 只、每只 6 血）；谁打怪怪咬谁——你只有 3 格血'],
-  };
-  const jb = JOBS[player.job];
+  /* 🌟 职业展示卡（v60）：背包最顶上亮明身份（15 职业全表：主+副都亮出来） */
+  const JOBS = {}; for (const [jj, ic, nm] of JOB_LIST) JOBS[jj] = [ic, nm, JOB_DESC[jj] || ''];
+  const jb = JOBS[player.job], jb2 = JOBS[player.job2];
   h += sec('🌟 职业');
   h += jb
-    ? `<div style="background:linear-gradient(135deg,#3a2a5a,#2a1a3a);border:2px solid #b48af2;border-radius:12px;padding:8px;text-align:center;margin:4px 0"><span style="font-size:26px">${jb[0]}</span> <b style="font-size:17px">${jb[1]}</b><div style="font-size:11px;opacity:.85;margin-top:3px">${jb[2]}</div></div>`
+    ? `<div style="background:linear-gradient(135deg,#3a2a5a,#2a1a3a);border:2px solid #b48af2;border-radius:12px;padding:8px;text-align:center;margin:4px 0"><span style="font-size:26px">${jb[0]}</span> <b style="font-size:17px">${jb[1]}</b><div style="font-size:11px;opacity:.85;margin-top:3px">${jb[2]}</div>${jb2 ? `<div style="margin-top:6px;padding-top:5px;border-top:1px dashed rgba(255,255,255,.25);font-size:12px">副职业：${jb2[0]} <b>${jb2[1]}</b>（点左上角 ⇄ 一键换）</div>` : ''}</div>`
     : '<div class="htxt">还没觉醒职业——打 BOSS 开宝箱，找 🌟 觉醒石！</div>';
   const ws = Object.keys(player.bought).filter(k => ALLKIND[k] === 'weapon');
   const offN = offMax();
@@ -2495,15 +2592,16 @@ function useItem(k) {
   player.items = player.items || {};
   if ((player.items[k] || 0) <= 0) return;
   if (k === 'use_totem') { setBanner('❤️‍🔥 图腾不用点：放背包里，倒下时它会自己救你！'); return; }   // 图腾自动生效
+  const m = player.job === 'alchemist' ? 2 : 1;   // ⚗️ 炼金术士：道具效果翻倍
   player.items[k]--;
-  if (k === 'use_chicken') { player.hearts = Math.min(player.maxHearts, player.hearts + 2); setBanner('🍗 烤鸡真香！+2 格血'); }
-  else if (k === 'use_power') { player.powerT = 20; setBanner('💪 力量药水下肚！20 秒伤害 ×1.5'); }
-  else if (k === 'use_iron') { player.ironT = 5; setBanner('🛡️ 铁皮附体！5 秒无敌'); }
-  else if (k === 'use_speed') { player.speedT = 15; setBanner('⚡ 健步如飞！15 秒移速 +40%'); }
+  if (k === 'use_chicken') { player.hearts = Math.min(player.maxHearts, player.hearts + 2 * m); setBanner('🍗 烤鸡真香！+' + 2 * m + ' 格血'); }
+  else if (k === 'use_power') { player.powerT = 20 * m; setBanner('💪 力量药水下肚！' + 20 * m + ' 秒伤害 ×1.5'); }
+  else if (k === 'use_iron') { player.ironT = 5 * m; setBanner('🛡️ 铁皮附体！' + 5 * m + ' 秒无敌'); }
+  else if (k === 'use_speed') { player.speedT = 15 * m; setBanner('⚡ 健步如飞！' + 15 * m + ' 秒移速 +40%'); }
   else if (k === 'use_bomb') {
     const bx = player.x + Math.cos(player.dir) * 70, by = player.y + Math.sin(player.dir) * 70;
-    burst(bx, by, '#ff8a5a', 20); shakeT = 0.3; beep(150, 50, 0.4, 'sawtooth', 0.22);
-    for (const z of zombies) if (!z.dead && !z.fake && Math.hypot(z.x - bx, z.y - by) < 90) { z.hp -= 8; z.flash = 0.2; if (z.hp <= 0) killZombie(z); }
+    burst(bx, by, '#ff8a5a', 20 * m); shakeT = 0.3; beep(150, 50, 0.4, 'sawtooth', 0.22);
+    for (const z of zombies) if (!z.dead && !z.fake && Math.hypot(z.x - bx, z.y - by) < 90 * m) { z.hp -= 8 * m; z.flash = 0.2; if (z.hp <= 0) killZombie(z); }
     setBanner('💣 轰隆！');
   }
   beep(700, 1100, 0.1, 'sine', 0.12); saveGame();
@@ -2578,26 +2676,21 @@ function openChest() {
 function takeLoot(i) {
   const L = chest.loot && chest.loot[i]; if (!L) return;
   const kind = ALLKIND[L.key];
-  if (kind === 'awaken') {   // 🌟 觉醒石：随机觉醒一个职业（恩泽定的：不许挑）
-    player.job = ['assassin', 'mage', 'warrior', 'tank', 'summoner'][Math.floor(Math.random() * 5)];
-    if (player.job === 'warrior') {   // ⚔️ 战士开局：双木剑人手一把
-      player.bought.wood_sword = { t: 0, w: 0 }; player.owned.wood_sword = true;
-      player.weapon = 'wood_sword'; player.offhand = 'wood_sword';
-    }
-    if (player.job === 'tank') {   // 🛡️ 坦克开局：格挡锁定上阵
-      player.bought.block_skill = true; player.owned.block_skill = true;
-      if (!skillSlots.includes('block_skill')) skillSlots.unshift('block_skill');
-      renderSkills();
-    }
-    if (player.job === 'summoner') wolfT = 1;   // 🐺 召唤师：第一只狼 1 秒就到
+  if (kind === 'awaken') {   // 🌟 觉醒石：第一颗主职业，第二颗副职业，之后重 roll 副职业（不许挑！）
+    const pool = JOB_LIST.map(j => j[0]).filter(j => j !== player.job && j !== player.job2);
+    const pick = pool[Math.floor(Math.random() * pool.length)];
+    if (!player.job) { player.job = pick; jobGift(pick); }
+    else player.job2 = pick;
     for (let j = 0; j < 30; j++) burst(player.x + (Math.random() - 0.5) * 120, player.y + (Math.random() - 0.5) * 120, ['#b48af2', '#ffd24a', '#ffffff'][j % 3]);
     beep(600, 1200, 0.3, 'sine', 0.18); setTimeout(() => beep(800, 1600, 0.3, 'sine', 0.16), 200);
-    applyGear(); player.hearts = Math.min(player.hearts, player.maxHearts);   // 🔮 法师觉醒当场血量腰斩
+    applyGear(); player.hearts = Math.min(player.hearts, player.maxHearts);
+    updateJobSwap();
   }
   else if (kind === 'weapon' || kind === 'gear') addToInv(L.key, L.tier);
   else if (kind === 'skill') { player.bought[L.key] = true; player.owned[L.key] = true; if (skillSlots.length < skillMax() && !skillSlots.includes(L.key)) skillSlots.push(L.key); else setBanner('✨ 技能位满啦，它在背包里休息'); renderSkills(); }
   else if (kind === 'pet') { player.bought[L.key] = true; player.owned[L.key] = true; addPet(L.key); }
-  setBanner(kind === 'awaken' ? (player.job === 'mage' ? '🔮 觉醒成功！你是【法师】：武器附魔+15%，法杖再+15%，剑能放剑风，箭带燃烧——但你只有 2.5 格血！' : player.job === 'warrior' ? '⚔️ 觉醒成功！你是【战士】：双手各持一把剑轮流砍，双剑=300° 大扇形！法杖只能发挥九成' : player.job === 'tank' ? '🛡️ 觉醒成功！你是【坦克】：点「格挡」举盾 0.5 秒免疫一切（站桩），冷却 2 秒；技能位只剩 4 格，格挡永不下场！' : player.job === 'summoner' ? '🐺 觉醒成功！你是【召唤师】：每 8 秒自动召唤一只狼（上限 3 只、每只 6 血）！谁打怪怪就咬谁——你出手怪就冲你来。你只有 3 格血！' : '🌟 觉醒成功！你是【刺客】：射箭→点「⚡传送」→落地一刀×2！') : '🎁 拿到 ' + ALLITEMS[L.key].name + '！');
+  if (kind === 'awaken') { const just = JOB_LIST.find(x => x[0] === (player.job2 || player.job)); setBanner('🌟 觉醒成功！【' + just[1] + ' ' + just[2] + '】' + JOB_DESC[just[0]] + (player.job2 ? '（点左上角 ⇄ 切换主副职业）' : '')); }
+  else setBanner('🎁 拿到 ' + ALLITEMS[L.key].name + '！');
   beep(880, 1320, 0.2, 'square', 0.14);
   chest.loot = null;
   document.getElementById('chestLoot').style.display = 'none';
@@ -2660,6 +2753,7 @@ document.getElementById('faintStay').onclick = () => {   // ② 留在这里：�
 /* ================= 🏡 宁静小镇（马路+商店街+小家） ================= */
 function enterTown() {
   townMode = true; townUnlocked = true; inRoom = false; paused = false; towerMode = false;   // 🗼 出塔回镇
+  dungeonMode = false; dgnExit = null;   // 🌲 保险：从副本回来也算回镇
   for (const z of zombies) z.dead = true;
   earrows = []; parrows = []; garrows = []; meteors = []; puddles = []; skillShots = []; clouds = []; fxLines = []; netOrbs = null; shocks = []; chest = null;
   player.x = WORLD.w / 2; player.y = WORLD.h / 2 - 200;
@@ -2669,6 +2763,7 @@ function enterTown() {
 }
 function exitTown() {   // ⚔️ 继续刷怪=永远回主线（试炼塔只能走到塔门口进）
   townMode = false; inRoom = false; paused = false; sittingBench = null;   // 🪑 回战场不能坐着
+  dungeonMode = false; dgnExit = null;   // 🌲 保险
   towerMode = false; level = campaignLv;   // 🧭 回主线：恢复到第几关
   for (const z of zombies) z.dead = true;
   earrows = []; parrows = []; garrows = []; meteors = []; puddles = []; skillShots = []; clouds = []; fxLines = []; netOrbs = null; shocks = [];
@@ -2679,6 +2774,7 @@ function exitTown() {   // ⚔️ 继续刷怪=永远回主线（试炼塔只能
 }
 function enterTower() {   // 🗼 走到塔门口才能进：无尽进度接着刷（不清遍数）
   townMode = false; inRoom = false; paused = false; towerMode = true; level = 8;
+  dungeonMode = false; dgnExit = null;   // 🌲 保险
   for (const z of zombies) z.dead = true;
   earrows = []; parrows = []; garrows = []; meteors = []; puddles = []; skillShots = []; clouds = []; fxLines = []; netOrbs = null; shocks = [];
   player.x = WORLD.w / 2; player.y = WORLD.h / 2;
@@ -2688,6 +2784,79 @@ function enterTower() {   // 🗼 走到塔门口才能进：无尽进度接着�
 }
 document.getElementById('gearFight').onclick = () => { toggleGear(false); exitTown(); };
 document.getElementById('gearTown').onclick = () => { toggleGear(false); enterTown(); };
+/* ================= 🌲 哥布林森林（小镇副本①）：杀 12 只哥布林引出哥布林王；倒下=被抬出副本，不是真死 ================= */
+const DGN_GATE = { x: 1520, y: 1840 };   // 🌲 副本入口：小镇广场东边
+const DGN_GOAL = 12;   // 杀满 12 只哥布林出王
+function makeGoblin(x, y) { return { id: _id++, x, y, hp: 5, r: 10, goblin: true, dead: false, flash: 0, walkT: Math.random() * 9, kind: 'goblin' }; }   // 🌲 哥布林：绿皮尖牙木棍，5 血
+function spawnGoblin() { const s = pickSpawn(player, Math.random); zombies.push(makeGoblin(s.x, s.y)); }
+function spawnDgnKing() {   // 👑 哥布林王登场
+  dgnKingSpawned = true;
+  const pos = pickSpawn(player, Math.random);
+  const b = makeBoss(pos.x, pos.y);
+  b.dgnKing = true; b.kind = 'bossDgn'; b.hp = b.maxHp = 300;
+  zombies.push(b);
+  setBanner('👑 哥布林王来了！它的鞭子一扫就是 5 血，看到红区快跑！'); beep(90, 45, 0.7, 'sawtooth', 0.25); shakeT = 0.5;
+}
+function enterDungeon() {   // 🌲 进副本
+  dungeonMode = true; townMode = false; inRoom = false; paused = false; sittingBench = null;
+  dgnKills = 0; dgnKingSpawned = false; dgnExit = null; spawnT = 1;
+  for (const z of zombies) z.dead = true;
+  earrows = []; parrows = []; garrows = []; meteors = []; puddles = []; skillShots = []; clouds = []; fxLines = []; netOrbs = null; shocks = []; chest = null;
+  player.x = WORLD.w / 2; player.y = WORLD.h / 2;   // 林子中央落地
+  applyGear(); updateScore();   // ⚔️ 副本里装备火力全开
+  setBanner('🌲 哥布林森林！杀 ' + DGN_GOAL + ' 只哥布林引出哥布林王！倒下会被抬出副本'); beep(300, 700, 0.4, 'sawtooth', 0.2);
+  saveGame();
+}
+function exitDungeon(dead) {   // 🌲 出副本：回小镇门口
+  dungeonMode = false; townMode = true; inRoom = false; paused = false; dgnExit = null;
+  for (const z of zombies) z.dead = true;
+  earrows = []; parrows = []; garrows = []; meteors = []; puddles = []; skillShots = []; clouds = []; fxLines = []; netOrbs = null; shocks = []; chest = null;
+  player.x = DGN_GATE.x - 90; player.y = DGN_GATE.y;
+  placeTownShops(); spawnTownNpcs(); applyGear(); updateScore();   // 🏡 回小镇：装备休息、村民回来
+  if (dead) { setBanner('😵 你被哥布林抬出了副本……回镇练强点再来！'); beep(300, 150, 0.5, 'sawtooth', 0.18); }
+  else { setBanner('🌲 副本通关凯旋！小镇欢迎英雄！'); beep(600, 1200, 0.5, 'sine', 0.2); }
+  saveGame();
+}
+function dgnDie() {   // 😵 副本里倒下≠真死：抬出副本+回半血
+  player.hearts = Math.max(1, Math.round(player.maxHearts / 2)); player.inv = 1.5;
+  exitDungeon(true);
+}
+/* 👑 哥布林王：更大更壮，手臂缠着鞭子——横扫一鞭 5 血（红色扇形预警 0.7 秒，跑出红区就没事） */
+function dgnKingTick(z, dt) {
+  z.walkT += dt;
+  const dx = player.x - z.x, dy = player.y - z.y, d = Math.hypot(dx, dy) || 1;
+  if (!z.whip) zombieStep(z, player, dt, 0.85);   // 抡鞭子时站住
+  z.whipCd = (z.whipCd == null ? 2.5 : z.whipCd) - dt;
+  if (!z.whip && z.whipCd <= 0 && d < 210) {
+    z.whip = { warn: 0.7, ang: Math.atan2(dy, dx) };   // 锁定方向甩鞭
+    setBanner('👑 哥布林王甩鞭子了！快跑出红区！'); beep(300, 150, 0.25, 'sawtooth', 0.2);
+  }
+  if (z.whip) {
+    z.whip.warn -= dt;
+    if (z.whip.warn <= 0) {
+      const wa = z.whip.ang; z.whip = null; z.whipCd = 6;
+      z.whipFx = 0.28; z.whipFxA = wa;   // 鞭影留一瞬
+      shakeT = 0.4; beep(180, 60, 0.3, 'sawtooth', 0.25);
+      const pd = Math.hypot(player.x - z.x, player.y - z.y);
+      if (pd < 175 && player.inv <= 0 && !(player.tpT > 0)) {
+        const pa = Math.atan2(player.y - z.y, player.x - z.x);
+        const da = Math.abs(((pa - wa) % (Math.PI * 2) + Math.PI * 3) % (Math.PI * 2) - Math.PI);
+        if (da < Math.PI * 5 / 12) {   // 150° 横扫扇形（±75°）
+          player.hearts -= rollDmg(5); player.inv = 1; player.sinceHurt = 0; player.regenT = 0;
+          burst(player.x, player.y, '#e84a4a', 16); shakeT = 0.6;
+          setBanner('💥 被鞭子抽中！掉 5 血！'); beep(150, 50, 0.35, 'sawtooth', 0.25);
+          if (player.hearts <= 0 && !angelSave()) { dgnDie(); return; }
+        }
+      }
+    }
+  }
+  if (z.whipFx > 0) z.whipFx -= dt;
+  const dmgK = rollDmg(1);   // 平时撞到=1 心
+  if (touchHurt(player, z, dmgK)) {
+    beep(260, 100, 0.2, 'sawtooth', 0.16); burst(player.x, player.y, '#5a8a2a', 8);
+    if (player.hearts <= 0 && !angelSave()) { dgnDie(); return; }
+  }
+}
 /* 🧑‍🤝‍🧑 小镇村民（CPU：在家附近溜达的像素小人） */
 const NPC_PX = new Image(); NPC_PX.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABMAAAAjCAYAAAB2KjFhAAAEeElEQVR42uWVS28bVRSAv2uPx89MHNd5mKaPtAoEQluJFFBIaESoBAQhlbZSihRKN0ViRVmA2MCCPwCsWZZNJCClSO2iUaVWjipaKtJHUFLUpm0cHCdpYo/tsT2T6bCYeGwnrtiwQRxpdOfo3vPNed0zgir55suPOfXVtwjg2InjGNllPA3R8rZV1j8feVvsOzjMRhEbQUePDDG7kLGKmTRZNbfJoEEJ4WsME/JKXL54SbzQ18f1iYkKrAx678Rx7vx51wIoZtLUE1PLoa1VwFO3p0SNZ0ePDNHf3clYfNLKldYIeSXHuLkp6IRqZJcBWFrNkyutUcyk2R1r4pcLcWEBYmBwgEsXLzEwOGBVA4DqfAHw18MH5Eq2W9UfbHSb4uyFeCXMXx+uWvXCMrLLzC5k2JjDgIQTbkCC6XsPhAQwFp+0qj2aXchQzlsZYOia7a0cAGyQoWtYpo7hlhGAuDE+yvCHn1kZTUM39Bqv1gyB5Kl1WPbINbpu6MgemZF3XhfS96NjVIPM9dXtkTeBADTNQFBydJ/Xhs+uqLhGht/FIweQPTIelw3xee13c/2rwWCYYDCM7JFrQKZpktcKWKaOrqpIAM3b2sknE7gDLfgaw07JZUXh6rUpGpQQWTWHRw7Q1/ci8csT5LUCwYAf4/F6+IqCq1zm1p07ibZECXkloi1RBnt7AMjn0zxKJVDTi+TzaToiCu8feovtHZ3ktQIeF8j+MF989IHdGt3Pd7OyvGjpho7HBVta29m7v4ebv13nj9tTNCp+J7QDL/dwN7kKwLPP7CB+eQLhlkkuLAkXwFDvHixTpy3WTv+BPvbu78HILmNqOdramsmoBTJqAdM0mZyZY3esiaHePXREFAAi0RYB2DlLGDLCLZNVc/R3dzKfTEFEoX/kEPPJFDP3E45ng709zCdTbI21MhafpFjSOXn4IKduT1Xu5tVrU9bqoySvvfJSjcGTZD6Z4rvRnwHIqAVhgV2A/u5ODF0j1NDI5MzcP4IAZu4nME0TfyDE5PhoZWp07dphpbNphFsmEm0hq+YYfqO3BjifTAGwNdbKfDLF6TPnCTeExcy9B5RbW3x68hinz5y38lrBMXS73aTVgjh6ZAiwz3ZEFGZXVHRV5eyFuDPDZF8XerEdGMd17sotiiXdgZSviAB++PEcS6t5J6wySKznWQB6cRoYtz2LtTVT0HJW9RVp2hIjW9xqD/7i77RFW3h69zbu3J0juZzB5XsOgFLRbv81PS3efDVaHyYF97OrU7A0l2Bh0Y9lPiTgty+0QRden6teTYRUzklZXG57Xi3NJTB0DUmO4fVFyKsrAAQVF6XiY9b0NJIcrgZbkmXqmKZZBbPXhUU/4Ceo2IclOVyZc3oaoziNXw4Ddsh5daXyq6uWG+OjVu/hr/H6XE5equXKT5+w7+DwJlupHgjAKNzEKDy5aW+Mj1obgZsyWT4g3NudxzA0Ua1Xn6v7R98osq/LKYxenBYb9Xo2Lv5F+Z/ApCdt7Hqq0hfT9zbr/60w/wYBqgLiUsY4DQAAAABJRU5ErkJggg==';   // 🚶 神秘人像素版帧1（全身带腿）
 const NPC_PX2 = new Image(); NPC_PX2.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABMAAAAjCAYAAAB2KjFhAAAEfElEQVR42uWVT2wUVRzHP292d2baaXe7tLublgqkpKGAlmDRELIChcIBGoNAT0iAcDIe0IMXLoaQeCVy9GL0Wo3RQIhJwyqBgAGkUCxVZNOWSLN/2u3+mXZ2ZrfjYZnpbukmHrwYv8nL5M17v8/7/X7zfr8RVOnzTz/m3IVLCODE6ZMUCxmUpqCzbDvz86feFVv6h1gpsRI0dHyQeDJvW5lZsjnd3WhZJgBtrUF8wVYCskRsJCbe3L2H+zd+XoY5oPdPn+RJfNq2MrMuJJvTCfi1mrmjgF/j0dhjUePZ0PFBolu7+Tr2q13tdkCWaG3R3FCLhQwAs/M6WXMJKzNLWyREbCQmbEDsG+jn+kiMfQP9Lqi1peJJVb4oFjIupPowx6nrI7HlMO9Ope2VCa0GODm0LBOfT67JpV/1MRGfFF6A72+N2tUexZN5nLw5gJVy3tklnZyhIQAxHhvm6NlP7GxhHmuJfyxZ1rBLOtYS+CQ4c+yw8H721Q9kC/MYRhGPrFA2iwB4ZGVViLO++PKpqgrCq/E0lUV6a30bckMQVVXwSRWIqiquoU8CTQuiaUFkWasFl2103cAu6ZTyOaQDe3cR8GsEmloIRTrpaO8kFOnknb5eBg7uR24IEvBrbo4GDu5HVRXKZRtNU5EbVAC8zX68AG2REFmztfpTs7mrg6epLLqeQdczlM1KGpSmIGeOHebKzYdMxv9E01SEV+PCh6cqV6P3jddJz2Zs09TxSRCKdNLbt51H9x8wNvaYFn8D5bKNxyPY/vZO0okUABs71nDnwSOEV+PFi7+EBDAY3YZp6nS0dxLdHaW3bzvFQgZTL9DesZb53CKGVcnRxPgftEVCDEa3obWvd+pVAJUwpxclfFLlTkW3dpNIJqEhQPTkeySSSZ7En7vh793ZRyKZJBIOc+fWKIZR5OzRA5wbe1yBFQsZ5IYgmfQMP9257xoARMJhIuHwK1ckkUxy7/ZtPB7BRxcuASABRLd2Y1kmks/PL2PP3JPrKRIO8yT+HMOq3LPfYsPLXaOna4Odzs1TKsmsey1MNqdz4tAuF+h46YASySRffnuVQFOL+D0+iVPU4vwHJ/hi+KptLhoYVuWlpgoyuUUxdHyQUj5ne5v9KE1B9JkpAL778Ybbw2S1B9PoBEaQrtx86JaI6qsMj6wggOFvrpAteyjlczUg8bIHCsA0JoCRimcdHWtZLMzZ1SXSFGhlweqqbCjeI9IWYXP3Op69mGP6eRJ8mwAwTSgVUwDi8J4woj3cgmEUa3qZrexg42aJ9NQ0MwkFliZRfSD5/Jj2JmR51e8ivIC92kp6appsVserdAIhjGIKytDYDAv5FI3qHAvGGhqbQwAs5FO25Fa/URm21IxpwkxCYcFY48K9SsgNDSA7n6RRnVv9V+doPDZs7zhy+WUDXDauVqmYYvTaRbb0D4m6sPHYsBvyjiOXKS3efZUkbWD02kV3uhJIPaCs9tgrx2r76oZZ0+erjB2ZxkRdG4l/Uf8TWN1k9nRtsOutTcQnxX8rzL8BfUELecva2pkAAAAASUVORK5CYII=';   // 🚶 帧2（迈步）
@@ -2870,6 +3039,7 @@ const SHOP_TYPES = [['weapon', '🗡️ 武器店', 50], ['gear', '🛡️ 装�
 const SHOP_ICON = { weapon: '🗡️', gear: '🛡️', skill: '✨', pet: '🐾' };
 let mapShops = [], curShop = -1;
 function rollShopType() { const tot = SHOP_TYPES.reduce((s, t) => s + t[2], 0); let r = Math.random() * tot; for (const t of SHOP_TYPES) { r -= t[2]; if (r <= 0) return t; } return SHOP_TYPES[0]; }
+function shopDisc() { return Math.min(0.3, (player.owned.charm ? 0.1 : 0) + (player.job === 'rogue' ? 0.2 : 0)); }   // 🪙🃏 折扣叠加：金币护符 9 折 + 盗贼 8 折
 function rollShopItems(kind) {
   const pool = Object.keys(ALLITEMS).filter(k => ALLKIND[k] === kind).filter(k => {
     if (CLASS_ITEMS[k]) return false;   // 🥷 职业物品不上货架
@@ -2927,9 +3097,10 @@ function renderMapShop() {
   } else if (!s.items.length) h = '<div class="htxt">货架空空啦，打死 BOSS 或过关会补货！</div>';
   for (let i = 0; i < s.items.length; i++) {
     const it = s.items[i];
-    const btn = it.use ? (player.gold >= it.price ? `<button data-ms="${i}">💰${it.price}</button>` : `<button disabled>💰${it.price}（差${it.price - player.gold}）</button>`)   // 🍗 道具永不售罄
+    const itp = Math.ceil(it.price * (1 - shopDisc()));   // 🃏 盗贼购物 8 折
+    const btn = it.use ? (player.gold >= itp ? `<button data-ms="${i}">💰${itp}</button>` : `<button disabled>💰${itp}（差${itp - player.gold}）</button>`)   // 🍗 道具永不售罄
       : it.sold ? '<button disabled>卖光了</button>'
-      : player.gold >= it.price ? `<button data-ms="${i}">💰${it.price}</button>` : `<button disabled>💰${it.price}（差${it.price - player.gold}）</button>`;
+      : player.gold >= itp ? `<button data-ms="${i}">💰${itp}</button>` : `<button disabled>💰${itp}（差${itp - player.gold}）</button>`;
     if (it.stone) {   // 🔷 升级石
       const wb = invB(player.weapon), full = wb && wb.t >= MAX_TIER;
       h += `<div class="shopIt"><div class="ic">🔷</div><div><div class="nm" style="color:#a8d8ff;font-weight:bold">升级石</div><div class="ds">工匠当场把「${ALLITEMS[player.weapon] ? ALLITEMS[player.weapon].name : '武器'}」升一级（最高橙·传说）${full ? '——你手里这把已经是传说啦！' : ''}</div></div>${full ? '<button disabled>已满级</button>' : btn}</div>`;
@@ -2952,18 +3123,19 @@ function renderMapShop() {
 }
 function buyFromMapShop(i) {
   const s = mapShops[curShop]; if (!s) return;
-  const it = s.items[i]; if (!it || it.sold || player.gold < it.price) { beep(160, 90, 0.15, 'square', 0.1); return; }
+  const it = s.items[i]; const itp = it ? Math.ceil(it.price * (1 - shopDisc())) : 0;   // 🃏 盗贼 8 折
+  if (!it || it.sold || player.gold < itp) { beep(160, 90, 0.15, 'square', 0.1); return; }
   if (it.stone) {   // 🔷 升级石：工匠当场把手里的武器升一级（封顶橙·传说）
     if (!player.weapon) { setBanner('🔷 你手上空空的！先买一把武器再来找工匠'); beep(160, 90, 0.15, 'square', 0.1); return; }
     let wb = invB(player.weapon);
     if (!wb) { addToInv(player.weapon, 0); wb = invB(player.weapon); }   // 武器没进过背包：先登记再升
     if (wb.t >= MAX_TIER) { setBanner('🔷 工匠挠头：这把已经到顶啦！'); beep(160, 90, 0.15, 'square', 0.1); return; }
-    wb.t += 1; it.sold = true; player.gold -= it.price;
+    wb.t += 1; it.sold = true; player.gold -= itp;
     setBanner(`🔷 叮叮当当！${ALLITEMS[player.weapon].name} 升到 ${TIERS[wb.t].n}！`);
     beep(600, 900, 0.15, 'square', 0.16); setTimeout(() => beep(900, 1400, 0.2, 'square', 0.14), 140);
     applyGear(); updateGold(); saveGame(); renderMapShop(); return;
   }
-  player.gold -= it.price;
+  player.gold -= itp;   // 🃏 盗贼 8 折后的价
   if (it.use) {   // 🍗 一次性道具：进道具袋，永不售罄（不标 sold）
     player.items = player.items || {}; player.items[it.key] = (player.items[it.key] || 0) + 1;
     setBanner('🍗 买到 ' + ALLITEMS[it.key].name + '！背包里点一下就吃/喝/扔');
@@ -2985,18 +3157,55 @@ const DIA_ITEMS = [
   { key: 'jobpick', icon: '🎯', name: '指定转职石', price: 800, desc: '自己挑一个职业立刻转' },
 ];
 let diaPicking = false;   // 🎯 指定转职：正在挑职业
-const JOB_LIST = [['assassin', '🥷', '刺客'], ['mage', '🔮', '法师'], ['warrior', '⚔️', '战士'], ['tank', '🛡️', '坦克'], ['summoner', '🐺', '召唤师']];
+const JOB_LIST = [['assassin', '🥷', '刺客'], ['mage', '🔮', '法师'], ['warrior', '⚔️', '战士'], ['tank', '🛡️', '坦克'], ['summoner', '🐺', '召唤师'],
+  ['berserker', '🩸', '狂战士'], ['ranger', '🏹', '游侠'], ['cleric', '💚', '牧师'], ['rogue', '🃏', '盗贼'], ['chrono', '⏳', '时空术士'],
+  ['engineer', '🧲', '工程师'], ['lucky', '🍀', '幸运星'], ['druid', '🐻', '德鲁伊'], ['necro', '☠️', '死灵法师'], ['alchemist', '⚗️', '炼金术士']];
+const JOB_DESC = {   // 🌟 一句话卖点（觉醒横幅/图鉴用）
+  assassin: '射箭→传送→落地一刀×2', mage: '武器附魔+15%，法杖再+15%，剑放剑风、箭带燃烧——只有 2.5 格血',
+  warrior: '双手各持一把武器轮流砍，双剑=300° 大扇形——法杖只能九成', tank: '格挡 0.5 秒免疫一切（站桩）冷却 2 秒——技能位 4 格',
+  summoner: '每 8 秒自动召唤一只狼（上限 3 只）——只有 3 格血',
+  berserker: '血越少攻越高（最高+100%）——血上限-1', ranger: '箭穿透+20% 双箭——近战-30%',
+  cleric: '全队持续回血，对亡灵×2 伤——伤害-15%', rogue: '金币×2，打"没看你的怪"背刺×2.5，商店 8 折——被打更疼',
+  chrono: '技能冷却-40%，每 45 秒全场冻结 2 秒——伤害-10%', engineer: '每 12 秒自动部署炮塔（最多 2 座）——移速-10%',
+  lucky: '25% 暴击×3，金币+25%——伤害-5%', druid: '专属按钮变熊 6 秒：攻×2.5、受伤减半，冷却 25 秒——技能冷却+20%',
+  necro: '击杀的怪 30% 复活成骷髅小弟（10 秒，上限 3）——只有 3 格血', alchemist: '一次性道具效果翻倍、手雷加强——武器伤害-20%',
+};
+function cdMul() { return (player.job === 'chrono' ? 0.6 : 1) * (player.job === 'druid' ? 1.2 : 1); }   // ⏳🐻 技能冷却系数
+function jobGift(j) {   // 🎁 成为主职业的见面礼
+  if (j === 'warrior' && !Object.keys(player.bought).some(k => ALLKIND[k] === 'weapon')) { player.bought.wood_sword = { t: 0, w: 0 }; player.owned.wood_sword = true; player.weapon = 'wood_sword'; player.offhand = 'wood_sword'; }
+  if (j === 'tank') { player.bought.block_skill = true; player.owned.block_skill = true; if (!skillSlots.includes('block_skill')) skillSlots.unshift('block_skill'); renderSkills(); }
+  if (j === 'summoner') wolfT = 1;
+}
+function swapJob() {   // 🔄 主副职业一键切换（左上角按钮）
+  if (!player.job2) { setBanner('😴 还没有副职业——再捡一颗觉醒石！'); return; }
+  const t = player.job; player.job = player.job2; player.job2 = t;
+  player.bearT = 0; bearCd = 0;   // 🐻 切换时熊形态解除
+  if (player.job !== 'summoner') wolves = [];   // 🐺 切走召唤师收狼群
+  if (player.job !== 'engineer') turrets = [];   // 🧲 切走工程师收炮塔
+  if (player.job !== 'necro') minions = [];   // ☠️ 切走死灵收小弟
+  jobGift(player.job); applyGear(); player.hearts = Math.min(player.hearts, player.maxHearts);
+  const jb = JOB_LIST.find(x => x[0] === player.job);
+  setBanner('🔄 主职业换成【' + jb[1] + ' ' + jb[2] + '】！');
+  beep(500, 900, 0.12, 'square', 0.12); updateJobSwap(); saveGame();
+}
+function updateJobSwap() {   // 🔘 左上角切换按钮：有副职业才出现
+  const b = document.getElementById('jobSwap'); if (!b) return;
+  if (player.job2) { const j1 = JOB_LIST.find(x => x[0] === player.job), j2 = JOB_LIST.find(x => x[0] === player.job2); b.textContent = j1[1] + '⇄' + j2[1]; b.style.display = 'block'; }
+  else b.style.display = 'none';
+}
 function applyJob(j) {   // 🔄 转职：清职业状态，重新算属性
   player.job = j;
+  player.bearT = 0;
   if (j !== 'summoner') wolves = []; else wolfT = 1;   // 🐺 离开召唤师收狼群，转来马上有狼
-  if (j === 'tank') { player.bought.block_skill = true; player.owned.block_skill = true; if (!skillSlots.includes('block_skill')) skillSlots.unshift('block_skill'); renderSkills(); }   // 🛡️ 坦克送格挡
-  if (j === 'warrior' && !Object.keys(player.bought).some(k => ALLKIND[k] === 'weapon')) { player.bought.wood_sword = { t: 0, w: 0 }; player.owned.wood_sword = true; player.weapon = 'wood_sword'; }   // ⚔️ 空手战士送木剑
+  if (j !== 'engineer') turrets = [];   // 🧲 离开工程师收炮塔
+  if (j !== 'necro') minions = [];   // ☠️ 离开死灵收小弟
+  jobGift(j);
   applyGear(); player.hearts = Math.min(player.hearts, player.maxHearts);
   const jb = JOB_LIST.find(x => x[0] === j);
   for (let i = 0; i < 24; i++) burst(player.x + (Math.random() - 0.5) * 120, player.y + (Math.random() - 0.5) * 120, ['#b48af2', '#ffd24a', '#ffffff'][i % 3]);
   setBanner('🔄 转职成功！你现在是【' + jb[1] + ' ' + jb[2] + '】！');
   beep(600, 1200, 0.3, 'sine', 0.18); setTimeout(() => beep(800, 1600, 0.3, 'sine', 0.16), 200);
-  saveGame();
+  updateJobSwap(); saveGame();
 }
 function buyDia(key) {   // 💎 买单
   const it = DIA_ITEMS.find(x => x.key === key); if (!it) return;
@@ -3048,6 +3257,7 @@ function ctxGo() {
   else if (c.act === 'shop') openMapShop(nearShop());
   else if (c.act === 'bench' && c.bench) sitBench(c.bench);
   else if (c.act === 'tower') enterTower();   // 🗼 进试炼塔
+  else if (c.act === 'dungeon') enterDungeon();   // 🌲 进哥布林森林副本
   else if (c.act === 'play') startPlay(c.play);   // 🎡 游乐项目
 }
 document.getElementById('enterBtn').onclick = ctxGo;
@@ -3101,7 +3311,7 @@ function castSkill(key) {
   const sf = SKILL_FX[key]; if (!sf || gameOver || paused) return;
   player.skillCds = player.skillCds || {};
   if (player.skillCds[key] > 0) return;
-  player.skillCds[key] = sf[2];
+  player.skillCds[key] = sf[2] * cdMul();   // ⏳🐻 时空术士冷却-40%/德鲁伊+20%
   const [type, dmg, , color, ex] = sf, o = ex || {};
   beep(880, 440, 0.15, 'square', 0.14);
   fxLines.push({ ring: true, x: player.x, y: player.y, r: 60, t: 0.25, color });   // ✨ 施法闪光阵
@@ -3164,7 +3374,7 @@ let skillRefs = [];
 const ALLITEMS = {}; for (const t of [SHOP, SHOP2, SHOP3, SHOP4, SHOP5, SHOP6, SHOP7, SHOP8, SHOP9, SHOP10, USE_ITEMS]) for (const k in t) ALLITEMS[k] = t[k];   // 全关卡物品表（继承的技能跨关也能用）
 /* 🥷 职业物品（v54）：不进商店货架、不进宝箱抽奖池，只能靠剧情获得 */
 const CLASS_ITEMS = {
-  awaken_stone: { name: '觉醒石', icon: '🌟', price: 0, kind: 'awaken', desc: '随机觉醒职业：刺客/法师/战士/坦克/召唤师，看你的命！' },
+  awaken_stone: { name: '觉醒石', icon: '🌟', price: 0, kind: 'awaken', desc: '随机觉醒职业（共 15 个）：第一颗主职业、第二颗副职业，左上角 ⇄ 一键切换！' },
   assassin_dagger: { name: '刺客匕首', icon: '🔪', price: 0, kind: 'weapon', desc: '刺客的终结武器：传送落地后的那一刀' },
   wood_sword: { name: '木剑', icon: '🗡️', price: 0, kind: 'weapon', desc: '战士的入门剑，开局人手一把' },
   block_skill: { name: '格挡', icon: '🛡️', price: 0, kind: 'skill', desc: '坦克本命技：0.5 秒举盾免疫一切伤害（站桩），冷却 2 秒。永不下场' },
@@ -3220,6 +3430,8 @@ function killZombie(z) {
     return;
   }
   if (z.kind) { dexCounts[z.kind] = (dexCounts[z.kind] || 0) + 1; }   // 📖 图鉴计数
+  if (player.job === 'necro' && !z.boss && !z.fake && Math.random() < 0.3 && minions.length < 3) { minions.push({ x: z.x, y: z.y, t: 10, cd: 0 }); burst(z.x, z.y, '#c8f4ff', 8); }   // ☠️ 死灵：30% 复活成骷髅小弟
+  if (dungeonMode && z.goblin) { dgnKills++; updateScore(); }   // 🌲 副本计数（头顶标签跟着跳）
   if (z.slime && z.size > 0) {   // 🟢 史莱姆分裂：大→2 中，中→2 小
     for (let i = 0; i < 2; i++) zombies.push(makeSlime(z.x + (Math.random() - 0.5) * 24, z.y + (Math.random() - 0.5) * 24, z.size - 1));
     burst(z.x, z.y, '#7ec850', 10); beep(500, 700, 0.08, 'sine', 0.08);
@@ -3247,7 +3459,14 @@ function killZombie(z) {
   if (z.boss) {   // 👹 BOSS 赏金 50 起、每关+25（越难的 BOSS 越值钱）；第一关 BOSS 死了→进入第二关！
     g = 50 + (level - 1) * 25; shakeT = 0.5;
     for (let i = 0; i < 26; i++) burst(z.x + (Math.random() - 0.5) * 100, z.y + (Math.random() - 0.5) * 100, ['#ffd24a', '#7ec850', '#ff8a5a'][i % 3]);
-    if (towerMode) {   // 🗼 试炼塔：BOSS 倒下→下一波/下一遍+商店刷新+宝箱
+    if (z.dgnKing) {   // 🌲 副本通关：哥布林王倒下！发奖励，2.5 秒后传送回小镇
+      g = 0;
+      player.gold += 300; player.diamonds = (player.diamonds || 0) + 10; updateGold();
+      for (let i = 0; i < 40; i++) burst(z.x + (Math.random() - 0.5) * 220, z.y + (Math.random() - 0.5) * 220, ['#ffd24a', '#7ec850', '#7ae8f2'][i % 3]);
+      setBanner('👑 哥布林王倒下了！副本通关！+300 金 +10💎');
+      beep(600, 1200, 0.6, 'sine', 0.2); setTimeout(() => beep(800, 1600, 0.6, 'sine', 0.2), 250);
+      dgnExit = 2.5;   // 2.5 秒后凯旋回镇
+    } else if (towerMode) {   // 🗼 试炼塔：BOSS 倒下→下一波/下一遍+商店刷新+宝箱
       g = 0;
       endlessBossDown(z);
       chest = { x: z.x, y: z.y, taken: false };
@@ -3279,6 +3498,8 @@ function killZombie(z) {
     if (z.elite) g *= 10;   // ✨ 金色精英怪：十倍赏金！
     g = Math.round(g * modMul('goldMul')) + modVal('goldAdd');   // 💎 水晶装备金币加成
   }
+  if (player.job === 'rogue') g *= 2;   // 🃏 盗贼：金币双倍
+  if (player.job === 'lucky') g = Math.round(g * 1.25);   // 🍀 幸运星：金币+25%
   player.gold += g;
   if (player.owned.vampire) player.hearts = Math.min(player.maxHearts, player.hearts + 0.5);   // 🧛 吸血
   if (player.owned.soul_ring && Math.random() < 0.15) player.hearts = Math.min(player.maxHearts, player.hearts + 0.5);   // 💍 摄魂
@@ -3314,6 +3535,14 @@ function doAttack(fromAuto) {
   if (player.job === 'warrior' && fx.staff) dmg *= 0.9;   // ⚔️ 战士拿法杖只能发挥九成
   if (assassinStrike) dmg *= 2;   // 🥷 刺客落地一刀：×2
   if (player.job === 'mage') dmg *= 1.15;   // 🔮 法师附魔：所有武器 +15%
+  if (player.job === 'berserker') dmg *= 1 + Math.max(0, 1 - player.hearts / player.maxHearts);   // 🩸 狂战士：血越少攻越高（最高+100%）
+  if (player.job === 'ranger' && !fx.bow && !fx.staff && !fx.gun) dmg *= 0.7;   // 🏹 游侠：近战 -30%
+  if (player.job === 'cleric') dmg *= 0.85;   // 💚 牧师输出低
+  if (player.job === 'chrono') dmg *= 0.9;   // ⏳ 时空术士 -10%
+  if (player.job === 'lucky') dmg *= 0.95;   // 🍀 幸运星 -5%
+  if (player.job === 'alchemist') dmg *= 0.8;   // ⚗️ 炼金术士武器弱
+  if (player.bearT > 0) dmg *= 2.5;   // 🐻 熊形态
+  if (player.job === 'lucky' && Math.random() < 0.25) { dmg *= 3; burst(player.x, player.y - 20, '#ffd24a', 10); beep(1200, 1800, 0.08, 'square', 0.1); }   // 🍀 暴击 ×3！
   if (player.job === 'mage' && fx.staff) dmg *= 1.15;   // 🔮 法杖火球再 +15%
   if (player.owned.berserk && player.hearts <= 2) dmg *= 1.5;   // 💢 狂暴
   if (player.owned.hellhound && player.hearts <= 2) dmg *= 1.5; // 🦷 犬牙
@@ -3332,9 +3561,15 @@ function doAttack(fromAuto) {
     let tgt = null, best = 1e9;
     for (const z of zombies) { if (z.dead) continue; const d = Math.hypot(z.x - player.x, z.y - player.y); if (d < best) { best = d; tgt = z; } }
     const ang = tgt ? Math.atan2(tgt.y - player.y, tgt.x - player.x) : player.dir;
+    if (player.job === 'ranger') dmg *= 1.2;   // 🏹 游侠：箭更痛 +20%
     parrows.push({ x: player.x + Math.cos(ang) * 14, y: player.y - 6 + Math.sin(ang) * 14, vx: Math.cos(ang) * 380, vy: Math.sin(ang) * 380, t: 0.42, dmg, freeze: fx.freezeDur !== 0, freezeDur: fx.freezeDur || 1.5, soul: fx.bow === 'soul', burn: fx.bow === 'fire', volt: fx.bow === 'volt', voidz: fx.bow === 'void' });
     if (player.job === 'assassin') parrows[parrows.length - 1].asTp = true;   // 🥷 刺客的箭=传送信标
     if (player.job === 'mage') parrows[parrows.length - 1].mageBurn = true;   // 🔮 法师的箭带燃烧
+    if (player.job === 'ranger') {   // 🏹 游侠：双箭齐发，两支都能穿透
+      parrows[parrows.length - 1].pierce = true; parrows[parrows.length - 1].hitIds = {};
+      const a2 = ang + 0.1;
+      parrows.push({ x: player.x + Math.cos(a2) * 14, y: player.y - 6 + Math.sin(a2) * 14, vx: Math.cos(a2) * 380, vy: Math.sin(a2) * 380, t: 0.42, dmg, freeze: fx.freezeDur !== 0, freezeDur: fx.freezeDur || 1.5, soul: fx.bow === 'soul', burn: fx.bow === 'fire', volt: fx.bow === 'volt', voidz: fx.bow === 'void', pierce: true, hitIds: {} });
+    }
     player.dir = ang; player.swingColor = fx.color; player.swingRange = 26; player.swingCircle = false;
     beep(880, 440, 0.09, 'square', 0.1);
     return;
@@ -3377,6 +3612,8 @@ function doAttack(fromAuto) {
   const preX = player.x, preY = player.y;   // 🗡️ 光影剑：记下原点，0.5 秒后闪回
   const hits = attackHit(player, zombies, opts);
   for (const z of hits) z.aggroW = null;   // 🐺 你出手，怪就冲你来（仇恨归位）
+  if (player.job === 'cleric') for (const z of hits) { if (['zombie', 'skeleton', 'ghost', 'wither', 'bat'].includes(z.kind) && !z.dead) { z.hp -= dmg; z.flash = 0.15; if (z.hp <= 0) killZombie(z); } }   // 💚 牧师：对亡灵×2
+  if (player.job === 'rogue') for (const z of hits) { if (z.aggroW && z.aggroW.hp > 0 && !z.dead) { z.hp -= dmg * 1.5; z.flash = 0.15; burst(z.x, z.y, '#ffd24a', 6); if (z.hp <= 0) killZombie(z); } }   // 🃏 盗贼背刺：怪没看你=×2.5
   deflectGhastBalls(player.x, player.y, 50);   // ⚾ 近战也能把恶魂火球抽回去
   if (pvpFoe && !pvpFoe.stale && Math.hypot(pvpFoe.x - player.x, pvpFoe.y - player.y) < (opts.arc ? 52 : 46)) { pvpHits.push({ s: ++pvpHitSeq, d: dmg }); pvpWrite(); burst(pvpFoe.x, pvpFoe.y, '#ffb0b0', 8); }   // 📡 PVP：砍中对面幻影→写进我的存档，对面窗口读到就扣血
   if (assassinStrike) {   // 🥷 落地一刀已挥出：×2 用完，换回弓
@@ -3449,12 +3686,20 @@ function update(dt) {
     }
   }
   if (blockCd > 0) blockCd = Math.max(0, blockCd - dt);
+  if (player.bearT > 0) player.bearT = Math.max(0, player.bearT - dt);   // 🐻 熊形态倒计时
+  if (bearCd > 0) bearCd = Math.max(0, bearCd - dt);
   const bkBtn = document.getElementById('blockBtn');
   if (player.job === 'tank' && !gameOver && !paused && !townMode) {
     bkBtn.style.display = 'block';
     bkBtn.textContent = blockCd > 0 ? `🛡️ ${blockCd.toFixed(1)}s` : '🛡️ 格挡！';
     bkBtn.style.opacity = blockCd > 0 ? 0.5 : 1;
   } else bkBtn.style.display = 'none';
+  const brBtn = document.getElementById('bearBtn');   // 🐻 德鲁伊专属按钮（仿格挡）
+  if (player.job === 'druid' && !gameOver && !paused && !townMode) {
+    brBtn.style.display = 'block';
+    brBtn.textContent = player.bearT > 0 ? '🐻 ' + player.bearT.toFixed(1) + 's' : bearCd > 0 ? '🐻 ' + Math.ceil(bearCd) + 's' : '🐻 变熊！';
+    brBtn.style.opacity = (bearCd > 0 || player.bearT > 0) ? 0.55 : 1;
+  } else brBtn.style.display = 'none';
   document.getElementById('tpBtn').style.display = (player.job === 'assassin' && tpWindowT > 0 && tpLand && !gameOver && !paused && !townMode) ? 'block' : 'none';
   if (gameOver) { deathT += dt; const ov = document.getElementById('over'); if (ov) ov.style.display = deathT > 1.2 ? 'flex' : 'none'; }   // 💀 先看倒下动画，1.2 秒后才弹面板
   if (!gameOver) {
@@ -3476,7 +3721,7 @@ function update(dt) {
       if (rotated) { const t = mx; mx = my; my = -t; }   // 🔄 转屏后输入方向跟着转 90°
       const slow = player.drainSlow ? 0.4 : 1; player.drainSlow = false;   // ⛓️ 夺魂锁链减速
       if (Math.abs(mx) + Math.abs(my) > 0.1) playerStillT = 0; else playerStillT += dt;   // 🤫 站着不动计时（坚守者瞎，看不见静止的你）
-      playerStep(player, mx, my, dt, (player.speedMul || 1) * slow * (player.speedT > 0 ? 1.4 : 1));   // 👟 跑鞋皇冠加速+⚡疾跑药水
+      playerStep(player, mx, my, dt, (player.speedMul || 1) * slow * (player.speedT > 0 ? 1.4 : 1) * (player.job === 'engineer' ? 0.9 : 1));   // 👟 跑鞋皇冠加速+⚡疾跑药水+🧲工程师腿短
     }
     if ((autoOn || holdAtk) && !(player.frozenT > 0) && blockT <= 0) { autoT -= dt; if (autoT <= 0) { autoT = 0.2; doAttack(true); } }   // ⚔️ 自动/按住：0.2 秒一刀（举盾时停手）
     /* ✨ 技能冷却递减 + 按钮显示 */
@@ -3520,6 +3765,8 @@ function update(dt) {
       if (fd < 52 && fd > 0) { const fa = Math.atan2(player.y - 1840, player.x - 1200); player.x = 1200 + Math.cos(fa) * 52; player.y = 1840 + Math.sin(fa) * 52; }
       const td = Math.hypot(player.x - 1200, player.y - 2080);   // 🗼 试炼塔挡路
       if (td < 60 && td > 0) { const ta = Math.atan2(player.y - 2080, player.x - 1200); player.x = 1200 + Math.cos(ta) * 60; player.y = 2080 + Math.sin(ta) * 60; }
+      const gd = Math.hypot(player.x - DGN_GATE.x, player.y - DGN_GATE.y);   // 🌲 副本大门挡路（从正面按钮进）
+      if (gd < 42 && gd > 0) { const ga2 = Math.atan2(player.y - DGN_GATE.y, player.x - DGN_GATE.x); player.x = DGN_GATE.x + Math.cos(ga2) * 42; player.y = DGN_GATE.y + Math.sin(ga2) * 42; }
       if (!plazaSeen && player.x > 920 && player.x < 1480 && player.y > 1560 && player.y < 2120) { plazaSeen = true; setBanner('⛲ 发现小镇广场！喷泉好凉快~'); }
       runTick(dt); arenaTick(dt); mazeTick();   // 🎡 游乐场三项世界玩法（跑酷/擂台/迷宫）
     }
@@ -3529,12 +3776,13 @@ function update(dt) {
       if (chest && !townMode && Math.hypot(player.x - chest.x, player.y - chest.y) < 64) ctxAct = chest.taken ? (pendingNext ? 'next' : null) : 'chest';
       else if (nearShop() >= 0) ctxAct = 'shop';
       else if (townMode && !inRoom && Math.hypot(player.x - 1200, player.y - 2080) < 100) ctxAct = 'tower';   // 🗼 试炼塔门口
+      else if (townMode && !inRoom && Math.hypot(player.x - DGN_GATE.x, player.y - DGN_GATE.y) < 100) ctxAct = 'dungeon';   // 🌲 副本门口
       else if (townMode && !inRoom && (ctxPlay = nearPlay()) >= 0) ctxAct = 'play';   // 🎡 游乐项目摊位
       else if (townMode && !inRoom) { for (const b of BENCHES) if (Math.hypot(player.x - b.x, player.y - b.y) < 64) { ctxAct = 'bench'; ctxBench = b; break; } }
     }
     const eb = document.getElementById('enterBtn');
     eb.style.display = ctxAct ? 'block' : 'none';
-    if (ctxAct) eb.textContent = ctxAct === 'chest' ? '🎁 打开宝箱' : ctxAct === 'next' ? '🗺️ 下一关' : ctxAct === 'tower' ? '🗼 进入试炼塔' : ctxAct === 'bench' ? '🪑 坐下' : ctxAct === 'play' ? '🎮 玩' + ATTRACT[ctxPlay].name : '🚪 进入';
+    if (ctxAct) eb.textContent = ctxAct === 'chest' ? '🎁 打开宝箱' : ctxAct === 'next' ? '🗺️ 下一关' : ctxAct === 'tower' ? '🗼 进入试炼塔' : ctxAct === 'dungeon' ? '🌲 进入哥布林森林' : ctxAct === 'bench' ? '🪑 坐下' : ctxAct === 'play' ? '🎮 玩' + ATTRACT[ctxPlay].name : '🚪 进入';
     window.__ctx = { act: ctxAct, bench: ctxBench, play: ctxPlay };   // B 键/按钮共用
     if (townMode && !paused && !gameOver) {   // 🏡 小镇里的家：门/床/柜子
       if (ownedHouse && !inRoom && Math.hypot(player.x - 1200, player.y - 700) < 40) { inRoom = true; player.x = 1200; player.y = 1380; setBanner('🏠 到家啦！'); }
@@ -3552,12 +3800,47 @@ function update(dt) {
     player.frozenT = Math.max(0, (player.frozenT || 0) - dt);   // ❄️ 骷髅王寒冰
     player.bowCd = Math.max(0, (player.bowCd || 0) - dt);       // 🏹 弓 1 秒一支
     regenTick(player, dt);   // ❤️ 回血机制
+    /* 🌟 职业被动区：💚牧师治疗光环 / ⏳时空全场冻结 / 🧲工程师炮塔 */
+    if (player.job === 'cleric') {
+      clericT -= dt;
+      if (clericT <= 0) {   // 每 2 秒全队回 0.1（自己+宠物+狼）
+        clericT = 2;
+        if (player.hearts < player.maxHearts) { player.hearts = Math.min(player.maxHearts, player.hearts + 0.1); dotBurst(player.x, player.y - 14, '#7aff8a'); }
+        for (const pt of pets) if (!pt.dead && (pt.hp || 0) < petMaxHp(pt.key)) pt.hp = Math.min(petMaxHp(pt.key), (pt.hp || 0) + 0.1);
+        for (const w of wolves) w.hp = Math.min(6, w.hp + 0.1);
+      }
+    }
+    if (player.job === 'chrono' && !townMode) {   // ⏳ 每 45 秒全场冻结 2 秒
+      chronoT -= dt;
+      if (chronoT <= 0) {
+        if (zombies.some(z => !z.dead)) { chronoT = 45; freezeAllT = 2; setBanner('⏳ 时间静止！全场冻结 2 秒！'); beep(900, 300, 0.4, 'sine', 0.16); }
+        else chronoT = 5;   // 场上没怪：5 秒后再瞅瞅
+      }
+    }
+    if (freezeAllT > 0) freezeAllT = Math.max(0, freezeAllT - dt);
+    if (player.job === 'engineer' && !townMode) {   // 🧲 每 12 秒自动部署炮塔（最多 2 座，旧的退役）
+      turretT -= dt;
+      if (turretT <= 0) {
+        turretT = 12;
+        if (turrets.length >= 2) turrets.shift();
+        turrets.push({ x: Math.max(30, Math.min(WORLD.w - 30, player.x + (Math.random() - 0.5) * 60)), y: Math.max(30, Math.min(WORLD.h - 30, player.y + (Math.random() - 0.5) * 60)), cd: 0.5, ang: 0 });
+        burst(player.x, player.y, '#c8ccd4', 8); setBanner('🧲 炮塔部署！（' + turrets.length + '/2）'); beep(300, 620, 0.12, 'square', 0.12);
+      }
+    }
+    for (const tr of turrets) {   // 🧲 炮塔自动开火：1 秒一发，打 240 内最近的怪
+      tr.cd -= dt;
+      if (tr.cd > 0) continue;
+      let tgt2 = null, bd2 = 240;
+      for (const z of zombies) { if (z.dead || z.fake) continue; const dd = Math.hypot(z.x - tr.x, z.y - tr.y); if (dd < bd2) { bd2 = dd; tgt2 = z; } }
+      if (tgt2) { tr.cd = 1; tr.ang = Math.atan2(tgt2.y - tr.y, tgt2.x - tr.x); tgt2.hp -= 1; tgt2.flash = 0.12; burst(tgt2.x, tgt2.y, '#ffe84a', 3); beep(760, 520, 0.04, 'square', 0.03); if (tgt2.hp <= 0) killZombie(tgt2); }
+    }
+    if (townMode && turrets.length) turrets = [];   // 🏡 小镇和平：炮塔收起来
     const diff = difficulty(kills), cloakMul = (player.owned.cloak ? 0.8 : 1) * (player.owned.radar ? 0.9 : 1) * (player.owned.snow_goggles ? 0.95 : 1) * (player.owned.fox_cloak ? 0.9 : 1) * (player.owned.snow_radar ? 0.92 : 1) * (player.owned.ghost_cloak ? 0.9 : 1) * (player.owned.wind_bell ? 0.92 : 1) * (player.owned.lava_badge ? 0.92 : 1) * (player.owned.storm_cloak ? 0.9 : 1) * (player.owned.shadow_cloak ? 0.9 : 1) * (1 - modVal('slow'));   // 🧥📡🥽🦊👻🎐🎖️🌫️🦇🥻 减速全家桶
     spawnT -= dt;
     const SPAWN_MUL = [0, 1, 1.1, 0.9, 0.78, 0.7, 0.62];   // 🌡️ 难度爬坡：每关刷怪间隔倍率（越往后越密：2s/2.2s/1.8s/1.6s/1.4s/1.24s）
     const cap = diff.cap + (level - 1) * 2;                 // 🌡️ 同屏上限每关+2（越往后越围攻）
     const bossAlive = zombies.some(z => z.boss && !z.dead);
-    if (bossAlive) {   // 👹 BOSS 战：小怪停止刷新，每 10 秒 BOSS 召唤 3 只（受上限保护）
+    if (bossAlive && !dungeonMode) {   // 👹 BOSS 战：小怪停止刷新，每 10 秒 BOSS 召唤 3 只（受上限保护；🌲 副本王不召唤）
       summonT -= dt;
       if (summonT <= 0) {
         summonT = 10;
@@ -3566,9 +3849,15 @@ function update(dt) {
         for (let i = 0; i < n; i++) spawnEnemy();
         if (n > 0) { const bb = zombies.find(z => z.boss && !z.dead); if (bb) burst(bb.x, bb.y, '#b48af2', 12); setBanner('👹 BOSS 召唤了小怪！'); beep(180, 320, 0.25, 'sawtooth', 0.15); }
       }
-    } else if (!townMode && spawnT <= 0 && zombies.filter(z => !z.dead).length < cap) { spawnT = SPAWN.interval * (SPAWN_MUL[level] || 1); spawnEnemy(); }
-    if (!townMode && kills >= bossAt) { bossAt += 100; spawnBoss(); }   // 👹 每满 100 杀出一只 BOSS
+    } else if (!townMode && !dungeonMode && spawnT <= 0 && zombies.filter(z => !z.dead).length < cap) { spawnT = SPAWN.interval * (SPAWN_MUL[level] || 1); spawnEnemy(); }
+    if (!townMode && !dungeonMode && kills >= bossAt) { bossAt += 100; spawnBoss(); }   // 👹 每满 100 杀出一只 BOSS
+    if (dungeonMode) {   // 🌲 副本：1.6 秒刷一只哥布林（同屏最多 8 只）；杀满 12 只引出哥布林王；通关倒计时回家
+      if (spawnT <= 0 && zombies.filter(z => !z.dead && !z.boss).length < 8) { spawnT = 1.6; spawnGoblin(); }
+      if (dgnKills >= DGN_GOAL && !dgnKingSpawned) spawnDgnKing();
+      if (dgnExit > 0) { dgnExit -= dt; if (dgnExit <= 0) exitDungeon(false); }
+    }
     for (const z of zombies) { if (z.dead) continue;
+      if (freezeAllT > 0) { z.flash = Math.max(0, z.flash - dt); continue; }   // ⏳ 时空冻结：全场罚站（时间真的停了）
       if (z.boss) { if (dotTick(z, dt)) continue; bossUpdate(z, dt); continue; }   // 👹 BOSS 有自己的大脑（🔥 但燃烧/中毒照掉血——恩泽点名末影龙要吃燃烧）
       z.flash = Math.max(0, z.flash - dt); z.walkT += dt; z.zapT = Math.max(0, (z.zapT || 0) - dt);
       if (dotTick(z, dt)) continue;   // 🔥 DoT 结算（燃烧/附火/中毒）
@@ -3637,6 +3926,15 @@ function update(dt) {
         if (touchHurt(player, z, dmgB)) {
           beep(500, 200, 0.12, 'sine', 0.1); burst(player.x, player.y, '#4a5a6a', 5);
           if (player.hearts <= 0 && !angelSave()) { gameOver = true; document.getElementById('overScore').textContent = `你这局打败了 ${kills} 只怪物！`; document.getElementById('over').style.display = 'flex'; }
+        }
+        continue;
+      }
+      if (z.goblin) {   // 🌲 哥布林：抡木棍追人，抓到 1 心
+        zombieStep(z, (z.aggroW && z.aggroW.hp > 0) ? z.aggroW : player, dt, diff.speedMul * cloakMul * slowF);
+        const dmgGb = rollDmg(1);
+        if (touchHurt(player, z, dmgGb)) {
+          beep(300, 120, 0.15, 'sawtooth', 0.12); burst(player.x, player.y, '#5a8a2a', 6);
+          if (player.hearts <= 0 && !angelSave()) { dgnDie(); }
         }
         continue;
       }
@@ -3757,8 +4055,9 @@ function update(dt) {
     zombies = zombies.filter(z => !z.dead);
     petsTick(dt);     // 🐾 宠物出击
     wolvesTick(dt);   // 🐺 狼群出击
+    minionsTick(dt);  // ☠️ 死灵小弟出击
     if (townMode && !inRoom) npcsTick(dt);   // 🧑‍🤝‍🧑 村民溜达
-    portalTick(dt);   // 🕳️ 山洞/金币
+    if (!dungeonMode) portalTick(dt);   // 🕳️ 山洞/金币（副本里没有山洞）
     /* ➹ 骷髅的箭：直线飞，玩家移动就能躲开；命中=半心（盔甲可挡） */
     for (const a of earrows) {
       a.t -= dt; a.x += a.vx * dt; a.y += a.vy * dt;
@@ -3797,6 +4096,18 @@ function update(dt) {
             if (a.hitIds[z.id]) continue; a.hitIds[z.id] = 1;
             z.hp -= a.dmg; z.flash = 0.12; z.aggroW = null;   // 🐺 剑风也是你出手
             burst(a.x, a.y, '#a8e8ff', 4);
+            if (z.hp <= 0) killZombie(z);
+            continue;
+          }
+          if (a.pierce) {   // 🏹 游侠穿透箭：一只怪只中一次，穿过去继续飞
+            if (a.hitIds[z.id]) continue; a.hitIds[z.id] = 1;
+            z.hp -= a.dmg; z.flash = 0.12; z.aggroW = null;
+            if (a.mageBurn && !z.dead) { z.mageBurnT = 2; z.mageBurnAcc = 0; }
+            if (a.freeze && !z.boss && !z.dead) { z.freezeT = Math.max(z.freezeT || 0, a.freezeDur || 1.5); burst(z.x, z.y, '#a8e8ff', 8); }
+            if (a.burn && !z.dead) { z.burnT = 2; z.burnAcc = 0; }
+            if (a.volt && !z.dead) { z.hp -= 2; z.zapT = 0.12; burst(z.x, z.y, '#ffe84a', 8); }
+            if (a.voidz && !z.dead) { z.hp -= 2; burst(z.x, z.y, '#b48af2', 8); }
+            burst(a.x, a.y, '#d8f2ff', 4);
             if (z.hp <= 0) killZombie(z);
             continue;
           }
@@ -3874,6 +4185,26 @@ function drawBoss(z) {
     ctx.fillStyle = '#e84a4a'; ctx.fillRect(gx - 30, gy - 36, 60 * (z.hp / z.maxHp), 5);
     return;
   }
+  if (z.dgnKing) {   // 👑 哥布林王：巨型哥布林+王冠+手臂缠鞭（鞭子横扫一鞭 5 血！）
+    const kx = Math.round(z.x), ky = Math.round(z.y);
+    if (z.whip) {   // 鞭子预警：红色扇形红区（150°，跑出红区就没事）
+      ctx.save(); ctx.globalAlpha = 0.26 + 0.16 * Math.sin(z.walkT * 16); ctx.fillStyle = '#ff4a3a';
+      ctx.beginPath(); ctx.moveTo(z.x, z.y - 20); ctx.arc(z.x, z.y - 20, 170, z.whip.ang - Math.PI * 5 / 12, z.whip.ang + Math.PI * 5 / 12); ctx.closePath(); ctx.fill(); ctx.restore(); ctx.globalAlpha = 1;
+    }
+    ctx.globalAlpha = 0.3; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.ellipse(kx, ky + 4, 30, 10, 0, 0, 6.3); ctx.fill(); ctx.globalAlpha = 1;
+    drawGoblin(kx, ky, 2.6, { walkT: z.walkT, face: player.x < z.x ? -1 : 1, clubA: z.whip ? -1.4 : undefined });   // 甩鞭时手臂举高
+    const wA = z.whip ? z.whip.ang : (z.whipFx > 0 ? z.whipFxA : Math.atan2(player.y - z.y, player.x - z.x));   // 鞭子：右臂甩出
+    const wLen = z.whipFx > 0 ? 150 : (z.whip ? 60 : 30);
+    ctx.strokeStyle = '#5a3f1a'; ctx.lineWidth = z.whipFx > 0 ? 5 : 4; ctx.beginPath();
+    ctx.moveTo(kx + 18, ky - 36); ctx.quadraticCurveTo(kx + Math.cos(wA) * wLen * 0.6, ky - 36 + Math.sin(wA) * wLen * 0.6 - 12, kx + Math.cos(wA) * wLen, ky - 20 + Math.sin(wA) * wLen);
+    ctx.stroke();
+    if (z.whipFx > 0) { ctx.strokeStyle = '#ffd24a'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(kx + 18, ky - 36); ctx.quadraticCurveTo(kx + Math.cos(wA) * wLen * 0.6, ky - 36 + Math.sin(wA) * wLen * 0.6 - 12, kx + Math.cos(wA) * wLen, ky - 20 + Math.sin(wA) * wLen); ctx.stroke(); }   // 鞭影金线
+    ctx.fillStyle = '#ffd24a'; ctx.fillRect(kx - 12, ky - 92, 24, 6); ctx.fillRect(kx - 12, ky - 98, 4, 8); ctx.fillRect(kx - 3, ky - 100, 6, 10); ctx.fillRect(kx + 8, ky - 98, 4, 8);   // 👑 王冠
+    if (z.flash > 0) { ctx.globalAlpha = Math.min(1, z.flash * 8); ctx.fillStyle = 'rgba(255,255,255,.7)'; ctx.fillRect(kx - 26, ky - 84, 52, 88); ctx.globalAlpha = 1; }
+    ctx.fillStyle = '#0008'; ctx.fillRect(kx - 30, ky - 110, 60, 6);
+    ctx.fillStyle = '#e84a4a'; ctx.fillRect(kx - 30, ky - 110, 60 * (z.hp / z.maxHp), 6);
+    return;
+  }
   if (z.titan) {   // 🧨 泰坦苦力怕：巨型绿色苦力怕（四条腿+苦脸）
     const tx = Math.round(z.x), ty = Math.round(z.y - 26);
     if (z.tnts) for (const t of z.tnts) {   // TNT 块：红盒白条纹+引线火花+预警圈
@@ -3885,15 +4216,8 @@ function drawBoss(z) {
       if (Math.floor(t.t * 8) % 2 === 0) { ctx.fillStyle = '#ffe84a'; ctx.fillRect(t.x - 1, t.y - 17, 3, 5); }   // 火花闪
     }
     ctx.globalAlpha = 0.3; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.ellipse(tx, z.y + 4, 26, 9, 0, 0, 6.3); ctx.fill(); ctx.globalAlpha = 1;
-    const tstep = Math.sin(z.walkT * 7) * 3;
-    ctx.fillStyle = '#4a8a2a';
-    ctx.fillRect(tx - 20, z.y - 10 + Math.max(0, tstep), 9, 12 - Math.max(0, tstep)); ctx.fillRect(tx + 11, z.y - 10 + Math.max(0, tstep), 9, 12 - Math.max(0, tstep));   // 前腿
-    ctx.fillRect(tx - 20, z.y - 10 + Math.max(0, -tstep), 9, 12 - Math.max(0, -tstep)); ctx.fillRect(tx + 11, z.y - 10 + Math.max(0, -tstep), 9, 12 - Math.max(0, -tstep));   // 后腿
-    ctx.fillStyle = '#5aa832'; ctx.fillRect(tx - 18, ty - 40, 36, 52);   // 身体
-    ctx.fillStyle = '#6ab838'; ctx.fillRect(tx - 18, ty - 40, 36, 8);   // 头顶亮绿
-    ctx.fillStyle = '#141410';   // 苦力怕脸：两眼+倒三角嘴
-    ctx.fillRect(tx - 11, ty - 30, 8, 8); ctx.fillRect(tx + 3, ty - 30, 8, 8);
-    ctx.fillRect(tx - 5, ty - 20, 10, 6); ctx.fillRect(tx - 8, ty - 14, 6, 8); ctx.fillRect(tx + 2, ty - 14, 6, 8);
+    drawCreeper(tx, z.y + 2, 2.3, { walkT: z.walkT });   // 🧨 泰坦苦力怕：MC 同款迷彩高绿柱（放大版）
+    ctx.fillStyle = '#ffd24a'; ctx.fillRect(tx - 10, z.y - 66, 20, 6); ctx.fillRect(tx - 10, z.y - 72, 4, 8); ctx.fillRect(tx - 2, z.y - 74, 4, 10); ctx.fillRect(tx + 6, z.y - 72, 4, 8);   // 👑 泰坦的王冠
     if (z.flash > 0) { ctx.globalAlpha = Math.min(1, z.flash * 8); ctx.fillStyle = 'rgba(255,255,255,.7)'; ctx.fillRect(tx - 22, ty - 44, 44, 60); ctx.globalAlpha = 1; }
     ctx.fillStyle = '#0008'; ctx.fillRect(tx - 28, ty - 52, 56, 5);
     ctx.fillStyle = '#e84a4a'; ctx.fillRect(tx - 28, ty - 52, 56 * (z.hp / z.maxHp), 5);
@@ -4037,9 +4361,16 @@ function draw() {
   const camY = Math.max(0, Math.min(WORLD.h - VH / Z, player.y - VH / Z / 2));
   const shx = shakeT > 0 ? (Math.random() - 0.5) * 9 : 0, shy = shakeT > 0 ? (Math.random() - 0.5) * 9 : 0;   // 💥 砸地震屏
   ctx.setTransform(DPR * Z, 0, 0, DPR * Z, (-camX + shx) * DPR * Z, (-camY + shy) * DPR * Z);
-  // 🗺️ 地面：小镇=草地+马路+小家；冒险=图案填充
+  // 🗺️ 地面：副本=幽暗密林；小镇=草地+马路+小家；冒险=图案填充
   const LV = LEVELS[level];
-  if (townMode) {
+  if (dungeonMode) {   // 🌲 哥布林森林：暗绿林地+四周密林树墙+几棵大树
+    ctx.fillStyle = '#1e3318'; ctx.fillRect(camX, camY, VW + 2, VH + 2);
+    ctx.fillStyle = 'rgba(0,0,0,.16)';   // 斑驳树影
+    for (let gx = 0; gx < WORLD.w; gx += 160) for (let gy = 0; gy < WORLD.h; gy += 160) if ((gx * 7 + gy * 13) % 320 === 0) ctx.fillRect(gx, gy, 80, 80);
+    for (let tx = 0; tx < WORLD.w; tx += 74) { drawDgnTree(tx, -10); drawDgnTree(tx + 37, WORLD.h - 60); }   // 上下树墙
+    for (let ty = 0; ty < WORLD.h; ty += 74) { drawDgnTree(-10, ty); drawDgnTree(WORLD.w - 60, ty + 37); }   // 左右树墙
+    for (const tp of [[800, 900], [1600, 800], [700, 1600], [1700, 1650], [1200, 620], [500, 1200], [1900, 1200]]) drawDgnTree(tp[0], tp[1]);   // 林间大树
+  } else if (townMode) {
     ctx.fillStyle = '#4a7a3a'; ctx.fillRect(camX, camY, VW + 2, VH + 2);   // 草地
     if (inRoom) {   // 🏠 房间内部：木地板+墙+床+柜子+门垫
       ctx.fillStyle = '#8a6a4a'; ctx.fillRect(950, 1050, 520, 470);
@@ -4088,6 +4419,13 @@ function draw() {
       ctx.globalAlpha = 1;
       ctx.font = '16px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('💀', 1200, 1996 + Math.sin(ttw * 2) * 2); ctx.textAlign = 'left';
       ctx.fillStyle = '#b8b8d0'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('试炼塔', 1200, 2096); ctx.textAlign = 'left';
+      /* 🌲 哥布林森林副本入口（广场东边）：两棵松树夹一扇黑洞门 */
+      drawDgnTree(DGN_GATE.x - 46, DGN_GATE.y - 44); drawDgnTree(DGN_GATE.x + 6, DGN_GATE.y - 44);
+      ctx.fillStyle = '#0a1206'; ctx.beginPath(); ctx.ellipse(DGN_GATE.x, DGN_GATE.y - 6, 18, 26, 0, 0, 6.3); ctx.fill();   // 黑洞门
+      ctx.strokeStyle = '#5aff5a'; ctx.globalAlpha = 0.5 + Math.sin(ttw * 3) * 0.3; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.ellipse(DGN_GATE.x, DGN_GATE.y - 6, 22, 30, 0, 0, 6.3); ctx.stroke(); ctx.globalAlpha = 1;   // 绿光脉动
+      ctx.font = '16px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('👺', DGN_GATE.x, DGN_GATE.y - 44 + Math.sin(ttw * 2) * 2); ctx.textAlign = 'left';
+      ctx.fillStyle = '#b8e8a8'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('哥布林森林', DGN_GATE.x, DGN_GATE.y + 36); ctx.textAlign = 'left';
       // ⭐ 喷泉周围地砖拼花（八角星）
       ctx.strokeStyle = 'rgba(255,255,255,.25)'; ctx.lineWidth = 3; ctx.beginPath();
       for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4; ctx.moveTo(1200 + Math.cos(a) * 62, 1840 + Math.sin(a) * 62); ctx.lineTo(1200 + Math.cos(a + 0.5) * 78, 1840 + Math.sin(a + 0.5) * 78); }
@@ -4119,14 +4457,14 @@ function draw() {
   } else {
     ctx.fillStyle = groundPattern(); ctx.fillRect(camX, camY, VW, VH);
   }
-  if (!townMode) {   // 冒险模式才画边缘+装饰
+  if (!townMode && !dungeonMode) {   // 冒险模式才画边缘+装饰（🌲 副本自己画林子）
   ctx.strokeStyle = LV.edge; ctx.lineWidth = 12; ctx.strokeRect(0, 0, WORLD.w, WORLD.h);
   for (const d of deco) { if (d.x < camX - 60 || d.x > camX + VW + 60 || d.y < camY - 60 || d.y > camY + VH + 60) continue;
     if (d.t === 'tree') { ctx.fillStyle = LV.trunk; ctx.fillRect(d.x - 4, d.y - 6, 8, 18); ctx.fillStyle = LV.leaf; ctx.beginPath(); ctx.arc(d.x, d.y - 14, 16, 0, 6.3); ctx.fill(); ctx.fillStyle = LV.leafHi; ctx.beginPath(); ctx.arc(d.x - 4, d.y - 18, 9, 0, 6.3); ctx.fill(); }
     else { ctx.fillStyle = LV.rock; ctx.beginPath(); ctx.arc(d.x, d.y, 9, 0, 6.3); ctx.fill(); ctx.fillStyle = LV.rockHi; ctx.beginPath(); ctx.arc(d.x - 2, d.y - 3, 4, 0, 6.3); ctx.fill(); } }
   }   // 🏡 !townMode 结束
-  // 🏪 地图商店：小木屋+类型图标，走近提示（房间里不画）
-  if (!inRoom) {
+  // 🏪 地图商店：小木屋+类型图标，走近提示（房间里不画，🌲副本里没有商店）
+  if (!inRoom && !dungeonMode) {
   const nearI = nearShop();
   for (let si = 0; si < mapShops.length; si++) {
     const s = mapShops[si];
@@ -4138,7 +4476,7 @@ function draw() {
   }
   }   // 🏠 !inRoom 商店结束
   // 🎁 BOSS 宝箱（金光闪闪的小木箱）
-  if (chest && !townMode) {
+  if (chest && !townMode && !dungeonMode) {
     if (!chest.taken) { ctx.globalAlpha = 0.35 + Math.sin(performance.now() / 300) * 0.2; ctx.fillStyle = '#ffd24a'; ctx.beginPath(); ctx.arc(chest.x, chest.y - 2, 22, 0, 6.3); ctx.fill(); ctx.globalAlpha = 1; }
     ctx.fillStyle = '#8a5a2a'; ctx.fillRect(chest.x - 12, chest.y - 8, 24, 16);   // 箱身
     ctx.fillStyle = '#6a3f1a'; ctx.fillRect(chest.x - 12, chest.y - 8, 24, 6);    // 箱盖
@@ -4228,24 +4566,20 @@ function draw() {
       ctx.fillStyle = '#e84a4a'; ctx.fillRect(bx2 - 8, by2 - 12, 16 * (z.hp / 2), 3);
       continue;
     }
-    if (z.creep) {   // 🧨 苦力怕：绿色小个子+苦脸，引信点燃时发白膨胀
-      const fusing = z.fuseT != null, flashOn = fusing && Math.floor(z.fuseT * 10) % 2 === 0, grow = fusing ? 1 + (0.8 - z.fuseT) * 0.25 : 1;
+    if (z.goblin) {   // 🌲 哥布林：绿皮尖牙木棍（统一画法）
+      drawGoblin(z.x, z.y, 1.0, { walkT: z.walkT, face: player.x < z.x ? -1 : 1 });
+      const gx2 = Math.round(z.x), gy2 = Math.round(z.y);
+      if (z.flash > 0) { ctx.globalAlpha = Math.min(1, z.flash * 8); ctx.fillStyle = 'rgba(255,255,255,.75)'; ctx.fillRect(gx2 - 10, gy2 - 30, 20, 32); ctx.globalAlpha = 1; }
+      ctx.fillStyle = '#0008'; ctx.fillRect(gx2 - 10, gy2 - 34, 20, 3);
+      ctx.fillStyle = '#e84a4a'; ctx.fillRect(gx2 - 10, gy2 - 34, 20 * (z.hp / 5), 3);
+      continue;
+    }
+    if (z.creep) {   // 🧨 苦力怕：MC 同款高绿柱（统一画法）
+      drawCreeper(z.x, z.y, 1.05, { walkT: z.walkT, fuseT: z.fuseT });
       const cx = Math.round(z.x), cy = Math.round(z.y);
-      ctx.save(); ctx.translate(cx, cy); ctx.scale(grow, grow);
-      const cstep = Math.sin(z.walkT * 8) * 2.5;
-      ctx.fillStyle = flashOn ? '#d8f0c8' : '#4a8a2a';
-      ctx.fillRect(-9, -8 + Math.max(0, cstep), 5, 9 - Math.max(0, cstep)); ctx.fillRect(4, -8 + Math.max(0, cstep), 5, 9 - Math.max(0, cstep));
-      ctx.fillRect(-9, -8 + Math.max(0, -cstep), 5, 9 - Math.max(0, -cstep)); ctx.fillRect(4, -8 + Math.max(0, -cstep), 5, 9 - Math.max(0, -cstep));
-      ctx.fillStyle = flashOn ? '#e8f8dc' : '#5aa832'; ctx.fillRect(-8, -24, 16, 20);
-      ctx.fillStyle = flashOn ? '#f4fce8' : '#6ab838'; ctx.fillRect(-8, -24, 16, 4);
-      ctx.fillStyle = '#141410';
-      ctx.fillRect(-5, -21, 4, 4); ctx.fillRect(1, -21, 4, 4);
-      ctx.fillRect(-2, -16, 4, 3); ctx.fillRect(-4, -13, 3, 4); ctx.fillRect(1, -13, 3, 4);
-      ctx.restore();
-      if (fusing) { ctx.fillStyle = '#ffe84a'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('!', cx, cy - 30); ctx.textAlign = 'left'; }   // 引信警告
-      if (z.flash > 0) { ctx.globalAlpha = Math.min(1, z.flash * 8); ctx.fillStyle = 'rgba(255,255,255,.75)'; ctx.fillRect(cx - 10, cy - 26, 20, 28); ctx.globalAlpha = 1; }
-      ctx.fillStyle = '#0008'; ctx.fillRect(cx - 10, cy - 32, 20, 3);
-      ctx.fillStyle = '#e84a4a'; ctx.fillRect(cx - 10, cy - 32, 20 * (z.hp / 6), 3);
+      if (z.flash > 0) { ctx.globalAlpha = Math.min(1, z.flash * 8); ctx.fillStyle = 'rgba(255,255,255,.75)'; ctx.fillRect(cx - 10, cy - 30, 20, 32); ctx.globalAlpha = 1; }
+      ctx.fillStyle = '#0008'; ctx.fillRect(cx - 10, cy - 34, 20, 3);
+      ctx.fillStyle = '#e84a4a'; ctx.fillRect(cx - 10, cy - 34, 20 * (z.hp / 6), 3);
       continue;
     }
     if (z.ws) {   // 💀 MC 凋零骷髅：黑色高个骷髅，正面/侧面走路，手拿石剑
@@ -4395,14 +4729,18 @@ function draw() {
       continue;
     }
     ctx.globalAlpha = 0.3; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.ellipse(pt.x, pt.y + 2, 8, 3.5, 0, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1;
-    const art = petArt(pt.key);
-    const ptAnimT = pt.animT || 0;   // 🛡️ 兜底：animT 缺了/变 NaN 也不能让绘制炸掉
-    const set = (pt.state === 'atk' && ptAnimT < 0.3) ? art.atk : pt.state === 'run' ? art.run : art.wander;
-    const frame = set[Math.floor(ptAnimT * (pt.state === 'run' ? 8 : 3)) % set.length] || set[0];
-    ctx.save(); ctx.translate(Math.round(pt.x), Math.round(pt.y));
-    if ((pt.face || 1) < 0) ctx.scale(-1, 1);
-    if (frame) ctx.drawImage(frame, -19, -30, 38, 32);
-    ctx.restore();
+    if (pt.key === 'pet10_minicreep' || pt.key === 'pet10_minititan') {   // 🧨 苦力怕/泰坦宠物：MC 同款迷彩画法（迷你版；v78 修 key 对不上永远走不到这的真 bug）
+      drawCreeper(pt.x, pt.y, pt.key === 'pet10_minititan' ? 1.0 : 0.8, { walkT: pt.animT || 0 });
+    } else {
+      const art = petArt(pt.key);
+      const ptAnimT = pt.animT || 0;   // 🛡️ 兜底：animT 缺了/变 NaN 也不能让绘制炸掉
+      const set = (pt.state === 'atk' && ptAnimT < 0.3) ? art.atk : pt.state === 'run' ? art.run : art.wander;
+      const frame = set[Math.floor(ptAnimT * (pt.state === 'run' ? 8 : 3)) % set.length] || set[0];
+      ctx.save(); ctx.translate(Math.round(pt.x), Math.round(pt.y));
+      if ((pt.face || 1) < 0) ctx.scale(-1, 1);
+      if (frame) ctx.drawImage(frame, -19, -30, 38, 32);
+      ctx.restore();
+    }
     const mh = petMaxHp(pt.key);   // 🐾 血条：掉过血才显示
     if (pt.hp < mh) {
       ctx.fillStyle = '#000'; ctx.fillRect(pt.x - 10, pt.y - 34, 20, 3);
@@ -4417,9 +4755,28 @@ function draw() {
     ctx.fillStyle = '#000'; ctx.fillRect(w.x - 10, w.y - 26, 20, 3);
     ctx.fillStyle = w.hp > 3 ? '#6ae84a' : '#e84a4a'; ctx.fillRect(w.x - 10, w.y - 26, 20 * Math.max(0, w.hp / 6), 3);
   }
+  for (const mn of minions) {   // ☠️ 死灵骷髅小弟：白色小骨架+寿命倒计时
+    ctx.globalAlpha = 0.3; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.ellipse(mn.x, mn.y + 2, 8, 3.5, 0, 0, 6.3); ctx.fill(); ctx.globalAlpha = 1;
+    const mstep = Math.sin((mn.animT || 0) * 8) * 2;
+    ctx.save(); ctx.translate(Math.round(mn.x), Math.round(mn.y)); ctx.scale(mn.face < 0 ? -1 : 1, 1);
+    ctx.fillStyle = '#e8e8dc'; ctx.fillRect(-5, -22, 10, 9);   // 骷髅头
+    ctx.fillStyle = '#1a1a1a'; ctx.fillRect(-3, -19, 2, 3); ctx.fillRect(1, -19, 2, 3);   // 眼窝
+    ctx.fillStyle = '#d0d0c0'; ctx.fillRect(-4, -12, 8, 8);   // 肋骨身
+    ctx.fillStyle = '#1a1a1a'; ctx.fillRect(-4, -10, 8, 1); ctx.fillRect(-4, -7, 8, 1);   // 肋缝
+    ctx.fillStyle = '#e8e8dc'; ctx.fillRect(-4, -4, 3, 4 + Math.max(0, mstep)); ctx.fillRect(1, -4, 3, 4 + Math.max(0, -mstep));   // 小腿倒腾
+    ctx.restore();
+    ctx.fillStyle = '#c8f4ff'; ctx.font = '9px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(Math.ceil(mn.t) + 's', mn.x, mn.y - 26); ctx.textAlign = 'left';
+  }
+  for (const tr of turrets) {   // 🧲 工程师炮塔：铁灰底座+会转头的炮管
+    ctx.globalAlpha = 0.3; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.ellipse(tr.x, tr.y + 2, 9, 4, 0, 0, 6.3); ctx.fill(); ctx.globalAlpha = 1;
+    ctx.fillStyle = '#5a626e'; ctx.fillRect(tr.x - 8, tr.y - 10, 16, 12);   // 底座
+    ctx.fillStyle = '#7a828e'; ctx.fillRect(tr.x - 5, tr.y - 16, 10, 8);   // 炮身
+    ctx.save(); ctx.translate(tr.x, tr.y - 12); ctx.rotate(tr.ang || 0); ctx.fillStyle = '#3a4250'; ctx.fillRect(0, -2, 14, 4); ctx.restore();   // 炮管指着目标
+    ctx.fillStyle = '#ffd24a'; ctx.fillRect(tr.x - 2, tr.y - 19, 4, 3);   // 指示灯
+  }
   if (townMode && !inRoom) for (const n of npcs) drawVillager(n);   // 🧑‍🤝‍🧑 村民逛街
   // 🕳️ 神秘山洞（发光漩涡）+ 🪙 散落金币
-  if (portal) {
+  if (portal && !dungeonMode) {
     const pt2 = performance.now() / 1000;
     ctx.fillStyle = '#120a1e'; ctx.beginPath(); ctx.ellipse(portal.x, portal.y, 26, 18, 0, 0, Math.PI * 2); ctx.fill();
     ctx.strokeStyle = '#ffd24a'; ctx.globalAlpha = 0.6 + Math.sin(pt2 * 4) * 0.3; ctx.lineWidth = 4;
@@ -4544,6 +4901,11 @@ function draw() {
       ctx.beginPath(); ctx.arc(player.x, player.y - 8, 22, 0, 6.3); ctx.stroke();
       ctx.restore(); ctx.globalAlpha = 1;
     }
+    if (player.bearT > 0) {   // 🐻 熊形态：棕光罩身+头顶熊耳朵
+      ctx.globalAlpha = 0.3; ctx.fillStyle = '#8a5a2a'; ctx.beginPath(); ctx.arc(player.x, player.y - 6, 21, 0, 6.3); ctx.fill(); ctx.globalAlpha = 1;
+      ctx.fillStyle = '#6a3f1a'; ctx.beginPath(); ctx.arc(player.x - 8, player.y - 24, 5, 0, 6.3); ctx.arc(player.x + 8, player.y - 24, 5, 0, 6.3); ctx.fill();
+      ctx.fillStyle = '#a06a3a'; ctx.beginPath(); ctx.arc(player.x - 8, player.y - 24, 2.2, 0, 6.3); ctx.arc(player.x + 8, player.y - 24, 2.2, 0, 6.3); ctx.fill();
+    }
     /* 🛡️ 穿在身上的盔甲看得见：胸甲/帽子/皇冠 */
     const bobA = bob;
     if (player.owned.gold_armor || player.armor) {   // 胸甲
@@ -4634,6 +4996,8 @@ window.G = { get player() { return player; }, get zombies() { return zombies; },
   get skillShots() { return skillShots; }, get clouds() { return clouds; }, get fxLines() { return fxLines; }, get netOrbs() { return netOrbs; }, get shocks() { return shocks; },
   get pets() { return pets; }, get dexCounts() { return dexCounts; }, get coins() { return coins; }, get portal() { return portal; }, addPet, toggleDex, toggleBag, get skillSlots() { return skillSlots; }, get chest() { return chest; }, goNextLevel, openChest,
   get townMode() { return townMode; }, get storage() { return storage; }, get ownedHouse() { return ownedHouse; }, get inRoom() { return inRoom; }, get faintDone() { return faintDone; }, enterTown, exitTown, startFaint, buyHouse,
+  enterDungeon, exitDungeon, spawnGoblin, spawnDgnKing, swapJob, applyJob, dgnDie,   // 🌲⇄ 副本+双职业测试钩
+  get dungeonMode() { return dungeonMode; }, get dgnKills() { return dgnKills; }, get dgnKingSpawned() { return dgnKingSpawned; }, get minions() { return minions; }, get turrets() { return turrets; },
   castSkill, renderSkills, ownedSkills, spawnStorm: () => { const z = makeStorm(player.x + 150, player.y, Math.random); zombies.push(z); }, spawnVoid: () => { const z = makeVoid(player.x + 150, player.y, Math.random); zombies.push(z); } };
 reset(); if (loadGame()) setBanner('💾 存档已读取，接着玩！');
 showHome();   // 🏠 开机先进主页选存档
