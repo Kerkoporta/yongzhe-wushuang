@@ -133,7 +133,7 @@
   <div class="hsec">🗺️ 更多玩法</div>
   <div class="htxt">🎁 BOSS 宝箱三选一（武器/装备/技能/宠物/觉醒石）<br>🔷 武器店偶尔刷「升级石」，300 金币让工匠把手里的武器升一级（最高橙色传说）<br>🌈 品质天梯：灰粗糙→白普通→绿优秀→蓝精良→紫史诗→橙传说<br>🐾 宠物有血条啦：越贵越扛揍，被打倒下关复活（无尽过波也复活）<br>💀 第八关·凋零之地：MC 凋零骷髅成群出没，BOSS 是三头凋灵——蓝骷髅头打中掉 2 血，红色冲锋走廊里掉 2.5 血，快闪！<br>🐉 第九关·末影之地：全关只有末影龙（10000 血）——紫龙息落地成雾（站雾里一直掉血），被俯冲顶飞落地掉 3 血！<br>🧨 第十关·苦力怕矿洞：MC 苦力怕悄悄摸近你就自爆（跑远 2 格引信熄灭）；BOSS 泰坦苦力怕——TNT 雨 2.5 秒后炸 2.5 血（有一个瞄准你），被扑咬掉 3 血！<br>🟢 第十一关·史莱姆沼泽：MC 史莱姆打死会分裂（大→中→小）；BOSS 恶魂喷火球掉 2 血——挥刀把火球打回去，砸中它掉 15 血！<br>👿 第十二关·深邃古城：蝙蝠乱飞；BOSS 坚守者 50 万血——它是瞎子，你站着不动 1.5 秒它就找不到你（MC 潜行同款）！音波炮蓄力时快躲直线，贴身震地 3.5 血！<br>🍗 商店新增一次性道具（无限购！）：烤鸡回血/力量药水/铁皮无敌/疾跑/手雷/复活图腾<br>🛍️ 新三关还藏了 80 件新宝贝（武器/装备/宠物/技能各 20 件）：全混在商店随机池里，第一关的商店也能抽到！<br>🏡 通关第十二关解锁宁静小镇：商店街、买房、广场长椅随便坐<br>💎 试炼塔里怪物掉钻石（第 1 波僵尸掉 1 颗，波数越高掉越多，BOSS 掉 10×波数）；小镇商店街尽头有「钻石商店」：副手槽（限购 1 次）/宠物槽/技能槽/随机转职石/指定转职石，价格很贵，多爬塔！<br>🗼 小镇广场南边有座试炼塔：进去就是无尽挑战，一遍遍刷榜比谁爬得高<br>🌲 小镇广场东边有「哥布林森林」副本：杀 12 只绿皮哥布林引出哥布林王——它的鞭子横扫一鞭 5 血，看到红区快跑！在副本里倒下不会真死，只会被抬回小镇；通关 +300 金 +10💎<br>🎡 广场两圈还有游乐场：打地鼠/射箭/钓鱼/转盘/抓娃娃/跑酷/猜宝箱/投篮/擂台赛/迷宫寻宝——赢金币还能赢钻石！<br>🌐 主页新增「联机大厅」：同一台设备开两个窗口，一个创建房间一个踢馆，双人 PVP！胜利 +200 金 +10💎</div>
   <button id="helpClose" style="margin-top:10px">知道啦！</button>
-  <div style="margin-top:14px;padding-top:8px;border-top:1px solid rgba(255,255,255,.15);font-size:11px;opacity:.6;text-align:center">本游戏由杨恩泽出品<br>最终解释权归杨恩泽所有<br>版本 v78</div>
+  <div style="margin-top:14px;padding-top:8px;border-top:1px solid rgba(255,255,255,.15);font-size:11px;opacity:.6;text-align:center">本游戏由杨恩泽出品<br>最终解释权归杨恩泽所有<br>版本 v78.1</div>
 </div></div>
 <div id="play"><div id="playCard">
   <div id="playTitle" style="font-size:20px;font-weight:bold"></div>
@@ -2435,17 +2435,27 @@ let netClient = null, netTopic = null, netReady = false, netWon = false;
 function mqttLoad() {
   return new Promise((res, rej) => {
     if (window.mqtt) return res();
-    const s = document.createElement('script');
-    s.src = 'https://cdn.jsdelivr.net/npm/mqtt@5.10.1/dist/mqtt.min.js';
-    s.onload = res; s.onerror = () => rej(new Error('加载失败'));
-    document.head.appendChild(s);
-    setTimeout(() => rej(new Error('加载超时')), 12000);
+    const srcs = ['mqtt.min.js', 'https://cdn.jsdelivr.net/npm/mqtt@5.10.1/dist/mqtt.min.js', 'https://unpkg.com/mqtt@5.10.1/dist/mqtt.min.js'];   // 🌍 先读游戏自带的联机模块（和游戏同一个服务器，肯定不卡），不行再换外地 CDN
+    let i = 0;
+    const tryNext = () => {
+      if (window.mqtt) return res();
+      if (i >= srcs.length) return rej(new Error('联机模块加载失败'));
+      const s = document.createElement('script'); s.src = srcs[i++];
+      let done = false;
+      const t = setTimeout(() => { if (!done) { done = true; try { s.remove(); } catch (e) {} tryNext(); } }, 8000);   // 8 秒没动静就换下一个源
+      s.onload = () => { if (!done) { done = true; clearTimeout(t); res(); } };
+      s.onerror = () => { if (!done) { done = true; clearTimeout(t); tryNext(); } };
+      document.head.appendChild(s);
+    };
+    tryNext();
   });
 }
+let netSeen = false;   // 👀 联网版：看到对手的第一条消息没
 async function netStart(code, side) {
   try {
-    setBanner('🌍 正在连接中转站……');
+    setBanner('🌍 第一步：加载联机模块……（第一次约几秒，别慌）');
     await mqttLoad();
+    setBanner('🌍 第二步：连接中转站……');
     if (!netClient) {
       netClient = window.mqtt.connect('wss://broker.emqx.io:8084/mqtt', { connectTimeout: 9000, reconnectPeriod: 2000 });
       await new Promise((res, rej) => { netClient.on('connect', res); netClient.on('error', rej); setTimeout(() => rej(new Error('连接超时')), 9000); });
@@ -2454,11 +2464,14 @@ async function netStart(code, side) {
     netClient.removeAllListeners('message');
     netClient.subscribe(netTopic, { qos: 0 });
     netClient.on('message', (t, m) => { if (t !== netTopic) return; try { const o = JSON.parse(m.toString()); if (o.side === pvpSide) return; netOnMsg(o); } catch (e) {} });
-    netReady = true; netWon = false;
+    netReady = true; netWon = false; netSeen = false;
     enterPvp('net' + code, side);   // 复用 PVP 流程
-    if (side === 1) setBanner('🌍 房间开好！密码【' + code + '】发给小伙伴，等他踢馆！');
-    else setBanner('🌍 踢馆成功！开打！');
-  } catch (e) { setBanner('😵 联网失败：' + e.message + '（可以玩同设备本地模式）'); beep(300, 150, 0.2, 'square', 0.12); }
+    if (side === 1) setBanner('🌍 房间开好！密码【' + code + '】发给小伙伴，等他踢馆！（他进场你会看到提示）');
+    else setBanner('🌍 踢馆成功！等第一条对手消息……');
+  } catch (e) {
+    if (netClient) { try { netClient.end(true); } catch (e2) {} netClient = null; }   // 😵 失败的连接整个扔掉，下次重新建（旧码留坏连接，再点永远连不上）
+    setBanner('😵 联网失败：' + e.message + '（可以玩同设备本地模式）'); beep(300, 150, 0.2, 'square', 0.12);
+  }
 }
 function netSend(o) { if (netReady && netClient) { try { o.side = pvpSide; netClient.publish(netTopic, JSON.stringify(o), { qos: 0 }); } catch (e) {} } }
 function netOnMsg(o) {   // 📡 对面消息进游戏
@@ -2471,6 +2484,7 @@ function netOnMsg(o) {   // 📡 对面消息进游戏
     netReady = false; leavePvpSilent(); return;
   }
   pvpFoe = o; pvpFoe.stale = false;
+  if (!netSeen) { netSeen = true; setBanner('👀 看到对手了！开打！'); beep(700, 1200, 0.2, 'sine', 0.15); }   // 👀 第一条对手消息：人出现了
   for (const hit of (o.hits || [])) {   // 对面挥中我：扣血
     if (hit.s > pvpSeen) { pvpSeen = hit.s;
       if (player.inv <= 0) { player.hearts -= hit.d; player.inv = 0.5; player.sinceHurt = 0; player.regenT = 0; burst(player.x, player.y, '#ff5a5a', 10); beep(300, 120, 0.15, 'sawtooth', 0.15); } }
