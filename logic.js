@@ -785,6 +785,13 @@ SKBOOKS[10] = [
   ['sk11_blink', '闪现术', '💨', 600, '法术：向前瞬移 4 格，逃跑神器（耗蓝 15/冷却 8 秒）'],
   ['sk11_clone', '分身术', '👥', 1000, '法术：影子分身拿你一半攻击力帮你打 8 秒（耗蓝 45/冷却 40 秒）'],
 ];
+/* 🎣 天空城钓的鱼（进背包道具栏：点一下拿手里，能卖给鱼商人，也能吃掉回 2 血） */
+const FISH = {
+  fish_tropical: { name: '热带鱼', icon: '🐠', price: 20, kind: 'fish', desc: '花花绿绿的小鱼。点一下拿在手里，摇杆边出「吃掉」按钮（回 2 血）；天空城北边的鱼商人 20 金收' },
+  fish_salmon: { name: '三文鱼', icon: '🐟', price: 40, kind: 'fish', desc: '肥美的三文鱼。拿在手里别的玩家看得见！鱼商人 40 金收，吃掉回 2 血' },
+  fish_tuna: { name: '金枪鱼', icon: '🦈', price: 80, kind: 'fish', desc: '大力气才钓得上来的大鱼！鱼商人 80 金收，吃掉回 2 血' },
+  fish_puffer: { name: '河豚', icon: '🐡', price: 150, kind: 'fish', desc: '超级稀有的气鼓鼓河豚！鱼商人 150 金收，吃掉回 2 血' },
+};
 /* 🍗 一次性道具（用了就没了，但无限购！背包里点一下就吃/喝/扔） */
 const USE_ITEMS = {
   use_chicken: { name: '烤鸡', icon: '🍗', price: 30, kind: 'use', desc: '咬一口香哭的烤鸡，立刻回 2 格血' },
@@ -932,4 +939,4 @@ function crystalTick(c, p, dt, speedMul, rnd) {
   }
   return ev;
 }
-if (typeof module !== 'undefined') module.exports = { WORLD, PLAYER, ZOMBIE, SPAWN, ATTACK, HURT, REGEN, SHOP, SHOP2, SHOP3, SHOP4, SHOP5, SHOP6, SHOP7, SKBOOKS, PETS, BOSS, SKELETON, GHOST, LAVA, STORM, VOIDW, CRYSTAL, makePlayer, pickSpawn, spawnZombie, zombieStep, attackHit, lootGold, lootBounty, buyItem, regenTick, playerStep, touchHurt, difficulty, makeBoss, bossTick, makeSkeleton, skeletonTick, makeGhost, ghostTick, makeLava, lavaTick, makeStorm, stormTick, makeVoid, voidTick, makeCrystal, crystalTick };
+if (typeof module !== 'undefined') module.exports = { WORLD, PLAYER, ZOMBIE, SPAWN, ATTACK, HURT, REGEN, SHOP, SHOP2, SHOP3, SHOP4, SHOP5, SHOP6, SHOP7, SKBOOKS, PETS, BOSS, SKELETON, GHOST, LAVA, STORM, VOIDW, CRYSTAL, makePlayer, pickSpawn, spawnZombie, zombieStep, attackHit, lootGold, lootBounty, buyItem, regenTick, playerStep, touchHurt, difficulty, makeBoss, bossTick, makeSkeleton, skeletonTick, makeGhost, ghostTick, makeLava, lavaTick, makeStorm, stormTick, makeVoid, voidTick, makeCrystal, crystalTick, FISH };
