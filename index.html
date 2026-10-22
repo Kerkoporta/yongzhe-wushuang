@@ -15,6 +15,7 @@
   #helpBtn{position:fixed;right:12px;top:140px;z-index:6;background:rgba(40,110,160,.92);color:#fff;border:3px solid #6ab8f2;border-radius:14px;padding:7px 12px;font-weight:bold;font-size:15px;box-shadow:0 3px 8px rgba(0,0,0,.4);cursor:pointer}
   #gearBtn{position:fixed;right:12px;top:186px;z-index:6;background:rgba(70,70,84,.92);color:#fff;border:3px solid #b8b8c2;border-radius:50%;width:44px;height:44px;font-size:22px;box-shadow:0 3px 8px rgba(0,0,0,.4);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
   #mapC{position:fixed;left:12px;top:64px;z-index:5;border-radius:8px;pointer-events:none}
+  #mana{position:fixed;left:12px;top:226px;z-index:5;color:#6ab8ff;font:bold 16px sans-serif;text-shadow:0 2px 4px #000;pointer-events:none}
   #zoomBtn{position:fixed;left:12px;top:184px;z-index:6;background:rgba(40,90,60,.92);color:#fff;border:3px solid #7ec850;border-radius:14px;padding:5px 10px;font-weight:bold;font-size:14px;box-shadow:0 3px 8px rgba(0,0,0,.4);cursor:pointer}
   #enterBtn{position:fixed;left:150px;bottom:48px;z-index:6;display:none;background:rgba(200,150,30,.95);color:#fff;border:3px solid #ffd24a;border-radius:14px;padding:10px 16px;font-weight:bold;font-size:16px;box-shadow:0 3px 8px rgba(0,0,0,.4);cursor:pointer}
   /* 🔄 转屏联动：小地图/倍数镜/进入钮都在 #rot 外壳里，跟着一起转，不会和别的按钮重叠 */
@@ -106,6 +107,7 @@
 <button id="blockBtn" style="display:none;position:fixed;left:calc(50% - 160px);bottom:150px;transform:translateX(-50%);z-index:7;background:linear-gradient(#3a6ad4,#2a4ab0);color:#fff;border:3px solid #7ab8ff;border-radius:16px;padding:12px 26px;font-weight:bold;font-size:19px;box-shadow:0 4px 14px rgba(60,120,220,.55);cursor:pointer">🛡️ 格挡</button>
 <button id="bearBtn" style="display:none;position:fixed;left:calc(50% + 110px);bottom:150px;transform:translateX(-50%);z-index:7;background:linear-gradient(#8a5a2a,#6a3f1a);color:#fff;border:3px solid #d8a05a;border-radius:16px;padding:12px 26px;font-weight:bold;font-size:19px;box-shadow:0 4px 14px rgba(140,90,40,.55);cursor:pointer;touch-action:manipulation">🐻 变熊</button>
 <button id="jobSwap" style="display:none;position:fixed;left:12px;top:182px;z-index:7;background:linear-gradient(#5a4ad4,#3a2ab0);color:#fff;border:3px solid #b48aff;border-radius:14px;padding:8px 12px;font-weight:bold;font-size:15px;box-shadow:0 4px 14px rgba(120,60,220,.5);cursor:pointer;touch-action:manipulation">⇄</button>
+<div id="mana">🔵 100</div>
 <div id="gear"><div id="gearCard">
   <div style="font-size:22px;font-weight:bold;margin-bottom:8px">⚙️ 设置</div>
   <button id="gearBag">🎒 背包</button>
@@ -131,9 +133,9 @@
   <div class="hsec">🌟 职业（打 BOSS 开宝箱拿「觉醒石」，随机觉醒，不许挑！）</div>
   <div class="htxt">第一颗觉醒石=<b>主职业</b>，第二颗=<b>副职业</b>，点左上角「⇄」一键切换！15 个职业每个玩法都不一样：<br>🥷 <b>刺客</b>：射箭→传送→落地一刀×2 ｜ 🔮 <b>法师</b>：附魔+剑风+燃烧箭，血少 ｜ ⚔️ <b>战士</b>：双持轮砍攻速翻倍 ｜ 🛡️ <b>坦克</b>：格挡无敌站桩 ｜ 🐺 <b>召唤师</b>：自动召唤狼群，血少<br>🩸 <b>狂战士</b>：血越少攻越高 ｜ 🏹 <b>游侠</b>：双箭齐发还能穿透 ｜ 💚 <b>牧师</b>：全队持续回血、克制亡灵 ｜ 🃏 <b>盗贼</b>：金币双倍+背刺+商店 8 折 ｜ ⏳ <b>时空术士</b>：冷却快+定时全场冻结<br>🧲 <b>工程师</b>：自动部署炮塔 ｜ 🍀 <b>幸运星</b>：刀刀暴击 ｜ 🐻 <b>德鲁伊</b>：点按钮变熊 6 秒 ｜ ☠️ <b>死灵法师</b>：杀死的怪变骷髅小弟 ｜ ⚗️ <b>炼金术士</b>：道具效果翻倍</div>
   <div class="hsec">🗺️ 更多玩法</div>
-  <div class="htxt">🎁 BOSS 宝箱三选一（武器/装备/技能/宠物/觉醒石）<br>🔷 武器店偶尔刷「升级石」，300 金币让工匠把手里的武器升一级（最高橙色传说）<br>🌈 品质天梯：灰粗糙→白普通→绿优秀→蓝精良→紫史诗→橙传说<br>🐾 宠物有血条啦：越贵越扛揍，被打倒下关复活（无尽过波也复活）<br>💀 第八关·凋零之地：MC 凋零骷髅成群出没，BOSS 是三头凋灵——蓝骷髅头打中掉 2 血，红色冲锋走廊里掉 2.5 血，快闪！<br>🐉 第九关·末影之地：全关只有末影龙（10000 血）——紫龙息落地成雾（站雾里一直掉血），被俯冲顶飞落地掉 3 血！<br>🧨 第十关·苦力怕矿洞：MC 苦力怕悄悄摸近你就自爆（跑远 2 格引信熄灭）；BOSS 泰坦苦力怕——TNT 雨 2.5 秒后炸 2.5 血（有一个瞄准你），被扑咬掉 3 血！<br>🟢 第十一关·史莱姆沼泽：MC 史莱姆打死会分裂（大→中→小）；BOSS 恶魂喷火球掉 2 血——挥刀把火球打回去，砸中它掉 15 血！<br>👿 第十二关·深邃古城：蝙蝠乱飞；BOSS 坚守者 50 万血——它是瞎子，你站着不动 1.5 秒它就找不到你（MC 潜行同款）！音波炮蓄力时快躲直线，贴身震地 3.5 血！<br>🍗 商店新增一次性道具（无限购！）：烤鸡回血/力量药水/铁皮无敌/疾跑/手雷/复活图腾<br>🛍️ 新三关还藏了 80 件新宝贝（武器/装备/宠物/技能各 20 件）：全混在商店随机池里，第一关的商店也能抽到！<br>🏡 通关第十二关解锁宁静小镇：商店街、买房、广场长椅随便坐<br>💎 试炼塔里怪物掉钻石（第 1 波僵尸掉 1 颗，波数越高掉越多，BOSS 掉 10×波数）；小镇商店街尽头有「钻石商店」：副手槽（限购 1 次）/宠物槽/技能槽/随机转职石/指定转职石，价格很贵，多爬塔！<br>🗼 小镇广场南边有座试炼塔：进去就是无尽挑战，一遍遍刷榜比谁爬得高<br>🌲 小镇广场东边有「哥布林森林」副本：杀 12 只绿皮哥布林引出哥布林王——它的鞭子横扫一鞭 5 血，看到红区快跑！在副本里倒下不会真死，只会被抬回小镇；通关 +300 金 +10💎<br>🎡 广场两圈还有游乐场：打地鼠/射箭/钓鱼/转盘/抓娃娃/跑酷/猜宝箱/投篮/擂台赛/迷宫寻宝——赢金币还能赢钻石！<br>🌐 主页新增「联机大厅」：同一台设备开两个窗口，一个创建房间一个踢馆，双人 PVP！胜利 +200 金 +10💎</div>
+  <div class="htxt">🎁 BOSS 宝箱三选一（武器/装备/技能/宠物/觉醒石）<br>🔷 武器店偶尔刷「升级石」，300 金币让工匠把手里的武器升一级（最高橙色传说）<br>🌈 品质天梯：灰粗糙→白普通→绿优秀→蓝精良→紫史诗→橙传说<br>🐾 宠物有血条啦：越贵越扛揍，被打倒下关复活（无尽过波也复活）<br>💀 第八关·凋零之地：MC 凋零骷髅成群出没，BOSS 是三头凋灵——蓝骷髅头打中掉 2 血，红色冲锋走廊里掉 2.5 血，快闪！<br>🐉 第九关·末影之地：全关只有末影龙（10000 血）——紫龙息落地成雾（站雾里一直掉血），被俯冲顶飞落地掉 3 血！<br>🧨 第十关·苦力怕矿洞：MC 苦力怕悄悄摸近你就自爆（跑远 2 格引信熄灭）；BOSS 泰坦苦力怕——TNT 雨 2.5 秒后炸 2.5 血（有一个瞄准你），被扑咬掉 3 血！<br>🟢 第十一关·史莱姆沼泽：MC 史莱姆打死会分裂（大→中→小）；BOSS 恶魂喷火球掉 2 血——挥刀把火球打回去，砸中它掉 15 血！<br>👿 第十二关·深邃古城：蝙蝠乱飞；BOSS 坚守者 50 万血——它是瞎子，你站着不动 1.5 秒它就找不到你（MC 潜行同款）！音波炮蓄力时快躲直线，贴身震地 3.5 血！<br>🍗 商店新增一次性道具（无限购！）：烤鸡回血/力量药水/铁皮无敌/疾跑/手雷/复活图腾<br>🛍️ 新三关还藏了 80 件新宝贝（武器/装备/宠物/技能各 20 件）：全混在商店随机池里，第一关的商店也能抽到！<br>🏡 通关第十二关解锁宁静小镇：商店街、买房、广场长椅随便坐<br>💎 试炼塔里怪物掉钻石（第 1 波僵尸掉 1 颗，波数越高掉越多，BOSS 掉 10×波数）；小镇商店街尽头有「钻石商店」：副手槽（限购 1 次）/宠物槽/技能槽/随机转职石/指定转职石，价格很贵，多爬塔！<br>🗼 小镇广场南边有座试炼塔：进去就是无尽挑战，一遍遍刷榜比谁爬得高<br>🌲 小镇广场东边有「哥布林森林」副本：杀 12 只绿皮哥布林引出哥布林王——它的鞭子横扫一鞭 5 血，看到红区快跑！在副本里倒下不会真死，只会被抬回小镇；通关 +300 金 +10💎<br>🎡 广场两圈还有游乐场：打地鼠/射箭/钓鱼/转盘/抓娃娃/跑酷/猜宝箱/投篮/擂台赛/迷宫寻宝——赢金币还能赢钻石！<br>🌐 主页新增「联机大厅」：同一台设备开两个窗口，一个创建房间一个踢馆，双人 PVP！胜利 +200 金 +10💎<br>🔵 法术值：头顶蓝条上限 100，每秒回 0.4——所有技能/法术都耗蓝，大招要省着用！法术店能买到 10 种新法术：流星火雨/冰封领域/黑洞/雷霆万钧/龙息术/剑刃风暴/治疗术/魔法护盾/闪现术/分身术<br>🎽 装备槽：头盔最多 1 个、胸甲最多 2 件、靴子最多 1 双、小件最多 5 个——穿满了再买新的自动换装（武器/技能/宠物不占格）</div>
   <button id="helpClose" style="margin-top:10px">知道啦！</button>
-  <div style="margin-top:14px;padding-top:8px;border-top:1px solid rgba(255,255,255,.15);font-size:11px;opacity:.6;text-align:center">本游戏由杨恩泽出品<br>最终解释权归杨恩泽所有<br>版本 v78.1</div>
+  <div style="margin-top:14px;padding-top:8px;border-top:1px solid rgba(255,255,255,.15);font-size:11px;opacity:.6;text-align:center">本游戏由杨恩泽出品<br>最终解释权归杨恩泽所有<br>版本 v79</div>
 </div></div>
 <div id="play"><div id="playCard">
   <div id="playTitle" style="font-size:20px;font-weight:bold"></div>
@@ -226,7 +228,7 @@
   <button id="overHome" style="margin-top:10px">🏠 回主页</button>
 </div></div>
 </div>
-<script src="logic.js?v=26"></script>
+<script src="logic.js?v=27"></script>
 <script>
 'use strict';
 /* ================= 像素小人 & 僵尸（字符串画出来的，MC 风） ================= */
@@ -1065,7 +1067,7 @@ function reset() {
   deco = [];   // 树和石头点缀（固定随机，玩久了认得路）
   let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
   for (let i = 0; i < 90; i++) deco.push({ x: 60 + rnd() * (WORLD.w - 120), y: 60 + rnd() * (WORLD.h - 120), t: rnd() < 0.65 ? 'tree' : 'rock' });
-  document.getElementById('over').style.display = 'none'; updateScore(); updateGold(); toggleShop(false);
+  document.getElementById('over').style.display = 'none'; updateScore(); updateGold(); toggleShop(false); updateMana();   // 🔵 新冒险满蓝
   placePortal();   // 🕳️ 这关的山洞在哪呢
   placeShops();   // 🏪 地图上摆两个商店
 }
@@ -1186,6 +1188,7 @@ function rollDmg(dmg) {
   if (modVal('half') && Math.random() < modVal('half')) dmg *= 0.5;   // 💎 水晶减半
   if (player.job === 'rogue') dmg *= 1.15;   // 🃏 盗贼短板：被打更疼
   if (player.bearT > 0) dmg *= 0.5;   // 🐻 熊形态：受伤减半
+  if (player.shieldT > 0) dmg *= 0.5;   // 🛡️ 魔法护盾：受伤减半
   return dmg;
 }
 /* 👼 致命保护：天使/冰晶/魂/火种留 1 心，轮回石 2 心，凤凰之羽 3 心（最强）。每局一次。返回 true=被救了 */
@@ -1657,7 +1660,7 @@ function minionsTick(dt) {
       const dx = tgt.x - mn.x, dy = tgt.y - mn.y, d = Math.hypot(dx, dy) || 1;
       mn.face = dx < 0 ? -1 : 1;
       if (d > (tgt.r || 10) + 8) { mn.x += dx / d * 160 * dt; mn.y += dy / d * 160 * dt; }
-      else if (mn.cd <= 0) { mn.cd = 0.9; tgt.hp -= 1; tgt.flash = 0.12; burst(tgt.x, tgt.y - 6, '#c8f4ff', 3); beep(600, 800, 0.04, 'square', 0.03); if (tgt.hp <= 0) killZombie(tgt); }
+      else if (mn.cd <= 0) { mn.cd = 0.9; tgt.hp -= (mn.dmg || 1); tgt.flash = 0.12; burst(tgt.x, tgt.y - 6, mn.clone ? '#b8b8ff' : '#c8f4ff', 3); beep(600, 800, 0.04, 'square', 0.03); if (tgt.hp <= 0) killZombie(tgt); }   // 👥 分身用武器一半攻击力
     } else {
       const dx = player.x - mn.x, dy = player.y - mn.y, d = Math.hypot(dx, dy) || 1;
       if (d > 60) { mn.x += dx / d * 150 * dt; mn.y += dy / d * 150 * dt; mn.face = dx < 0 ? -1 : 1; }
@@ -1731,6 +1734,7 @@ function packSave() {
     job: player.job || null, job2: player.job2 || null, offhand: player.offhand || null,   // 🥷⚔️ 主副职业和副手跟着存档走
     dia: player.diamonds || 0, slots: player.slots, off2: player.offhands2 || [],   // 💎 钻石+扩展槽跟着存档走
     items: player.items || {},   // 🍗 道具袋跟着存档走
+    mana: Math.round(player.mana != null ? player.mana : 100),   // 🔵 蓝条也进存档
     towerMode: towerMode ? 1 : 0,   // 🗼 在不在试炼塔里
     campaignLv,   // 🧭 主线进度跟着存档走
     bossAlive: boss ? 1 : 0, bossHp: boss ? boss.hp : 0,
@@ -1750,8 +1754,17 @@ function applySave(s) {
   player.diamonds = s.dia || 0; updateDia();   // 💎 钻石回来
   player.slots = s.slots || { off: 0, pet: 0, skill: 0 };   // 🧩 扩展槽回来
   player.items = s.items || {};   // 🍗 道具袋回来
+  player.mana = s.mana != null ? Math.min(100, Math.max(0, s.mana)) : 100; updateMana();   // 🔵 蓝条回来
   player.offhands2 = (s.off2 || []).filter(k => ALLITEMS[k]);   // ⚔️ 额外副手回来
   player.bought = s.bought || Object.assign({}, player.owned);   // 🎒 老存档没有 bought：拿 owned 顶上
+  {   // 🎽 老存档槽位超编检查：多穿的自动脱下进背包（头盔1/胸甲2/靴子1/小件5）
+    const seen = { helm: 0, chest: 0, boots: 0, trinket: 0 };
+    for (const g of Object.keys(player.owned)) {
+      if (!player.owned[g] || ALLKIND[g] !== 'gear') continue;
+      const sl = gearSlot(g);
+      if (++seen[sl] > SLOT_CAP[sl]) player.owned[g] = false;
+    }
+  }
   if (s.music != null) { musicOn = !!s.music; document.getElementById('gearMusic').textContent = musicOn ? '🎵 音乐：开' : '🔇 音乐：关'; }
   if (!!s.rot !== rotated) toggleRotate();   // 🔄 转屏状态跟着存档走
   bossAt = s.bossAt || 100; level = (s.level >= 1 && s.level <= 12) ? s.level : 1;   // 🐛 关卡钳制跟着主线走（12 关时代）
@@ -2570,7 +2583,9 @@ function renderBag() {
     return btn(k, ALLITEMS[k], label, player.weapon === k || offIdx >= 0);
   })) : '<div class="htxt">还没买过武器，去商店看看！</div>';
   const gs = Object.keys(player.bought).filter(k => ALLKIND[k] === 'gear');
-  h += sec('🛡️ 装备（默认装着，点一下卸下/装上）');
+  const gCnt = { helm: 0, chest: 0, boots: 0, trinket: 0 };
+  for (const g of gs) if (player.owned[g]) gCnt[gearSlot(g)]++;
+  h += sec(`🛡️ 装备（⛑️头盔 ${gCnt.helm}/1 · 🛡️胸甲 ${gCnt.chest}/2 · 👢靴子 ${gCnt.boots}/1 · 💍小件 ${gCnt.trinket}/5，满了自动换）`);
   h += gs.length ? grid(gs.map(k => btn(k, ALLITEMS[k], player.owned[k] ? '✅ 装着' : '💤 卸下了', !!player.owned[k]))) : '<div class="htxt">还没买过装备</div>';
   const ss = Object.keys(player.bought).filter(k => ALLKIND[k] === 'skill');
   h += sec(`✨ 技能（最多上阵 ${skillMax()} 个：现在 ${skillSlots.length}/${skillMax()}）`);
@@ -2636,7 +2651,15 @@ function bagTap(k) {
     player.offhand = offs[0] || null; player.offhands2 = offs.slice(1);
     beep(700, 900, 0.08, 'square', 0.1);
   }
-  else if (kind === 'gear') { player.owned[k] = !player.owned[k]; applyGear(); player.hearts = Math.min(player.hearts, player.maxHearts); beep(500, 700, 0.08, 'square', 0.1); }
+  else if (kind === 'gear') {   // 🎽 装备槽位：满了自动换下最早穿上的同槽装备
+    if (player.owned[k]) player.owned[k] = false;   // 点身上的=脱下
+    else {
+      const slot = gearSlot(k), on = Object.keys(player.owned).filter(g => player.owned[g] && ALLKIND[g] === 'gear' && gearSlot(g) === slot);
+      if (on.length >= SLOT_CAP[slot]) { player.owned[on[0]] = false; setBanner('🎽 ' + SLOT_NAME[slot] + '槽满啦：换下了「' + (ALLITEMS[on[0]] || {}).name + '」'); }
+      player.owned[k] = true;
+    }
+    applyGear(); player.hearts = Math.min(player.hearts, player.maxHearts); beep(500, 700, 0.08, 'square', 0.1);
+  }
   else if (kind === 'use') { useItem(k); renderBag(); return; }   // 🍗 道具：点一下就用
   else if (kind === 'skill') {
     if (skillSlots.includes(k)) {
@@ -3032,6 +3055,16 @@ const TIERS = [   // 🌍 魔兽世界稀有度色彩体系：灰粗糙→白普
 ];
 const MAX_TIER = TIERS.length - 1;   // 🛡️ 品质天花板=橙：跟着天梯表自动走
 function invB(k) { const b = player.bought[k]; return (b && b.t != null) ? b : null; }   // 武器/装备的 {t:品质, w:材料数}
+/* 🎽 装备槽位（恩泽定的：头盔1/胸甲2/靴子1/小件5，武器技能宠物不占格） */
+const SLOT_CAP = { helm: 1, chest: 2, boots: 1, trinket: 5 };
+const SLOT_NAME = { helm: '⛑️头盔', chest: '🛡️胸甲', boots: '👢靴子', trinket: '💍小件' };
+function gearSlot(k) {   // 按名字分槽：甲/衣/肚兜=胸甲（先判，"金盔甲"带"盔"字也是甲！）；帽/冠/盔/雪镜/鬼面=头盔；鞋/靴=靴子；其余=小件
+  const n = (ALLITEMS[k] || {}).name || '';
+  if (/甲|衣|肚兜/.test(n)) return 'chest';
+  if (/帽|冠|盔|雪镜|鬼面/.test(n)) return 'helm';
+  if (/鞋|靴/.test(n)) return 'boots';
+  return 'trinket';
+}
 function T(k) { const b = invB(k); return b ? TIERS[b.t].mul : 1; }   // 品质倍率
 function fixOldBought() {   // 老存档升级：true→{t,w}；品质天梯换成魔兽世界稀有度色彩体系（级别序号不变自动映射，超纲的压到封顶级）
   for (const k in player.bought) {
@@ -3044,7 +3077,15 @@ function addToInv(key, tier) {
   const kind = ALLKIND[key];
   if (kind !== 'weapon' && kind !== 'gear') return false;
   const b = invB(key);
-  if (!b) { player.bought[key] = { t: tier, w: 0 }; player.owned[key] = true; if (kind === 'weapon') player.weapon = key; }
+  if (!b) {
+    player.bought[key] = { t: tier, w: 0 };
+    if (kind === 'weapon') { player.owned[key] = true; player.weapon = key; }
+    else {   // 🎽 装备：槽位有空才自动穿上，满了先进背包（背包里点它和身上的换）
+      const slot = gearSlot(key), on = Object.keys(player.owned).filter(g => player.owned[g] && ALLKIND[g] === 'gear' && gearSlot(g) === slot);
+      if (on.length < SLOT_CAP[slot]) player.owned[key] = true;
+      else setBanner('🎽 ' + SLOT_NAME[slot] + '槽满啦，「' + ALLITEMS[key].name + '」先放背包里');
+    }
+  }
   applyGear(); return true;
 }
 /* 🔧 合成系统已退役（v52）：商店宝箱永不出重复装备→材料永远凑不齐→合成是摆设；升级全靠升级石 */
@@ -3301,7 +3342,15 @@ const SKILL_FX = {
   sk9_pearl: ['ball', 15, 5, '#8a5ac8'], sk9_breath: ['cloud', 3, 9, '#b48af2', { dur: 5, r: 75 }], sk9_roar: ['spin', 22, 14, '#b48af2', { r: 120 }], sk9_pull: ['pull', 5, 8, '#6a4a92', { r: 220 }], sk9_shulker: ['ball', 20, 7, '#d0b0ff'], sk9_endbeam: ['zap', 24, 8, '#e0ccff'], sk9_chorus: ['chain', 13, 8, '#c8a0ff'],
   /* 🧨 苦力怕 6 技 */
   sk10_tnt: ['ball', 22, 8, '#c8302a'], sk10_blast: ['spin', 18, 12, '#ff8a5a', { r: 100 }], sk10_powder: ['cloud', 2, 8, '#8a8578', { dur: 4.5, r: 70 }], sk10_creep: ['chain', 10, 7, '#7ec850'], sk10_mega: ['spin', 30, 18, '#ff6a2a', { r: 140 }], sk10_fuse: ['zap', 16, 6, '#ffe84a'],
+  /* 🔵 法术时代 10 技（全部耗蓝！蓝每秒回 0.4——恩泽定的珍贵手感） */
+  sk11_meteor: ['meteors', 8, 12, '#ff8a3a'], sk11_frostfield: ['freeze', 0, 20, '#7ac8ff', { r: 150, dur: 3 }], sk11_blackhole: ['blackhole', 2, 25, '#8a5ac8', { r: 220 }], sk11_thunder: ['chain', 6, 10, '#ffe84a', { n: 8 }], sk11_dragonbreath: ['cloud', 2, 15, '#ff7a2a', { dur: 3, r: 55, fwd: 80 }],
+  sk11_bladestorm: ['spin', 15, 12, '#d8e8ff', { r: 110 }], sk11_heal: ['heal', 2, 30, '#7aff8a'], sk11_shield: ['shield', 0, 30, '#7af2ff', { dur: 5 }], sk11_blink: ['blink', 0, 8, '#8fd8ff', { dist: 128 }], sk11_clone: ['clone', 0, 40, '#b8b8ff', { dur: 8 }],
 };
+const MANA_COST = {   // 🔵 新法术耗蓝表（老技能按伤害自动估 5~25）
+  sk11_meteor: 30, sk11_frostfield: 25, sk11_blackhole: 35, sk11_thunder: 20, sk11_dragonbreath: 30,
+  sk11_bladestorm: 25, sk11_heal: 40, sk11_shield: 30, sk11_blink: 15, sk11_clone: 45,
+};
+function updateMana() { const el = document.getElementById('mana'); if (el) el.textContent = '🔵 ' + Math.floor(player.mana != null ? player.mana : 100); }
 function zMaxHp(z) { return z.boss ? BOSS.hp : z.voidw ? VOIDW.hp : z.storm ? STORM.hp : z.lava ? LAVA.hp : z.ghost ? GHOST.hp : z.skel ? SKELETON.hp : z.crystal ? CRYSTAL.hp : ZOMBIE.hp; }
 function dotDmg(z) { return z.boss ? 1 : Math.max(1, Math.ceil(zMaxHp(z) * 0.1)); }   // 🩸 持续伤害：每 0.1 秒掉十分之一血（BOSS 固定 1）
 function nearestZ(rng) {   // 最近的活怪
@@ -3325,6 +3374,10 @@ function castSkill(key) {
   const sf = SKILL_FX[key]; if (!sf || gameOver || paused) return;
   player.skillCds = player.skillCds || {};
   if (player.skillCds[key] > 0) return;
+  const mc = MANA_COST[key] != null ? MANA_COST[key] : Math.max(5, Math.min(25, Math.round(sf[1] / 2)));   // 🔵 法术耗蓝：新法术表里有准数，老技能按伤害估 5~25
+  const curMana = player.mana != null ? player.mana : 100;
+  if (curMana < mc) { setBanner('🔵 蓝不够！还差 ' + Math.ceil(mc - curMana) + ' 点（蓝每秒回 0.4，慢慢攒）'); beep(160, 90, 0.15, 'square', 0.1); return; }
+  player.mana = curMana - mc; updateMana();
   player.skillCds[key] = sf[2] * cdMul();   // ⏳🐻 时空术士冷却-40%/德鲁伊+20%
   const [type, dmg, , color, ex] = sf, o = ex || {};
   beep(880, 440, 0.15, 'square', 0.14);
@@ -3357,7 +3410,7 @@ function castSkill(key) {
     fxLines.push({ ring: true, x: player.x, y: player.y, r: o.r * 0.6, t: 0.35, color: '#ffffff' });
     shakeT = Math.max(shakeT, 0.3); beep(220, 60, 0.3, 'sawtooth', 0.2);
   } else if (type === 'cloud') {
-    const c = { x: player.x, y: player.y, t: o.dur, r: o.r, color, acc: 0, blobs: [] };
+    const c = { x: player.x + Math.cos(player.dir) * (o.fwd || 0), y: player.y + Math.sin(player.dir) * (o.fwd || 0), t: o.dur, r: o.r, color, acc: 0, blobs: [] };   // 🐉 龙息=喷到面前一段距离
     for (let i = 0; i < 9; i++) c.blobs.push({ a: Math.random() * 6.28, d: Math.random() * o.r * 0.72, r: 20 + Math.random() * 18, spin: (Math.random() - 0.5) * 1.1, bob: Math.random() * 6.28 });
     clouds.push(c);
     burst(player.x, player.y, color, 10);
@@ -3371,7 +3424,7 @@ function castSkill(key) {
     beep(300, 700, 0.25, 'sine', 0.14);
   } else if (type === 'chain') {
     let from = player, hit = 0;
-    const pool = zombies.filter(z => !z.dead).sort((a, b) => Math.hypot(a.x - player.x, a.y - player.y) - Math.hypot(b.x - player.x, b.y - player.y)).slice(0, 3);
+    const pool = zombies.filter(z => !z.dead).sort((a, b) => Math.hypot(a.x - player.x, a.y - player.y) - Math.hypot(b.x - player.x, b.y - player.y)).slice(0, o.n || 3);   // ⚡ 连环目标数可配（雷霆万钧劈 8 只）
     for (const t of pool) {
       if (Math.hypot(t.x - from.x, t.y - from.y) > 340) continue;
       fxLines.push({ bolt: true, x1: from.x, y1: from.y, x2: t.x, y2: t.y, t: 0.3, color, w: 7 });
@@ -3381,6 +3434,35 @@ function castSkill(key) {
     }
     if (!hit) player.skillCds[key] = 1;
     beep(1300, 500, 0.15, 'square', 0.14);
+  } else if (type === 'meteors') {   // ☄️ 流星火雨：最近怪所在区域连砸 5 颗（友方陨石，不砸自己）
+    const t = nearestZ(600), cx = t ? t.x : player.x + Math.cos(player.dir) * 100, cy = t ? t.y : player.y + Math.sin(player.dir) * 100;
+    for (let i = 0; i < 5; i++) meteors.push({ x: cx + (Math.random() - 0.5) * 120, y: cy + (Math.random() - 0.5) * 120, t: 0.5 + i * 0.22, landed: false, dmg, r: 55, color, friendly: true });
+    setBanner('☄️ 流星火雨！'); beep(400, 100, 0.4, 'sawtooth', 0.18);
+  } else if (type === 'blackhole') {   // 🌀 黑洞：前方一点把怪全吸过去挤成一团+定住 1 秒
+    const bx = player.x + Math.cos(player.dir) * 110, by = player.y + Math.sin(player.dir) * 110;
+    for (const z of zombies) if (!z.dead && Math.hypot(z.x - bx, z.y - by) < o.r) {
+      const a = Math.atan2(by - z.y, bx - z.x), dd = Math.hypot(bx - z.x, by - z.y) || 1, pull2 = Math.min(dd, 130);
+      z.x += Math.cos(a) * pull2; z.y += Math.sin(a) * pull2; z.freezeT = Math.max(z.freezeT || 0, 1);
+      hurtZ(z, dmg, color);
+    }
+    fxLines.push({ ring: true, x: bx, y: by, r: o.r, t: 0.4, color });
+    fxLines.push({ ring: true, x: bx, y: by, r: 40, t: 0.5, color: '#0a0612' });
+    beep(200, 600, 0.35, 'sine', 0.16);
+  } else if (type === 'heal') {   // 💚 治疗术：立刻回血（dmg 字段当回血量）
+    player.hearts = Math.min(player.maxHearts, player.hearts + dmg);
+    burst(player.x, player.y - 10, color, 14); beep(600, 1200, 0.3, 'sine', 0.16);
+  } else if (type === 'shield') {   // 🛡️ 魔法护盾：受伤减半几秒
+    player.shieldT = o.dur || 5; burst(player.x, player.y, color, 12); beep(500, 900, 0.25, 'sine', 0.15);
+  } else if (type === 'blink') {   // 💨 闪现：朝面朝方向瞬移
+    burst(player.x, player.y, color, 10);
+    player.x = Math.max(20, Math.min(WORLD.w - 20, player.x + Math.cos(player.dir) * (o.dist || 128)));
+    player.y = Math.max(20, Math.min(WORLD.h - 20, player.y + Math.sin(player.dir) * (o.dist || 128)));
+    player.inv = Math.max(player.inv, 0.3);
+    burst(player.x, player.y, color, 14); beep(900, 1500, 0.16, 'sine', 0.14);
+  } else if (type === 'clone') {   // 👥 分身术：影子分身拿你一半武器攻击力帮你打
+    const wd = ((WEAPON_FX[player.weapon] || {}).dmg || 1) * 0.5;
+    minions.push({ x: player.x + 20, y: player.y + 10, t: o.dur || 8, cd: 0, clone: true, dmg: Math.max(1, wd) });
+    burst(player.x, player.y, color, 14); beep(700, 1100, 0.2, 'sine', 0.14);
   }
 }
 const skillsEl = document.getElementById('skills');
@@ -3702,6 +3784,10 @@ function update(dt) {
   if (blockCd > 0) blockCd = Math.max(0, blockCd - dt);
   if (player.bearT > 0) player.bearT = Math.max(0, player.bearT - dt);   // 🐻 熊形态倒计时
   if (bearCd > 0) bearCd = Math.max(0, bearCd - dt);
+  if (player.shieldT > 0) player.shieldT = Math.max(0, player.shieldT - dt);   // 🛡️ 魔法护盾倒计时
+  const m0 = Math.floor(player.mana != null ? player.mana : 100);
+  player.mana = Math.min(player.maxMana || 100, (player.mana != null ? player.mana : 100) + 0.4 * dt);   // 🔵 蓝条：每秒回 0.4（恩泽定的，法术超珍贵）
+  if (Math.floor(player.mana) !== m0) updateMana();
   const bkBtn = document.getElementById('blockBtn');
   if (player.job === 'tank' && !gameOver && !paused && !townMode) {
     bkBtn.style.display = 'block';
@@ -4016,7 +4102,9 @@ function update(dt) {
         const mr = m.r || 70;
         for (let i = 0; i < 14; i++) burst(m.x + (Math.random() - 0.5) * mr * 1.4, m.y + (Math.random() - 0.5) * mr * 1.4, m.color || '#ff7a2a');
         beep(100, 40, 0.3, 'sawtooth', 0.25);
-        if (!gameOver && !(player.tpT > 0) && Math.hypot(player.x - m.x, player.y - m.y) < mr + PLAYER.r) {
+        if (m.friendly) {   // ☄️ 友方陨石（流星火雨）：砸怪不砸自己
+          for (const z of zombies.slice()) if (!z.dead && Math.hypot(z.x - m.x, z.y - m.y) < mr + (z.r || 10)) hurtZ(z, m.dmg || 8, m.color);
+        } else if (!gameOver && !(player.tpT > 0) && Math.hypot(player.x - m.x, player.y - m.y) < mr + PLAYER.r) {
           const dmg = rollDmg(m.dmg || 1.5);
           if (dmg > 0) {
             player.hearts -= dmg; player.inv = 0.8; player.sinceHurt = 0; shakeT = Math.max(shakeT, 0.2);
@@ -4769,8 +4857,13 @@ function draw() {
     ctx.fillStyle = '#000'; ctx.fillRect(w.x - 10, w.y - 26, 20, 3);
     ctx.fillStyle = w.hp > 3 ? '#6ae84a' : '#e84a4a'; ctx.fillRect(w.x - 10, w.y - 26, 20 * Math.max(0, w.hp / 6), 3);
   }
-  for (const mn of minions) {   // ☠️ 死灵骷髅小弟：白色小骨架+寿命倒计时
+  for (const mn of minions) {   // ☠️ 死灵骷髅小弟/👥分身：白色小骨架/半透明影子+寿命倒计时
     ctx.globalAlpha = 0.3; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.ellipse(mn.x, mn.y + 2, 8, 3.5, 0, 0, 6.3); ctx.fill(); ctx.globalAlpha = 1;
+    if (mn.clone) {   // 👥 分身：我的半透明影子
+      ctx.globalAlpha = 0.55; drawSprite(ctx, MAN_DOWN, mn.x - 12, mn.y - 16, 2, mn.face < 0); ctx.globalAlpha = 1;
+      ctx.fillStyle = '#b8b8ff'; ctx.font = '9px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(Math.ceil(mn.t) + 's', mn.x, mn.y - 26); ctx.textAlign = 'left';
+      continue;
+    }
     const mstep = Math.sin((mn.animT || 0) * 8) * 2;
     ctx.save(); ctx.translate(Math.round(mn.x), Math.round(mn.y)); ctx.scale(mn.face < 0 ? -1 : 1, 1);
     ctx.fillStyle = '#e8e8dc'; ctx.fillRect(-5, -22, 10, 9);   // 骷髅头
@@ -4920,6 +5013,13 @@ function draw() {
       ctx.fillStyle = '#6a3f1a'; ctx.beginPath(); ctx.arc(player.x - 8, player.y - 24, 5, 0, 6.3); ctx.arc(player.x + 8, player.y - 24, 5, 0, 6.3); ctx.fill();
       ctx.fillStyle = '#a06a3a'; ctx.beginPath(); ctx.arc(player.x - 8, player.y - 24, 2.2, 0, 6.3); ctx.arc(player.x + 8, player.y - 24, 2.2, 0, 6.3); ctx.fill();
     }
+    if (player.shieldT > 0) {   // 🛡️ 魔法护盾：青色光圈环绕
+      ctx.globalAlpha = 0.25 + 0.1 * Math.sin(performance.now() / 200); ctx.strokeStyle = '#7af2ff'; ctx.lineWidth = 4;
+      ctx.beginPath(); ctx.arc(player.x, player.y - 8, 24, 0, 6.3); ctx.stroke(); ctx.globalAlpha = 1;
+    }
+    /* 🔵 蓝条在桃心下面（桃心是 emoji 画的，蓝条是细线） */
+    ctx.fillStyle = '#0008'; ctx.fillRect(player.x - 15, player.y - 24, 30, 3);
+    ctx.fillStyle = '#4a8af2'; ctx.fillRect(player.x - 15, player.y - 24, 30 * Math.min(1, (player.mana != null ? player.mana : 100) / (player.maxMana || 100)), 3);
     /* 🛡️ 穿在身上的盔甲看得见：胸甲/帽子/皇冠 */
     const bobA = bob;
     if (player.owned.gold_armor || player.armor) {   // 胸甲
