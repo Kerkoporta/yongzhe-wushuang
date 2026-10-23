@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>勇者无双</title><script>window.__errs=[];window.addEventListener("error",e=>{__errs.push((e.message||"?")+" @ "+(e.filename||"").split("/").pop()+":"+e.lineno)});</script>
+<link rel="stylesheet" href="css/style.css?v=31">
+</head>
+<body>
+<div id="rot">
+<canvas id="cv"></canvas>
+<div id="hud"></div>
+<div id="score">⚔️ 击败 0</div>
+<div id="levelTag">🗺️ 第1关·僵尸草原</div>
+<div id="gold">💰 0</div>
+<div id="dia">💎 0</div>
+<button id="helpBtn">❓ 玩法</button>
+<button id="gearBtn">⚙️</button>
+<canvas id="mapC" width="112" height="112"></canvas>
+<button id="zoomBtn">🔍×1</button>
+<button id="enterBtn">🚪 进入</button>
+<button id="tpBtn" style="display:none;position:fixed;left:50%;bottom:150px;transform:translateX(-50%);z-index:7;background:linear-gradient(#7a4ad4,#5a2ab0);color:#fff;border:3px solid #b48aff;border-radius:16px;padding:12px 26px;font-weight:bold;font-size:19px;box-shadow:0 4px 14px rgba(120,60,220,.55);cursor:pointer">⚡ 传送</button>
+<button id="blockBtn" style="display:none;position:fixed;left:calc(50% - 160px);bottom:150px;transform:translateX(-50%);z-index:7;background:linear-gradient(#3a6ad4,#2a4ab0);color:#fff;border:3px solid #7ab8ff;border-radius:16px;padding:12px 26px;font-weight:bold;font-size:19px;box-shadow:0 4px 14px rgba(60,120,220,.55);cursor:pointer">🛡️ 格挡</button>
+<button id="bearBtn" style="display:none;position:fixed;left:calc(50% + 110px);bottom:150px;transform:translateX(-50%);z-index:7;background:linear-gradient(#8a5a2a,#6a3f1a);color:#fff;border:3px solid #d8a05a;border-radius:16px;padding:12px 26px;font-weight:bold;font-size:19px;box-shadow:0 4px 14px rgba(140,90,40,.55);cursor:pointer;touch-action:manipulation">🐻 变熊</button>
+<button id="jobSwap" style="display:none;position:fixed;left:12px;top:182px;z-index:7;background:linear-gradient(#5a4ad4,#3a2ab0);color:#fff;border:3px solid #b48aff;border-radius:14px;padding:8px 12px;font-weight:bold;font-size:15px;box-shadow:0 4px 14px rgba(120,60,220,.5);cursor:pointer;touch-action:manipulation">⇄</button>
+<div id="mana">🔵 100</div>
+<button id="fishBtn" style="display:none">🎣 抛杆</button>
+<button id="eatFishBtn" style="display:none">😋 吃掉</button>
+<div id="fishShop"><div id="fishShopCard">
+  <div style="font-size:22px;font-weight:bold;margin-bottom:6px">🐟 鱼商人</div>
+  <div style="opacity:.8;font-size:13px;margin-bottom:8px">「钓上来的鱼我都收！拿着玩、吃掉回血也行」</div>
+  <div id="fishShopList"></div>
+  <button id="fishSellAll" style="margin-top:10px;width:100%">💰 全部卖掉</button>
+  <button id="fishShopClose" style="margin-top:8px;width:100%;background:#555c66;border-color:#888">下次再来</button>
+</div></div>
+<div id="gear"><div id="gearCard">
+  <div style="font-size:22px;font-weight:bold;margin-bottom:8px">⚙️ 设置</div>
+  <button id="gearBag">🎒 背包</button>
+  <button id="gearNext" style="display:none">🗺️ 前往下一关</button>
+  <button id="gearFight" style="display:none">⚔️ 继续刷怪</button>
+  <button id="gearTown" style="display:none">🏡 回到小镇</button>
+  <button id="gearHome">🏠 主页 / 存档</button>
+  <button id="gearDex">📖 击杀图鉴</button>
+  <button id="gearMusic">🎵 音乐：开</button>
+  <button id="gearRot">🔄 转屏（竖着玩）</button>
+  <button id="gearClose" style="margin-top:10px">继续战斗 ⚔️</button>
+</div></div>
+<div id="help"><div id="helpCard">
+  <div style="font-size:22px;font-weight:bold;margin-bottom:6px">❓ 玩法介绍</div>
+  <div class="hsec">🎯 目标</div>
+  <div class="htxt">打怪赚金币 → 🏪商店买武器/装备/技能/宠物 → 每击败 100 只怪 BOSS 出场 → 打败 BOSS 进下一关，一共 7 关！金币、技能书、宠物都会继承哦</div>
+  <div class="hsec">⌨️ 键盘控制</div>
+  <div class="htxt">W A S D 或方向键 = 移动<br>空格 = 攻击<br>B = 打开商店<br>数字键 1~9 = 放技能</div>
+  <div class="hsec">📱 触屏控制</div>
+  <div class="htxt">左边摇杆 = 推着走<br>右边大红钮 = 攻击（按住就连打）<br>AUTO = 自动攻击开关<br>右下角彩色钮 = 点一下放技能</div>
+  <div class="hsec">💡 小提示</div>
+  <div class="htxt">法杖射得快、枪打得痛、弓箭居中；宠物最多 3 只一起出战；地图上有发光的山洞，走进去有惊喜！</div>
+  <div class="hsec">🌟 职业（打 BOSS 开宝箱拿「觉醒石」，随机觉醒，不许挑！）</div>
+  <div class="htxt">第一颗觉醒石=<b>主职业</b>，第二颗=<b>副职业</b>，点左上角「⇄」一键切换！15 个职业每个玩法都不一样：<br>🥷 <b>刺客</b>：射箭→传送→落地一刀×2 ｜ 🔮 <b>法师</b>：附魔+剑风+燃烧箭，血少 ｜ ⚔️ <b>战士</b>：双持轮砍攻速翻倍 ｜ 🛡️ <b>坦克</b>：格挡无敌站桩 ｜ 🐺 <b>召唤师</b>：自动召唤狼群，血少<br>🩸 <b>狂战士</b>：血越少攻越高 ｜ 🏹 <b>游侠</b>：双箭齐发还能穿透 ｜ 💚 <b>牧师</b>：全队持续回血、克制亡灵 ｜ 🃏 <b>盗贼</b>：金币双倍+背刺+商店 8 折 ｜ ⏳ <b>时空术士</b>：冷却快+定时全场冻结<br>🧲 <b>工程师</b>：自动部署炮塔 ｜ 🍀 <b>幸运星</b>：刀刀暴击 ｜ 🐻 <b>德鲁伊</b>：点按钮变熊 6 秒 ｜ ☠️ <b>死灵法师</b>：杀死的怪变骷髅小弟 ｜ ⚗️ <b>炼金术士</b>：道具效果翻倍</div>
+  <div class="hsec">🗺️ 更多玩法</div>
+  <div class="htxt">🎁 BOSS 宝箱三选一（武器/装备/技能/宠物/觉醒石）<br>🔷 武器店偶尔刷「升级石」，300 金币让工匠把手里的武器升一级（最高橙色传说）<br>🌈 品质天梯：灰粗糙→白普通→绿优秀→蓝精良→紫史诗→橙传说<br>🐾 宠物有血条啦：越贵越扛揍，被打倒下关复活（无尽过波也复活）<br>💀 第八关·凋零之地：MC 凋零骷髅成群出没，BOSS 是三头凋灵——蓝骷髅头打中掉 2 血，红色冲锋走廊里掉 2.5 血，快闪！<br>🐉 第九关·末影之地：全关只有末影龙（10000 血）——紫龙息落地成雾（站雾里一直掉血），被俯冲顶飞落地掉 3 血！<br>🧨 第十关·苦力怕矿洞：MC 苦力怕悄悄摸近你就自爆（跑远 2 格引信熄灭）；BOSS 泰坦苦力怕——TNT 雨 2.5 秒后炸 2.5 血（有一个瞄准你），被扑咬掉 3 血！<br>🟢 第十一关·史莱姆沼泽：MC 史莱姆打死会分裂（大→中→小）；BOSS 恶魂喷火球掉 2 血——挥刀把火球打回去，砸中它掉 15 血！<br>👿 第十二关·深邃古城：蝙蝠乱飞；BOSS 坚守者 50 万血——它是瞎子，你站着不动 1.5 秒它就找不到你（MC 潜行同款）！音波炮蓄力时快躲直线，贴身震地 3.5 血！<br>🍗 商店新增一次性道具（无限购！）：烤鸡回血/力量药水/铁皮无敌/疾跑/手雷/复活图腾<br>🛍️ 新三关还藏了 80 件新宝贝（武器/装备/宠物/技能各 20 件）：全混在商店随机池里，第一关的商店也能抽到！<br>🏡 通关第十二关解锁宁静小镇：商店街、买房、广场长椅随便坐<br>💎 试炼塔里怪物掉钻石（第 1 波僵尸掉 1 颗，波数越高掉越多，BOSS 掉 10×波数）；小镇商店街尽头有「钻石商店」：副手槽（限购 1 次）/宠物槽/技能槽/随机转职石/指定转职石，价格很贵，多爬塔！<br>🗼 小镇广场南边有座试炼塔：进去就是无尽挑战，一遍遍刷榜比谁爬得高<br>🌲 小镇广场东边有「哥布林森林」副本：杀 12 只绿皮哥布林引出哥布林王——它的鞭子横扫一鞭 5 血，看到红区快跑！在副本里倒下不会真死，只会被抬回小镇；通关 +300 金 +10💎<br>🎡 广场两圈还有游乐场：打地鼠/射箭/钓鱼/转盘/抓娃娃/跑酷/猜宝箱/投篮/擂台赛/迷宫寻宝——赢金币还能赢钻石！<br>🌐 主页新增「联机大厅」：☁️ 一起逛天空城——南边钓鱼区抛杆钓四种鱼、北边鱼商人收鱼换钱、中间 PVP 区进圈才开打（胜利 +200 金 +10💎）；鱼能拿在手里炫耀，也能吃掉回 2 血</div>
+  <button id="helpClose" style="margin-top:10px">知道啦！</button>
+  <div style="margin-top:14px;padding-top:8px;border-top:1px solid rgba(255,255,255,.15);font-size:11px;opacity:.6;text-align:center">本游戏由杨恩泽出品<br>最终解释权归杨恩泽所有<br>版本 v81</div>
+</div></div>
+<div id="play"><div id="playCard">
+  <div id="playTitle" style="font-size:20px;font-weight:bold"></div>
+  <div id="playHint" style="font-size:12px;opacity:.85"></div>
+  <canvas id="playCv" width="360" height="360"></canvas>
+  <button id="playClose">🚪 不玩了</button>
+</div></div>
+<div id="home"><div id="homeCard">
+  <div style="font-size:34px;font-weight:bold;text-align:center">🗡️ 勇者无双</div>
+  <div style="font-size:13px;opacity:.85;margin:6px 0 4px;text-align:center">选一个存档出发！自动档一直在偷偷帮你记</div>
+  <div id="homeBest" style="font-size:13px;color:#b48af2;font-weight:bold;text-align:center;margin-bottom:2px"></div>
+  <div id="homeSlots"></div>
+  <button id="homeNew">🆕 新的冒险（从第一关开始）</button>
+  <button id="homePvp" style="margin-top:8px;width:100%;padding:11px;border:0;border-radius:12px;background:#4a6aff;color:#fff;font-weight:bold;font-size:15px;cursor:pointer">🌐 联机大厅（PVP 对战）</button>
+</div></div>
+<div id="pvpLob"><div id="pvpCard">
+  <div style="font-size:22px;font-weight:bold;margin-bottom:4px">🌐 联机大厅</div>
+  <div id="pvpList" style="overflow-y:auto;flex:1;min-height:0"></div>
+  <div style="margin-top:10px;border-top:1px solid rgba(255,255,255,.15);padding-top:8px">
+    <div style="font-weight:bold;color:#6ab8f2">🌍 联网对战（实验）：两台设备真联机！</div>
+    <div class="htxt">☁️ 联机=一起逛天空城：南边钓鱼区抛杆钓四种鱼，北边鱼商人收鱼换钱，中间 PVP 区进圈才开打！</div>
+    <div class="htxt">创建房间得到 4 位密码，发给小伙伴；他点「加入」输密码就能打（走网络中转站，不用同一台设备）</div>
+    <div style="display:flex;gap:6px;margin-top:6px">
+      <input id="pvpNetCode" placeholder="4位密码" maxlength="4" inputmode="numeric" style="flex:1;padding:8px;border-radius:8px;border:2px solid #4a6aff;background:#0e1622;color:#fff;font-size:16px;text-align:center;font-weight:bold">
+      <button id="pvpNetCreate" style="padding:8px 12px;border:0;border-radius:8px;background:#7ec850;color:#14300e;font-weight:bold;cursor:pointer">➕ 创建</button>
+      <button id="pvpNetJoin" style="padding:8px 12px;border:0;border-radius:8px;background:#4a6aff;color:#fff;font-weight:bold;cursor:pointer">⚔️ 加入</button>
+    </div>
+  </div>
+  <button id="pvpClose" style="margin-top:10px">🚪 回主页</button>
+</div></div>
+<div id="dex"><div id="dexCard">
+  <div style="font-size:22px;font-weight:bold;margin-bottom:4px">📖 击杀图鉴</div>
+  <div style="font-size:13px;opacity:.85">杀过的怪都会点亮！未遇到的还是？？？</div>
+  <div id="dexList" style="overflow-y:auto;flex:1;min-height:0"></div>
+  <button id="dexClose" style="margin-top:10px">继续战斗 ⚔️</button>
+</div></div>
+<div id="bag"><div id="bagCard">
+  <div style="font-size:22px;font-weight:bold;margin-bottom:4px">🎒 背包</div>
+  <div style="font-size:13px;opacity:.85">点一下就能换装/换人：武器拿一把，装备随便装卸，技能上阵 5 个，宠物出战 3 只</div>
+  <div id="bagList" style="overflow-y:auto;flex:1;min-height:0"></div>
+  <button id="bagClose" style="margin-top:10px">继续战斗 ⚔️</button>
+</div></div>
+<div id="faint">
+  <div id="faintTxt"></div>
+  <img id="faintNpc" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABMAAAAjCAYAAAB2KjFhAAAEeElEQVR42uWVS28bVRSAv2uPx89MHNd5mKaPtAoEQluJFFBIaESoBAQhlbZSihRKN0ViRVmA2MCCPwCsWZZNJCClSO2iUaVWjipaKtJHUFLUpm0cHCdpYo/tsT2T6bCYeGwnrtiwQRxpdOfo3vPNed0zgir55suPOfXVtwjg2InjGNllPA3R8rZV1j8feVvsOzjMRhEbQUePDDG7kLGKmTRZNbfJoEEJ4WsME/JKXL54SbzQ18f1iYkKrAx678Rx7vx51wIoZtLUE1PLoa1VwFO3p0SNZ0ePDNHf3clYfNLKldYIeSXHuLkp6IRqZJcBWFrNkyutUcyk2R1r4pcLcWEBYmBwgEsXLzEwOGBVA4DqfAHw18MH5Eq2W9UfbHSb4uyFeCXMXx+uWvXCMrLLzC5k2JjDgIQTbkCC6XsPhAQwFp+0qj2aXchQzlsZYOia7a0cAGyQoWtYpo7hlhGAuDE+yvCHn1kZTUM39Bqv1gyB5Kl1WPbINbpu6MgemZF3XhfS96NjVIPM9dXtkTeBADTNQFBydJ/Xhs+uqLhGht/FIweQPTIelw3xee13c/2rwWCYYDCM7JFrQKZpktcKWKaOrqpIAM3b2sknE7gDLfgaw07JZUXh6rUpGpQQWTWHRw7Q1/ci8csT5LUCwYAf4/F6+IqCq1zm1p07ibZECXkloi1RBnt7AMjn0zxKJVDTi+TzaToiCu8feovtHZ3ktQIeF8j+MF989IHdGt3Pd7OyvGjpho7HBVta29m7v4ebv13nj9tTNCp+J7QDL/dwN7kKwLPP7CB+eQLhlkkuLAkXwFDvHixTpy3WTv+BPvbu78HILmNqOdramsmoBTJqAdM0mZyZY3esiaHePXREFAAi0RYB2DlLGDLCLZNVc/R3dzKfTEFEoX/kEPPJFDP3E45ng709zCdTbI21MhafpFjSOXn4IKduT1Xu5tVrU9bqoySvvfJSjcGTZD6Z4rvRnwHIqAVhgV2A/u5ODF0j1NDI5MzcP4IAZu4nME0TfyDE5PhoZWp07dphpbNphFsmEm0hq+YYfqO3BjifTAGwNdbKfDLF6TPnCTeExcy9B5RbW3x68hinz5y38lrBMXS73aTVgjh6ZAiwz3ZEFGZXVHRV5eyFuDPDZF8XerEdGMd17sotiiXdgZSviAB++PEcS6t5J6wySKznWQB6cRoYtz2LtTVT0HJW9RVp2hIjW9xqD/7i77RFW3h69zbu3J0juZzB5XsOgFLRbv81PS3efDVaHyYF97OrU7A0l2Bh0Y9lPiTgty+0QRden6teTYRUzklZXG57Xi3NJTB0DUmO4fVFyKsrAAQVF6XiY9b0NJIcrgZbkmXqmKZZBbPXhUU/4Ceo2IclOVyZc3oaoziNXw4Ddsh5daXyq6uWG+OjVu/hr/H6XE5equXKT5+w7+DwJlupHgjAKNzEKDy5aW+Mj1obgZsyWT4g3NudxzA0Ua1Xn6v7R98osq/LKYxenBYb9Xo2Lv5F+Z/ApCdt7Hqq0hfT9zbr/60w/wYBqgLiUsY4DQAAAABJRU5ErkJggg==" alt="">
+  <div id="faintDlg">
+    <div style="font-size:18px;font-weight:bold;margin-bottom:8px">你醒了？</div>
+    <button id="faintRun">🏃 跑掉，继续去杀怪！</button>
+    <button id="faintStay" style="margin-top:6px">🏡 留在这里</button>
+  </div>
+</div>
+<div id="bed"><div id="bedCard">
+  <div style="font-size:18px;font-weight:bold;margin-bottom:8px">🛏️ 要睡一觉吗？（回满血+存档）</div>
+  <button id="bedYes">😴 睡觉</button>
+  <button id="bedNo" style="margin-top:6px;opacity:.9">不了</button>
+</div></div>
+<div id="store"><div id="storeCard">
+  <div style="font-size:20px;font-weight:bold;margin-bottom:4px">🗄️ 大柜子</div>
+  <div style="font-size:13px;opacity:.85;margin-bottom:6px">点一下，东西就在背包和柜子之间搬家</div>
+  <div style="display:flex;gap:10px;flex:1;min-height:0">
+    <div style="flex:1;overflow-y:auto"><div class="shopSec">🎒 背包</div><div id="storeBag" class="bagGrid" style="grid-template-columns:1fr"></div></div>
+    <div style="flex:1;overflow-y:auto"><div class="shopSec">🗄️ 柜子</div><div id="storeBox" class="bagGrid" style="grid-template-columns:1fr"></div></div>
+  </div>
+  <button id="storeClose" style="margin-top:10px">关上柜门</button>
+</div></div>
+<div id="chest"><div id="chestCard">
+  <div style="font-size:22px;font-weight:bold;margin-bottom:4px">🎁 BOSS 宝箱</div>
+  <div id="chestHint" style="font-size:13px;opacity:.85;margin-bottom:8px">三选一！点一张拿走</div>
+  <div id="chestLoot" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px"></div>
+  <div id="chestNext" style="display:none;text-align:center;margin-top:10px">
+    <div style="font-size:16px;font-weight:bold;margin-bottom:8px">要进入下一关吗？</div>
+    <button id="chestGo">🗺️ 进入下一关！</button>
+    <button id="chestStay" style="margin-top:6px;opacity:.9">🎒 再逛逛</button>
+  </div>
+</div></div>
+<div id="shop"><div id="shopCard">
+  <div id="shopTitle" style="font-size:22px;font-weight:bold;margin-bottom:4px">🏪 勇者商店</div>
+  <div style="font-size:13px;opacity:.85;margin-bottom:6px">打怪物赚金币，买神装！（买东西时怪物会等你哦）</div>
+  <div id="shopItems"></div>
+  <button id="shopClose" style="margin-top:10px">继续战斗 ⚔️</button>
+</div></div>
+<div id="joy" class="btn"><div id="joyKnob"></div></div>
+<button id="atkBtn" class="btn">⚔️</button>
+<button id="autoBtn" class="btn">自动<br>攻击</button>
+<div id="skills"></div>
+<div id="tip">WASD/方向键走动，空格攻击；触屏用摇杆+⚔️</div>
+<div id="over"><div id="overCard">
+  <div style="font-size:30px;font-weight:bold">😵 你被怪物围住了！</div>
+  <div id="overScore" style="margin-top:10px;font-size:18px"></div>
+  <button id="again">🔄 再来一局</button>
+  <button id="overHome" style="margin-top:10px">🏠 回主页</button>
+</div></div>
+</div>
+<script src="logic.js?v=31"></script>
+<script src="src/sprites.js?v=31"></script>
+<script src="src/state.js?v=31"></script>
+<script src="src/shop.js?v=31"></script>
+<script src="src/pets.js?v=31"></script>
+<script src="src/save.js?v=31"></script>
+<script src="src/home.js?v=31"></script>
+<script src="src/audio.js?v=31"></script>
+<script src="src/minigames.js?v=31"></script>
+<script src="src/net.js?v=31"></script>
+<script src="src/ui.js?v=31"></script>
+<script src="src/world.js?v=31"></script>
+<script src="src/skills.js?v=31"></script>
+<script src="src/input.js?v=31"></script>
+<script src="src/main.js?v=31"></script>
+<script src="src/sky.js?v=31"></script>
+<script src="src/render.js?v=31"></script>
+</body>
+</html>
