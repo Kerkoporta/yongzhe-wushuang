@@ -1,0 +1,89 @@
+/* 🎨 勇者无双样式表（从 index.html 抽出） */
+  html,body{margin:0;height:100%;overflow:hidden;background:#1a2a1a;touch-action:none;user-select:none;-webkit-user-select:none}
+  canvas{display:block;position:fixed;inset:0}
+  #hud{position:fixed;left:10px;top:10px;z-index:5;pointer-events:none;font-family:sans-serif}
+  #score{position:fixed;right:12px;top:10px;z-index:5;color:#fff;font:bold 18px sans-serif;text-shadow:0 2px 4px #000;pointer-events:none}
+  #levelTag{position:fixed;right:12px;top:36px;z-index:5;color:#fff;font:bold 13px sans-serif;text-shadow:0 2px 4px #000;pointer-events:none}
+  #gold{position:fixed;right:12px;top:56px;z-index:5;color:#ffd24a;font:bold 18px sans-serif;text-shadow:0 2px 4px #000;pointer-events:none}
+  #shopBtn{position:fixed;right:12px;top:94px;z-index:6;background:rgba(200,150,30,.92);color:#fff;border:3px solid #ffd24a;border-radius:14px;padding:7px 12px;font-weight:bold;font-size:15px;box-shadow:0 3px 8px rgba(0,0,0,.4);cursor:pointer}
+  #helpBtn{position:fixed;right:12px;top:140px;z-index:6;background:rgba(40,110,160,.92);color:#fff;border:3px solid #6ab8f2;border-radius:14px;padding:7px 12px;font-weight:bold;font-size:15px;box-shadow:0 3px 8px rgba(0,0,0,.4);cursor:pointer}
+  #gearBtn{position:fixed;right:12px;top:186px;z-index:6;background:rgba(70,70,84,.92);color:#fff;border:3px solid #b8b8c2;border-radius:50%;width:44px;height:44px;font-size:22px;box-shadow:0 3px 8px rgba(0,0,0,.4);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+  #mapC{position:fixed;left:12px;top:64px;z-index:5;border-radius:8px;pointer-events:none}
+  #mana{position:fixed;left:12px;top:226px;z-index:5;color:#6ab8ff;font:bold 16px sans-serif;text-shadow:0 2px 4px #000;pointer-events:none}
+  #fishBtn{position:fixed;left:150px;bottom:112px;z-index:7;background:linear-gradient(#3a6ab8,#2a4a90);color:#fff;border:3px solid #7ec8ff;border-radius:14px;padding:10px 16px;font-weight:bold;font-size:16px;box-shadow:0 3px 8px rgba(0,0,0,.4);cursor:pointer;touch-action:manipulation}
+  #eatFishBtn{position:fixed;left:150px;bottom:172px;z-index:7;background:linear-gradient(#3a8a4a,#2a6a35);color:#fff;border:3px solid #7ae88a;border-radius:14px;padding:10px 16px;font-weight:bold;font-size:16px;box-shadow:0 3px 8px rgba(0,0,0,.4);cursor:pointer;touch-action:manipulation}
+  #fishShop{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:15}
+  #fishShopCard{background:linear-gradient(#2e4a5e,#1e3038);border:4px solid #6ab8f2;border-radius:18px;padding:20px 22px;max-width:340px;width:86%;color:#fff;box-shadow:0 8px 32px #000c}
+  #fishShopCard button{background:#3a8a4a;border:2px solid #7ae88a;border-radius:10px;color:#fff;padding:6px 12px;font-weight:bold;cursor:pointer}
+  #zoomBtn{position:fixed;left:12px;top:184px;z-index:6;background:rgba(40,90,60,.92);color:#fff;border:3px solid #7ec850;border-radius:14px;padding:5px 10px;font-weight:bold;font-size:14px;box-shadow:0 3px 8px rgba(0,0,0,.4);cursor:pointer}
+  #enterBtn{position:fixed;left:150px;bottom:48px;z-index:6;display:none;background:rgba(200,150,30,.95);color:#fff;border:3px solid #ffd24a;border-radius:14px;padding:10px 16px;font-weight:bold;font-size:16px;box-shadow:0 3px 8px rgba(0,0,0,.4);cursor:pointer}
+  /* 🔄 转屏联动：小地图/倍数镜/进入钮都在 #rot 外壳里，跟着一起转，不会和别的按钮重叠 */
+  #gear,#help,#bag,#chest,#bed,#store{position:fixed;inset:0;z-index:9;display:none;align-items:center;justify-content:center;background:rgba(20,16,10,.7)}
+  #gearCard,#helpCard,#bagCard,#chestCard,#bedCard,#storeCard{background:#2e2414;border:4px solid #d8b87a;border-radius:18px;padding:20px 22px;color:#fff;font-family:sans-serif;width:min(340px,88vw);max-height:84vh;display:flex;flex-direction:column}
+  #helpCard,#bagCard,#gearCard,#storeCard{overflow-y:auto}   /* 📜 内容超高能滚动，关闭钮/版权不会被顶出去 */
+  #storeCard{width:min(460px,94vw)}
+  #faint{position:fixed;inset:0;z-index:30;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0);transition:background 1.2s}
+  #faintTxt{color:#fff;font-size:34px;font-weight:bold;font-family:sans-serif;text-shadow:0 3px 8px #000;transition:opacity .8s}
+  #faintNpc{position:fixed;right:18px;bottom:18px;width:96px;border:3px solid #d8b87a;border-radius:10px;display:none;z-index:31}
+  #faintDlg{position:fixed;right:126px;bottom:36px;display:none;flex-direction:column;background:#2e2414;border:4px solid #d8b87a;border-radius:14px;padding:14px 16px;color:#fff;max-width:min(320px,80vw);z-index:31;font-family:sans-serif}
+  #faintDlg button,#bedCard button,#storeCard button{background:#c8961e;border:3px solid #ffd24a;border-radius:12px;padding:8px;font-weight:bold;font-size:15px;color:#fff;cursor:pointer}
+  #chestCard{width:min(420px,92vw)}
+  .chestIt{background:#4a3a22;border:3px solid #d8b87a;border-radius:12px;padding:8px 6px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;color:#fff;font-family:sans-serif}
+  .chestIt:active{transform:scale(.95)}
+  .bagGrid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:4px 0 6px}
+  .bagIt{display:flex;flex-direction:column;align-items:center;gap:2px;background:#3a2e1a;border:3px solid #6a5638;border-radius:12px;padding:8px 4px;color:#fff;font-family:sans-serif;cursor:pointer;font-size:13px}
+  .bagIt .bi{font-size:22px}
+  .bagIt .bs{font-size:11px;opacity:.8}
+  .bagIt.on{border-color:#7ec850;background:#2a3a1a}
+  .bagIt.off{opacity:.75}
+  #gearCard button{margin-top:8px}
+  .hsec{font-weight:bold;color:#ffd24a;margin-top:8px}
+  .htxt{font-size:14px;line-height:1.7;opacity:.92}
+  #dex{position:fixed;inset:0;z-index:9;display:none;align-items:center;justify-content:center;background:rgba(20,16,10,.7)}
+  #dexCard{background:#2e2414;border:4px solid #d8b87a;border-radius:18px;padding:20px 22px;color:#fff;font-family:sans-serif;width:min(340px,88vw);max-height:84vh;display:flex;flex-direction:column}
+  /* 🔄 转屏：只转 #rot 外壳（沙盒世界同款方案，iPad 触控和性能都正常）；左上角经典定位+JS 给真实像素 */
+  #rot{position:fixed;inset:0}
+  #rot.rot90{inset:auto;top:0;transform:rotate(90deg);transform-origin:top left}
+  /* 🔄 旋转后的可用高度=设备宽度（vw），卡片按 vw 限高，关闭钮不会被顶出去；技能钮缩小防重叠 */
+  #rot.rot90 #shopCard, #rot.rot90 #homeCard, #rot.rot90 #dexCard, #rot.rot90 #gearCard, #rot.rot90 #helpCard, #rot.rot90 #bagCard, #rot.rot90 #chestCard{max-height:88vw}
+  #rot.rot90 #skills{gap:5px;bottom:118px;right:112px}
+  #rot.rot90 .skl{width:38px;height:38px;font-size:15px;border-width:2px}
+  #home{position:fixed;inset:0;z-index:20;display:none;align-items:center;justify-content:center;background:rgba(10,14,24,.86)}
+  #homeCard{background:#14202e;border:4px solid #ffd24a;border-radius:18px;padding:20px 22px;color:#fff;font-family:sans-serif;width:min(360px,88vw);max-height:86vh;display:flex;flex-direction:column}
+  #homeNew{margin-top:14px;width:100%;padding:12px;border:0;border-radius:12px;background:#7ec850;color:#14300e;font-weight:bold;font-size:16px;cursor:pointer}
+  .slot{display:flex;align-items:center;gap:8px;background:#1e2c3c;border:2px solid #3a5a78;border-radius:12px;padding:9px 10px;margin-top:8px;font-size:12px}
+  .slot .inf{flex:1;line-height:1.5}
+  .slot button{background:#2e4a66;color:#fff;border:2px solid #6ab8f2;border-radius:10px;padding:6px 10px;font-weight:bold;cursor:pointer;white-space:nowrap}
+  #shop{position:fixed;inset:0;z-index:9;display:none;align-items:center;justify-content:center;background:rgba(10,20,10,.7)}
+  #play{position:fixed;inset:0;z-index:9;display:none;align-items:center;justify-content:center;background:rgba(10,14,24,.82)}
+  #playCard{background:#14202e;border:4px solid #ffd24a;border-radius:18px;padding:14px 16px;color:#fff;font-family:sans-serif;text-align:center;max-width:92vw}
+  #playCv{width:min(340px,78vw);height:min(340px,78vw);background:#0e1622;border-radius:12px;touch-action:none;display:block;margin:6px auto 0}
+  #playClose{margin-top:10px;padding:10px 22px;border:0;border-radius:12px;background:#7ec850;color:#14300e;font-weight:bold;font-size:15px;cursor:pointer}
+  #pvpLob{position:fixed;inset:0;z-index:20;display:none;align-items:center;justify-content:center;background:rgba(10,14,24,.86)}
+  #pvpCard{background:#14202e;border:4px solid #4a6aff;border-radius:18px;padding:20px 22px;color:#fff;font-family:sans-serif;width:min(360px,88vw);max-height:86vh;display:flex;flex-direction:column}
+  #pvpClose{width:100%;padding:11px;border:0;border-radius:12px;background:#7ec850;color:#14300e;font-weight:bold;font-size:16px;cursor:pointer}
+  #shopCard{background:#3a2f14;border:4px solid #ffd24a;border-radius:18px;padding:20px 22px;color:#fff;font-family:sans-serif;width:min(340px,88vw);max-height:84vh;display:flex;flex-direction:column}
+  #shopItems{overflow-y:auto;flex:1;min-height:0;padding-right:4px}
+  .shopSec{font-weight:bold;font-size:15px;margin:8px 0 6px;color:#ffd24a}
+  .shopIt{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.08);border-radius:12px;padding:10px;margin-bottom:10px}
+  .shopIt .ic{font-size:30px}
+  .shopIt .nm{font-weight:bold;font-size:16px}
+  .shopIt .ds{font-size:12px;opacity:.85;margin-top:2px}
+  .shopIt button{margin-left:auto;padding:8px 12px;border:0;border-radius:10px;background:#ffd24a;color:#4a3808;font-weight:bold;cursor:pointer;white-space:nowrap}
+  .shopIt button:disabled{background:#8a8a8a;color:#ddd;cursor:default}
+  #shopClose{width:100%;padding:11px;border:0;border-radius:12px;background:#7ec850;color:#14300e;font-weight:bold;font-size:16px;cursor:pointer}
+  .btn{position:fixed;z-index:6;border-radius:50%;display:none;align-items:center;justify-content:center;font-weight:bold;color:#fff;text-shadow:0 2px 3px #000;box-shadow:0 4px 10px rgba(0,0,0,.4)}
+  #atkBtn{right:26px;bottom:36px;width:96px;height:96px;background:rgba(220,60,60,.85);border:4px solid #ff9a9a;font-size:38px}
+  #autoBtn{right:38px;bottom:150px;width:72px;height:72px;background:rgba(90,90,110,.85);border:4px solid #b8b8c8;font-size:15px}
+  #autoBtn.on{background:rgba(60,180,80,.9);border-color:#9af2a8}
+  #skills{position:fixed;right:118px;bottom:150px;z-index:6;display:none;flex-direction:column-reverse;gap:8px}
+  #skills.touch{display:flex}
+  .skl{width:48px;height:48px;border-radius:50%;background:rgba(70,40,120,.9);border:3px solid #b48af2;font-size:20px;cursor:pointer;position:relative;padding:0;display:flex;align-items:center;justify-content:center}
+  .skl .cd{position:absolute;inset:0;border-radius:50%;background:rgba(0,0,0,.62);color:#fff;font-size:15px;font-weight:bold;display:none;align-items:center;justify-content:center;font-family:sans-serif}
+  .skl.oncd .cd{display:flex}
+  #joy{left:36px;bottom:46px;width:120px;height:120px;background:rgba(255,255,255,.12);border:3px solid rgba(255,255,255,.35)}
+  #joyKnob{position:absolute;left:50%;top:50%;width:52px;height:52px;margin:-26px;border-radius:50%;background:rgba(255,255,255,.55)}
+  #over{position:fixed;inset:0;z-index:10;display:none;align-items:center;justify-content:center;background:rgba(10,20,10,.82);flex-direction:column;font-family:sans-serif}
+  #overCard{background:#2a4a2a;border:4px solid #7ec850;border-radius:18px;padding:26px 34px;text-align:center;color:#fff}
+  #again{margin-top:14px;padding:12px 28px;font-size:20px;font-weight:bold;border:0;border-radius:12px;background:#7ec850;color:#14300e;cursor:pointer}
+  #tip{position:fixed;left:50%;bottom:8px;transform:translateX(-50%);z-index:5;color:rgba(255,255,255,.75);font:13px sans-serif;pointer-events:none;text-shadow:0 1px 3px #000}
