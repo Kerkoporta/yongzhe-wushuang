@@ -58,7 +58,7 @@ function leavePvp() {
   document.getElementById('fishBtn').style.display = 'none';
   setBanner('🚪 离开了天空城'); updateScore(); saveGame();
 }
-function leavePvpSilent() { pvpMode = null; pvpFoe = null; skyMode = false; fishState = null; bobber = null; player.hearts = Math.max(2, pvpPreHearts); zombies = []; document.getElementById('fishBtn').style.display = 'none'; updateScore(); saveGame(); }
+
 function pvpWrite() {   // 📡 0.1 秒一存：我的状态直接写进"游戏代码"（对面窗口读它看到我）
   if (!pvpMode) return;
   try { localStorage.setItem(pvpRoomKey(pvpMode) + '_p' + pvpSide, JSON.stringify({ x: Math.round(player.x), y: Math.round(player.y), hearts: player.hearts, maxHearts: player.maxHearts, weapon: player.weapon, dir: player.dir, moving: player.moving, walkT: player.walkT, swing: player.atkT > 0, holdFish: player.holdFish || null, hits: pvpHits.slice(-5), when: Date.now() })); } catch (e) {}

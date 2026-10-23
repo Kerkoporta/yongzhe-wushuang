@@ -209,13 +209,16 @@ function groundPattern() {
   GROUND_CACHE[level] = ctx.createPattern(c, 'repeat');
   return GROUND_CACHE[level];
 }
+/* ☁️ 天空城（收进 Sky 对象，不占全局） */
+const Sky = {
 /* ================= ☁️ 天空城：钓鱼/鱼商人/手持鱼 ================= */
-function fishTick(dt) {   // 🎣 钓鱼状态机：抛杆(甩竿0.5秒)→等鱼(2~6秒)→咬钩(1秒窗口收杆)→得手/跑了
+fishTick(dt) {   // 🎣 钓鱼状态机：抛杆(甩竿0.5秒)→等鱼(2~6秒)→咬钩(1秒窗口收杆)→得手/跑了
   if (fishState === 'casting') { fishT -= dt; if (fishT <= 0) { fishState = 'waiting'; fishT = 2 + Math.random() * 4; } }
   else if (fishState === 'waiting') { fishT -= dt; if (fishT <= 0) { fishState = 'bite'; fishT = 1.0; beep(1000, 1400, 0.15, 'square', 0.18); } }
   else if (fishState === 'bite') { fishT -= dt; if (fishT <= 0) { fishState = null; bobber = null; setBanner('💨 鱼跑了……浮漂一沉就点「收杆」！'); } }
-}
-function fishGo() {   // 🎣 抛杆/收杆一体钮
+},
+
+fishGo() {   // 🎣 抛杆/收杆一体钮
   if (!skyMode || gameOver || paused) return;
   if (!fishState) {   // 抛杆！浮漂甩进池子
     fishState = 'casting'; fishT = 0.5;
@@ -230,8 +233,9 @@ function fishGo() {   // 🎣 抛杆/收杆一体钮
     burst(bobber.x, bobber.y, '#7ec8ff', 14); beep(700, 1400, 0.2, 'sine', 0.16);
     fishState = null; bobber = null; saveGame();
   } else { fishState = null; bobber = null; setBanner('🎣 提前收杆了（鱼还没上钩）'); }   // 手痒收早了
-}
-function eatFish() {   // 😋 吃掉手里的鱼：回 2 血
+},
+
+eatFish() {   // 😋 吃掉手里的鱼：回 2 血
   const k = player.holdFish;
   if (!k || (player.items[k] || 0) <= 0) { player.holdFish = null; return; }
   player.items[k]--; if (player.items[k] <= 0) delete player.items[k];
@@ -239,31 +243,36 @@ function eatFish() {   // 😋 吃掉手里的鱼：回 2 血
   player.hearts = Math.min(player.maxHearts, player.hearts + 2);
   burst(player.x, player.y - 8, '#7aff8a', 12); beep(500, 800, 0.15, 'sine', 0.14);
   setBanner('😋 吃掉了「' + FISH[k].name + '」，回 2 血！'); saveGame();
-}
-function openFishShop() { renderFishShop(); document.getElementById('fishShop').style.display = 'flex'; }
-function renderFishShop() {   // 🐟 鱼商人面板：四种鱼明码标价
+},
+
+openFishShop() { Sky.renderFishShop(); document.getElementById('fishShop').style.display = 'flex'; },
+
+renderFishShop() {   // 🐟 鱼商人面板：四种鱼明码标价
   const el = document.getElementById('fishShopList'); let h = '';
   for (const k in FISH) {
     const n = (player.items || {})[k] || 0;
     h += `<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.12)"><span style="font-size:22px">${FISH[k].icon}</span><span style="flex:1">${FISH[k].name} ×${n}（每条 ${FISH[k].price} 金）</span>` + (n > 0 ? `<button data-fish="${k}">卖 1 条</button>` : '<span style="opacity:.4">没有</span>') + '</div>';
   }
   el.innerHTML = h;
-  el.querySelectorAll('button[data-fish]').forEach(b => b.onclick = () => sellFish(b.dataset.fish));
-}
-function sellFish(k) {   // 卖 1 条
+  el.querySelectorAll('button[data-fish]').forEach(b => b.onclick = () => Sky.sellFish(b.dataset.fish));
+},
+
+sellFish(k) {   // 卖 1 条
   if ((player.items[k] || 0) <= 0) return;
   player.items[k]--; if (player.items[k] <= 0) { delete player.items[k]; if (player.holdFish === k) player.holdFish = null; }
-  player.gold += FISH[k].price; updateGold(); saveGame(); renderFishShop();
+  player.gold += FISH[k].price; updateGold(); saveGame(); Sky.renderFishShop();
   setBanner('💰 卖掉 1 条' + FISH[k].name + '，+' + FISH[k].price + ' 金！'); beep(800, 1200, 0.1, 'square', 0.12);
-}
-function sellAllFish() {   // 全卖
+},
+
+sellAllFish() {   // 全卖
   let n = 0, g = 0;
   for (const k in FISH) { const c = (player.items[k] || 0); if (c > 0) { n += c; g += c * FISH[k].price; delete player.items[k]; if (player.holdFish === k) player.holdFish = null; } }
   if (!n) { setBanner('🎒 背包里没有鱼'); return; }
-  player.gold += g; updateGold(); saveGame(); renderFishShop();
+  player.gold += g; updateGold(); saveGame(); Sky.renderFishShop();
   setBanner('💰 一口气卖了 ' + n + ' 条鱼，+' + g + ' 金！'); beep(700, 1300, 0.2, 'square', 0.15);
-}
-function drawHeldFish(x, y, key, dir) {   // 🐟 手里的鱼：四种鱼四种样子（联网对面也看得见）
+},
+
+drawHeldFish(x, y, key, dir) {   // 🐟 手里的鱼：四种鱼四种样子（联网对面也看得见）
   const flip = Math.cos(dir || 0) < 0 ? -1 : 1;
   const fx = x + flip * 18, fy = y - 12 + Math.sin(performance.now() / 250) * 1.5;   // 手边晃悠
   ctx.save(); ctx.translate(fx, fy); ctx.scale(flip, 1);
@@ -286,8 +295,9 @@ function drawHeldFish(x, y, key, dir) {   // 🐟 手里的鱼：四种鱼四种
     ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(-3, -2, 1, 0, 6.3); ctx.fill();
   }
   ctx.restore();
-}
-function drawFishing() {   // 🎣 鱼竿+线+浮漂（抛杆弧线/等鱼轻晃/咬钩猛沉）
+},
+
+drawFishing() {   // 🎣 鱼竿+线+浮漂（抛杆弧线/等鱼轻晃/咬钩猛沉）
   const hx = player.x + 14, hy = player.y - 10;
   const tx = hx + Math.cos(player.dir) * 26, ty = hy - 20;
   ctx.strokeStyle = '#6a4a2a'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(hx, hy); ctx.lineTo(tx, ty); ctx.stroke();   // 竿
@@ -300,8 +310,9 @@ function drawFishing() {   // 🎣 鱼竿+线+浮漂（抛杆弧线/等鱼轻晃
     ctx.font = 'bold 22px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('❗', bobber.x, bobber.y - 20); ctx.textAlign = 'left';
     ctx.strokeStyle = '#ffffff88'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(bobber.x, bobber.y + 4, 18, 7, 0, 0, 6.3); ctx.stroke();
   }
-}
-function drawSkyCity() {   // ☁️ 天空城全景：蓝天+飘云+云岛+钓鱼池+PVP 擂台+鱼商人+回冒险门
+},
+
+drawSkyCity() {   // ☁️ 天空城全景：蓝天+飘云+云岛+钓鱼池+PVP 擂台+鱼商人+回冒险门
   const g = ctx.createLinearGradient(0, 0, 0, WORLD.h);
   g.addColorStop(0, '#5aa8e8'); g.addColorStop(1, '#bfe6ff');
   ctx.fillStyle = g; ctx.fillRect(0, 0, WORLD.w, WORLD.h);
@@ -342,3 +353,14 @@ function drawSkyCity() {   // ☁️ 天空城全景：蓝天+飘云+云岛+钓�
   ctx.strokeStyle = '#ffd24a'; ctx.lineWidth = 5; ctx.beginPath(); ctx.ellipse(640, 1820, 40, 54, 0, 0, 6.3); ctx.stroke();
   ctx.font = 'bold 15px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#2a4a6a'; ctx.fillText('回冒险', 640, 1898); ctx.textAlign = 'left';
 }
+};
+
+
+
+
+
+
+
+
+
+

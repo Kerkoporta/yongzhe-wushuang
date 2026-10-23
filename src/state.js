@@ -373,7 +373,7 @@ function dotTick(z, dt) {
   return false;
 }
 function bossUpdate(z, dt) {
-  if (z.dgnKing) { dgnKingTick(z, dt); return; }   // 👑 哥布林王有自己的大脑
+  if (z.dgnKing) { Dgn.dgnKingTick(z, dt); return; }   // 👑 哥布林王有自己的大脑
   if (z.warden) { wardenTick(z, dt); return; }   // 👿 坚守者有自己的大脑
   if (z.ghast) { ghastTick(z, dt); return; }   // 👻 恶魂有自己的大脑
   if (z.titan) { titanTick(z, dt); return; }   // 🧨 泰坦苦力怕有自己的大脑

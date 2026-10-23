@@ -147,17 +147,23 @@ document.getElementById('gearTown').onclick = () => { toggleGear(false); enterTo
 /* ================= 🌲 哥布林森林（小镇副本①）：杀 12 只哥布林引出哥布林王；倒下=被抬出副本，不是真死 ================= */
 const DGN_GATE = { x: 1520, y: 1840 };   // 🌲 副本入口：小镇广场东边
 const DGN_GOAL = 12;   // 杀满 12 只哥布林出王
-function makeGoblin(x, y) { return { id: _id++, x, y, hp: 5, r: 10, goblin: true, dead: false, flash: 0, walkT: Math.random() * 9, kind: 'goblin' }; }   // 🌲 哥布林：绿皮尖牙木棍，5 血
-function spawnGoblin() { const s = pickSpawn(player, Math.random); zombies.push(makeGoblin(s.x, s.y)); }
-function spawnDgnKing() {   // 👑 哥布林王登场
+/* 🌲 哥布林森林副本（收进 Dgn 对象，不占全局） */
+const Dgn = {
+makeGoblin(x, y) { return { id: _id++, x, y, hp: 5, r: 10, goblin: true, dead: false, flash: 0, walkT: Math.random() * 9, kind: 'goblin' }; },
+
+   // 🌲 哥布林：绿皮尖牙木棍，5 血
+spawnGoblin() { const s = pickSpawn(player, Math.random); zombies.push(Dgn.makeGoblin(s.x, s.y)); },
+
+spawnDgnKing() {   // 👑 哥布林王登场
   dgnKingSpawned = true;
   const pos = pickSpawn(player, Math.random);
   const b = makeBoss(pos.x, pos.y);
   b.dgnKing = true; b.kind = 'bossDgn'; b.hp = b.maxHp = 300;
   zombies.push(b);
   setBanner('👑 哥布林王来了！它的鞭子一扫就是 5 血，看到红区快跑！'); beep(90, 45, 0.7, 'sawtooth', 0.25); shakeT = 0.5;
-}
-function enterDungeon() {   // 🌲 进副本
+},
+
+enterDungeon() {   // 🌲 进副本
   dungeonMode = true; townMode = false; inRoom = false; paused = false; sittingBench = null;
   dgnKills = 0; dgnKingSpawned = false; dgnExit = null; spawnT = 1;
   for (const z of zombies) z.dead = true;
@@ -166,8 +172,9 @@ function enterDungeon() {   // 🌲 进副本
   applyGear(); updateScore();   // ⚔️ 副本里装备火力全开
   setBanner('🌲 哥布林森林！杀 ' + DGN_GOAL + ' 只哥布林引出哥布林王！倒下会被抬出副本'); beep(300, 700, 0.4, 'sawtooth', 0.2);
   saveGame();
-}
-function exitDungeon(dead) {   // 🌲 出副本：回小镇门口
+},
+
+exitDungeon(dead) {   // 🌲 出副本：回小镇门口
   dungeonMode = false; townMode = true; inRoom = false; paused = false; dgnExit = null;
   for (const z of zombies) z.dead = true;
   earrows = []; parrows = []; garrows = []; meteors = []; puddles = []; skillShots = []; clouds = []; fxLines = []; netOrbs = null; shocks = []; chest = null;
@@ -176,13 +183,15 @@ function exitDungeon(dead) {   // 🌲 出副本：回小镇门口
   if (dead) { setBanner('😵 你被哥布林抬出了副本……回镇练强点再来！'); beep(300, 150, 0.5, 'sawtooth', 0.18); }
   else { setBanner('🌲 副本通关凯旋！小镇欢迎英雄！'); beep(600, 1200, 0.5, 'sine', 0.2); }
   saveGame();
-}
-function dgnDie() {   // 😵 副本里倒下≠真死：抬出副本+回半血
+},
+
+dgnDie() {   // 😵 副本里倒下≠真死：抬出副本+回半血
   player.hearts = Math.max(1, Math.round(player.maxHearts / 2)); player.inv = 1.5;
-  exitDungeon(true);
-}
+  Dgn.exitDungeon(true);
+},
+
 /* 👑 哥布林王：更大更壮，手臂缠着鞭子——横扫一鞭 5 血（红色扇形预警 0.7 秒，跑出红区就没事） */
-function dgnKingTick(z, dt) {
+dgnKingTick(z, dt) {
   z.walkT += dt;
   const dx = player.x - z.x, dy = player.y - z.y, d = Math.hypot(dx, dy) || 1;
   if (!z.whip) zombieStep(z, player, dt, 0.85);   // 抡鞭子时站住
@@ -205,7 +214,7 @@ function dgnKingTick(z, dt) {
           player.hearts -= rollDmg(5); player.inv = 1; player.sinceHurt = 0; player.regenT = 0;
           burst(player.x, player.y, '#e84a4a', 16); shakeT = 0.6;
           setBanner('💥 被鞭子抽中！掉 5 血！'); beep(150, 50, 0.35, 'sawtooth', 0.25);
-          if (player.hearts <= 0 && !angelSave()) { dgnDie(); return; }
+          if (player.hearts <= 0 && !angelSave()) { Dgn.dgnDie(); return; }
         }
       }
     }
@@ -214,9 +223,16 @@ function dgnKingTick(z, dt) {
   const dmgK = rollDmg(1);   // 平时撞到=1 心
   if (touchHurt(player, z, dmgK)) {
     beep(260, 100, 0.2, 'sawtooth', 0.16); burst(player.x, player.y, '#5a8a2a', 8);
-    if (player.hearts <= 0 && !angelSave()) { dgnDie(); return; }
+    if (player.hearts <= 0 && !angelSave()) { Dgn.dgnDie(); return; }
   }
 }
+};
+
+
+
+
+
+
 /* 🧑‍🤝‍🧑 小镇村民（CPU：在家附近溜达的像素小人） */
 const NPC_PX = new Image(); NPC_PX.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABMAAAAjCAYAAAB2KjFhAAAEeElEQVR42uWVS28bVRSAv2uPx89MHNd5mKaPtAoEQluJFFBIaESoBAQhlbZSihRKN0ViRVmA2MCCPwCsWZZNJCClSO2iUaVWjipaKtJHUFLUpm0cHCdpYo/tsT2T6bCYeGwnrtiwQRxpdOfo3vPNed0zgir55suPOfXVtwjg2InjGNllPA3R8rZV1j8feVvsOzjMRhEbQUePDDG7kLGKmTRZNbfJoEEJ4WsME/JKXL54SbzQ18f1iYkKrAx678Rx7vx51wIoZtLUE1PLoa1VwFO3p0SNZ0ePDNHf3clYfNLKldYIeSXHuLkp6IRqZJcBWFrNkyutUcyk2R1r4pcLcWEBYmBwgEsXLzEwOGBVA4DqfAHw18MH5Eq2W9UfbHSb4uyFeCXMXx+uWvXCMrLLzC5k2JjDgIQTbkCC6XsPhAQwFp+0qj2aXchQzlsZYOia7a0cAGyQoWtYpo7hlhGAuDE+yvCHn1kZTUM39Bqv1gyB5Kl1WPbINbpu6MgemZF3XhfS96NjVIPM9dXtkTeBADTNQFBydJ/Xhs+uqLhGht/FIweQPTIelw3xee13c/2rwWCYYDCM7JFrQKZpktcKWKaOrqpIAM3b2sknE7gDLfgaw07JZUXh6rUpGpQQWTWHRw7Q1/ci8csT5LUCwYAf4/F6+IqCq1zm1p07ibZECXkloi1RBnt7AMjn0zxKJVDTi+TzaToiCu8feovtHZ3ktQIeF8j+MF989IHdGt3Pd7OyvGjpho7HBVta29m7v4ebv13nj9tTNCp+J7QDL/dwN7kKwLPP7CB+eQLhlkkuLAkXwFDvHixTpy3WTv+BPvbu78HILmNqOdramsmoBTJqAdM0mZyZY3esiaHePXREFAAi0RYB2DlLGDLCLZNVc/R3dzKfTEFEoX/kEPPJFDP3E45ng709zCdTbI21MhafpFjSOXn4IKduT1Xu5tVrU9bqoySvvfJSjcGTZD6Z4rvRnwHIqAVhgV2A/u5ODF0j1NDI5MzcP4IAZu4nME0TfyDE5PhoZWp07dphpbNphFsmEm0hq+YYfqO3BjifTAGwNdbKfDLF6TPnCTeExcy9B5RbW3x68hinz5y38lrBMXS73aTVgjh6ZAiwz3ZEFGZXVHRV5eyFuDPDZF8XerEdGMd17sotiiXdgZSviAB++PEcS6t5J6wySKznWQB6cRoYtz2LtTVT0HJW9RVp2hIjW9xqD/7i77RFW3h69zbu3J0juZzB5XsOgFLRbv81PS3efDVaHyYF97OrU7A0l2Bh0Y9lPiTgty+0QRden6teTYRUzklZXG57Xi3NJTB0DUmO4fVFyKsrAAQVF6XiY9b0NJIcrgZbkmXqmKZZBbPXhUU/4Ceo2IclOVyZc3oaoziNXw4Ddsh5daXyq6uWG+OjVu/hr/H6XE5equXKT5+w7+DwJlupHgjAKNzEKDy5aW+Mj1obgZsyWT4g3NudxzA0Ua1Xn6v7R98osq/LKYxenBYb9Xo2Lv5F+Z/ApCdt7Hqq0hfT9zbr/60w/wYBqgLiUsY4DQAAAABJRU5ErkJggg==';   // 🚶 神秘人像素版帧1（全身带腿）
 const NPC_PX2 = new Image(); NPC_PX2.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABMAAAAjCAYAAAB2KjFhAAAEfElEQVR42uWVT2wUVRzHP292d2baaXe7tLublgqkpKGAlmDRELIChcIBGoNAT0iAcDIe0IMXLoaQeCVy9GL0Wo3RQIhJwyqBgAGkUCxVZNOWSLN/2u3+mXZ2ZrfjYZnpbukmHrwYv8nL5M17v8/7/X7zfr8RVOnzTz/m3IVLCODE6ZMUCxmUpqCzbDvz86feFVv6h1gpsRI0dHyQeDJvW5lZsjnd3WhZJgBtrUF8wVYCskRsJCbe3L2H+zd+XoY5oPdPn+RJfNq2MrMuJJvTCfi1mrmjgF/j0dhjUePZ0PFBolu7+Tr2q13tdkCWaG3R3FCLhQwAs/M6WXMJKzNLWyREbCQmbEDsG+jn+kiMfQP9Lqi1peJJVb4oFjIupPowx6nrI7HlMO9Ope2VCa0GODm0LBOfT67JpV/1MRGfFF6A72+N2tUexZN5nLw5gJVy3tklnZyhIQAxHhvm6NlP7GxhHmuJfyxZ1rBLOtYS+CQ4c+yw8H721Q9kC/MYRhGPrFA2iwB4ZGVViLO++PKpqgrCq/E0lUV6a30bckMQVVXwSRWIqiquoU8CTQuiaUFkWasFl2103cAu6ZTyOaQDe3cR8GsEmloIRTrpaO8kFOnknb5eBg7uR24IEvBrbo4GDu5HVRXKZRtNU5EbVAC8zX68AG2REFmztfpTs7mrg6epLLqeQdczlM1KGpSmIGeOHebKzYdMxv9E01SEV+PCh6cqV6P3jddJz2Zs09TxSRCKdNLbt51H9x8wNvaYFn8D5bKNxyPY/vZO0okUABs71nDnwSOEV+PFi7+EBDAY3YZp6nS0dxLdHaW3bzvFQgZTL9DesZb53CKGVcnRxPgftEVCDEa3obWvd+pVAJUwpxclfFLlTkW3dpNIJqEhQPTkeySSSZ7En7vh793ZRyKZJBIOc+fWKIZR5OzRA5wbe1yBFQsZ5IYgmfQMP9257xoARMJhIuHwK1ckkUxy7/ZtPB7BRxcuASABRLd2Y1kmks/PL2PP3JPrKRIO8yT+HMOq3LPfYsPLXaOna4Odzs1TKsmsey1MNqdz4tAuF+h46YASySRffnuVQFOL+D0+iVPU4vwHJ/hi+KptLhoYVuWlpgoyuUUxdHyQUj5ne5v9KE1B9JkpAL778Ybbw2S1B9PoBEaQrtx86JaI6qsMj6wggOFvrpAteyjlczUg8bIHCsA0JoCRimcdHWtZLMzZ1SXSFGhlweqqbCjeI9IWYXP3Op69mGP6eRJ8mwAwTSgVUwDi8J4woj3cgmEUa3qZrexg42aJ9NQ0MwkFliZRfSD5/Jj2JmR51e8ivIC92kp6appsVserdAIhjGIKytDYDAv5FI3qHAvGGhqbQwAs5FO25Fa/URm21IxpwkxCYcFY48K9SsgNDSA7n6RRnVv9V+doPDZs7zhy+WUDXDauVqmYYvTaRbb0D4m6sPHYsBvyjiOXKS3efZUkbWD02kV3uhJIPaCs9tgrx2r76oZZ0+erjB2ZxkRdG4l/Uf8TWN1k9nRtsOutTcQnxX8rzL8BfUELecva2pkAAAAASUVORK5CYII=';   // 🚶 帧2（迈步）
@@ -242,7 +258,9 @@ function npcsTick(dt) {
     }
   }
 }
-function drawVillager(n) {   // 像素小人：腿交替+手臂摆动；img 款=神秘人像素立绘
+/* 🏘️ 小镇装饰画法（收进 TownArt 对象，不占全局） */
+const TownArt = {
+drawVillager(n) {   // 像素小人：腿交替+手臂摆动；img 款=神秘人像素立绘
   const moving = n.tx != null && (Math.abs(n.x - n.tx) > 4 || Math.abs(n.y - n.ty) > 4);
   const step = moving ? Math.sin(n.walkT * 8) : 0;
   ctx.globalAlpha = 0.3; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.ellipse(n.x, n.y + 1, n.img ? 10 : 7, 3, 0, 0, 6.3); ctx.fill(); ctx.globalAlpha = 1;
@@ -260,27 +278,18 @@ function drawVillager(n) {   // 像素小人：腿交替+手臂摆动；img 款=
   ctx.fillStyle = '#5a4632'; ctx.fillRect(-5, -29, 10, 4);   // 头发
   ctx.fillStyle = '#1a1a1a'; ctx.fillRect(1, -23, 2, 2);   // 眼
   ctx.restore();
-}
-/* 🪑 广场长椅 + 坐下 */
-const BENCHES = [{ x: 1000, y: 1840, face: 1 }, { x: 1400, y: 1840, face: -1 }];   // 喷泉左右各一张，面朝喷泉
-let sittingBench = null;
-function sitBench(b) {
-  sittingBench = b; player.x = b.x; player.y = b.y; player.dir = b.face > 0 ? 0 : Math.PI; player.moving = false;   // 脚线=椅脚线，小腿正好落地
-  setBanner('🪑 坐下歇会儿~ 推摇杆起身'); beep(500, 700, 0.1, 'sine', 0.1); saveGame();
-}
-function drawBench(x, y, face) {   // 整条长椅（靠背在远离喷泉的一侧）
+},
+
+drawBench(x, y, face) {   // 整条长椅（靠背在远离喷泉的一侧）
   const bx = face > 0 ? x - 21 : x + 16;
   ctx.fillStyle = '#5a3f24'; ctx.fillRect(x - 15, y - 2, 5, 10); ctx.fillRect(x + 10, y - 2, 5, 10);   // 腿
   ctx.fillStyle = '#8a6a3f'; ctx.fillRect(x - 19, y - 9, 38, 8);   // 坐板
   ctx.fillStyle = '#a8814f'; ctx.fillRect(x - 19, y - 9, 38, 3);   // 坐板亮边
   ctx.fillStyle = '#8a6a3f'; ctx.fillRect(bx, y - 30, 5, 22);   // 靠背板
   ctx.fillStyle = '#a8814f'; ctx.fillRect(bx, y - 30, 5, 4);
-}
-function drawBenchFront(x, y) {   // （退役：坐姿改真姿势后不再需要盖腿板）
-  ctx.fillStyle = '#8a6a3f'; ctx.fillRect(x - 19, y - 9, 38, 8);
-  ctx.fillStyle = '#5a3f24'; ctx.fillRect(x - 15, y - 2, 5, 10); ctx.fillRect(x + 10, y - 2, 5, 10);
-}
-function drawSeated(x, y, face) {   // 🪑 真·坐姿：屁股贴椅面、大腿平放、小腿垂到地面、背靠椅背
+},
+
+drawSeated(x, y, face) {   // 🪑 真·坐姿：屁股贴椅面、大腿平放、小腿垂到地面、背靠椅背
   ctx.save(); ctx.translate(Math.round(x), Math.round(y)); if (face < 0) ctx.scale(-1, 1);
   ctx.fillStyle = '#4a7ad4'; ctx.fillRect(-11, -25, 9, 16);   // 躯干（底部正好落在椅面）
   ctx.fillRect(-8, -22, 3, 9);   // 手臂垂放身侧
@@ -293,8 +302,9 @@ function drawSeated(x, y, face) {   // 🪑 真·坐姿：屁股贴椅面、大�
   ctx.fillStyle = '#5a4632'; ctx.fillRect(-10, -35, 8, 3);   // 头发
   ctx.fillStyle = '#1a1a1a'; ctx.fillRect(-5, -30, 2, 2);   // 眼
   ctx.restore();
-}
-function drawStatue(x, y) {   // 🗿 勇者石像：基座+举剑小人
+},
+
+drawStatue(x, y) {   // 🗿 勇者石像：基座+举剑小人
   ctx.fillStyle = '#7a7a84'; ctx.fillRect(x - 14, y - 8, 28, 8);   // 基座
   ctx.fillStyle = '#8f8f99'; ctx.fillRect(x - 10, y - 14, 20, 6);
   ctx.fillStyle = '#9a9aa4';   // 石像身体
@@ -303,23 +313,27 @@ function drawStatue(x, y) {   // 🗿 勇者石像：基座+举剑小人
   ctx.fillRect(x + 3, y - 40, 3, 10);   // 举剑的手臂
   ctx.fillStyle = '#c8c8d4'; ctx.fillRect(x + 4, y - 50, 2, 12);   // 石剑
   ctx.fillStyle = '#6a6a74'; ctx.fillRect(x - 5, y - 20, 10, 2);   // 裙摆线
-}
-function drawLamp(x, y) {   // 💡 路灯
+},
+
+drawLamp(x, y) {   // 💡 路灯
   ctx.fillStyle = '#4a4a52'; ctx.fillRect(x - 2, y - 34, 4, 34);
   ctx.fillStyle = '#ffd24a'; ctx.beginPath(); ctx.arc(x, y - 38, 5, 0, 6.3); ctx.fill();
   ctx.globalAlpha = 0.15; ctx.fillStyle = '#ffd24a'; ctx.beginPath(); ctx.arc(x, y - 38, 13, 0, 6.3); ctx.fill(); ctx.globalAlpha = 1;
-}
-function drawFlowerBed(x, y) {   // 🌸 花坛：绿叶底+三色小花
+},
+
+drawFlowerBed(x, y) {   // 🌸 花坛：绿叶底+三色小花
   ctx.fillStyle = '#2e6a2e'; ctx.beginPath(); ctx.ellipse(x, y, 26, 16, 0, 0, 6.3); ctx.fill();
   const cols = ['#ff6a6a', '#ffd24a', '#ff9af2'];
   for (let i = 0; i < 6; i++) { const a = i * 1.05; ctx.fillStyle = cols[i % 3]; ctx.beginPath(); ctx.arc(x + Math.cos(a) * 15, y + Math.sin(a) * 9, 2.5, 0, 6.3); ctx.fill(); }
-}
-function drawBush(x, y) {   // 🌿 广场草丛：三团绿
+},
+
+drawBush(x, y) {   // 🌿 广场草丛：三团绿
   ctx.fillStyle = '#2e6a2e'; ctx.beginPath(); ctx.arc(x, y, 26, 0, 6.3); ctx.fill();
   ctx.fillStyle = '#3f8a3f'; ctx.beginPath(); ctx.arc(x - 8, y - 6, 16, 0, 6.3); ctx.arc(x + 10, y - 4, 14, 0, 6.3); ctx.fill();
   ctx.fillStyle = '#54a854'; ctx.beginPath(); ctx.arc(x - 4, y - 10, 8, 0, 6.3); ctx.fill();
-}
-function drawFountain(x, y) {   // ⛲ 喷泉：石沿+水面波光+石柱+跳动水珠
+},
+
+drawFountain(x, y) {   // ⛲ 喷泉：石沿+水面波光+石柱+跳动水珠
   const t = performance.now() / 1000;
   ctx.fillStyle = '#b8b8c0'; ctx.beginPath(); ctx.arc(x, y, 46, 0, 6.3); ctx.fill();
   ctx.fillStyle = '#8a8a94'; ctx.beginPath(); ctx.arc(x, y, 40, 0, 6.3); ctx.fill();
@@ -334,6 +348,23 @@ function drawFountain(x, y) {   // ⛲ 喷泉：石沿+水面波光+石柱+跳�
     ctx.fillRect(x + (i - 2) * 5 - 1.5, y - 26 - ph * 26, 3, 3);
   }
 }
+};
+
+/* 🪑 广场长椅 + 坐下 */
+const BENCHES = [{ x: 1000, y: 1840, face: 1 }, { x: 1400, y: 1840, face: -1 }];   // 喷泉左右各一张，面朝喷泉
+let sittingBench = null;
+function sitBench(b) {
+  sittingBench = b; player.x = b.x; player.y = b.y; player.dir = b.face > 0 ? 0 : Math.PI; player.moving = false;   // 脚线=椅脚线，小腿正好落地
+  setBanner('🪑 坐下歇会儿~ 推摇杆起身'); beep(500, 700, 0.1, 'sine', 0.1); saveGame();
+}
+
+
+
+
+
+
+
+
 function placeTownShops() {   // 🛣️ 马路两边排排坐：8 家店 + 房产中介
   mapShops = [];
   const specs = [['weapon', '🗡️ 武器店'], ['gear', '🛡️ 装备店'], ['skill', '✨ 法术店'], ['pet', '🐾 宠物店'], ['weapon', '🗡️ 武器店·二店'], ['gear', '🛡️ 装备店·二店'], ['skill', '✨ 法术店·二店'], ['pet', '🐾 宠物店·二店'], ['dia', '💎 钻石商店']];
@@ -448,7 +479,7 @@ function placeShops() {
     mapShops.push({ x, y, kind, label, items: rollShopItems(kind) });
   }
 }
-function refreshShops() { for (const s of mapShops) s.items = rollShopItems(s.kind); }
+
 function nearShop() { for (let i = 0; i < mapShops.length; i++) if (Math.hypot(player.x - mapShops[i].x, player.y - mapShops[i].y) < 64) return i; return -1; }
 function openMapShop(i) { if (i < 0) return; curShop = i; diaPicking = false; paused = true; renderMapShop(); shopEl.style.display = 'flex'; beep(500, 700, 0.1, 'sine', 0.1); }
 function renderMapShop() {
@@ -635,16 +666,16 @@ function ctxGo() {
   else if (c.act === 'shop') openMapShop(nearShop());
   else if (c.act === 'bench' && c.bench) sitBench(c.bench);
   else if (c.act === 'tower') enterTower();   // 🗼 进试炼塔
-  else if (c.act === 'dungeon') enterDungeon();   // 🌲 进哥布林森林副本
-  else if (c.act === 'fishshop') openFishShop();   // 🐟 天空城鱼商人
+  else if (c.act === 'dungeon') Dgn.enterDungeon();   // 🌲 进哥布林森林副本
+  else if (c.act === 'fishshop') Sky.openFishShop();   // 🐟 天空城鱼商人
   else if (c.act === 'skyleave') leavePvp();   // 🚪 离开天空城回冒险
-  else if (c.act === 'play') startPlay(c.play);   // 🎡 游乐项目
+  else if (c.act === 'play') Games.startPlay(c.play);   // 🎡 游乐项目
 }
 document.getElementById('enterBtn').onclick = ctxGo;
-document.getElementById('fishBtn').onclick = () => fishGo();   // 🎣 抛杆/收杆（箭头包一层：fishGo 在 sky.js，点的时候才去找它）
-document.getElementById('eatFishBtn').onclick = () => eatFish();   // 😋 吃掉手里的鱼
+document.getElementById('fishBtn').onclick = () => Sky.fishGo();   // 🎣 抛杆/收杆（箭头包一层：fishGo 在 sky.js，点的时候才去找它）
+document.getElementById('eatFishBtn').onclick = () => Sky.eatFish();   // 😋 吃掉手里的鱼
 document.getElementById('fishShopClose').onclick = () => { document.getElementById('fishShop').style.display = 'none'; };
-document.getElementById('fishSellAll').onclick = () => sellAllFish();
+document.getElementById('fishSellAll').onclick = () => Sky.sellAllFish();
 let AC = null;
 function beep(f0, f1, dur, type, vol) {
   try { AC = AC || new (window.AudioContext || window.webkitAudioContext)();

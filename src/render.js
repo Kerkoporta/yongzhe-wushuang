@@ -15,7 +15,7 @@ function draw() {
     for (let tx = 0; tx < WORLD.w; tx += 74) { drawDgnTree(tx, -10); drawDgnTree(tx + 37, WORLD.h - 60); }   // 上下树墙
     for (let ty = 0; ty < WORLD.h; ty += 74) { drawDgnTree(-10, ty); drawDgnTree(WORLD.w - 60, ty + 37); }   // 左右树墙
     for (const tp of [[800, 900], [1600, 800], [700, 1600], [1700, 1650], [1200, 620], [500, 1200], [1900, 1200]]) drawDgnTree(tp[0], tp[1]);   // 林间大树
-  } else if (skyMode) { drawSkyCity();   // ☁️ 天空城：蓝天+云岛+钓鱼池+PVP 擂台
+  } else if (skyMode) { Sky.drawSkyCity();   // ☁️ 天空城：蓝天+云岛+钓鱼池+PVP 擂台
   } else if (townMode) {
     ctx.fillStyle = '#4a7a3a'; ctx.fillRect(camX, camY, VW + 2, VH + 2);   // 草地
     if (inRoom) {   // 🏠 房间内部：木地板+墙+床+柜子+门垫
@@ -49,12 +49,12 @@ function draw() {
       ctx.strokeStyle = '#83838c'; ctx.lineWidth = 2;
       for (let gx = 976; gx < 1480; gx += 56) { ctx.beginPath(); ctx.moveTo(gx, 1560); ctx.lineTo(gx, 2120); ctx.stroke(); }
       for (let gy = 1616; gy < 2120; gy += 56) { ctx.beginPath(); ctx.moveTo(920, gy); ctx.lineTo(1480, gy); ctx.stroke(); }
-      for (const bpos of [[968, 1608], [1432, 1608], [968, 2072], [1432, 2072]]) drawBush(bpos[0], bpos[1]);   // 四角草丛
-      drawFountain(1200, 1840);   // ⛲ 中央喷泉
-      for (const lpos of [[1000, 1625], [1400, 1625], [1000, 2055], [1400, 2055]]) drawLamp(lpos[0], lpos[1]);   // 💡 四盏路灯
-      for (const fpos of [[1090, 1680], [1310, 1680], [1090, 2000], [1310, 2000]]) drawFlowerBed(fpos[0], fpos[1]);   // 🌸 四个花坛
-      for (const b of BENCHES) drawBench(b.x, b.y, b.face);   // 🪑 两张长椅面朝喷泉
-      drawStatue(1100, 1500); drawStatue(1300, 1500);   // 🗿 广场北门口两座勇者石像
+      for (const bpos of [[968, 1608], [1432, 1608], [968, 2072], [1432, 2072]]) TownArt.drawBush(bpos[0], bpos[1]);   // 四角草丛
+      TownArt.drawFountain(1200, 1840);   // ⛲ 中央喷泉
+      for (const lpos of [[1000, 1625], [1400, 1625], [1000, 2055], [1400, 2055]]) TownArt.drawLamp(lpos[0], lpos[1]);   // 💡 四盏路灯
+      for (const fpos of [[1090, 1680], [1310, 1680], [1090, 2000], [1310, 2000]]) TownArt.drawFlowerBed(fpos[0], fpos[1]);   // 🌸 四个花坛
+      for (const b of BENCHES) TownArt.drawBench(b.x, b.y, b.face);   // 🪑 两张长椅面朝喷泉
+      TownArt.drawStatue(1100, 1500); TownArt.drawStatue(1300, 1500);   // 🗿 广场北门口两座勇者石像
       /* 🗼 试炼塔（广场南边）：无尽挑战入口 */
       const ttw = performance.now() / 1000;
       ctx.fillStyle = '#0e0a16'; ctx.fillRect(1178, 1980, 44, 100);   // 塔身
@@ -425,7 +425,7 @@ function draw() {
     ctx.save(); ctx.translate(tr.x, tr.y - 12); ctx.rotate(tr.ang || 0); ctx.fillStyle = '#3a4250'; ctx.fillRect(0, -2, 14, 4); ctx.restore();   // 炮管指着目标
     ctx.fillStyle = '#ffd24a'; ctx.fillRect(tr.x - 2, tr.y - 19, 4, 3);   // 指示灯
   }
-  if (townMode && !inRoom) for (const n of npcs) drawVillager(n);   // 🧑‍🤝‍🧑 村民逛街
+  if (townMode && !inRoom) for (const n of npcs) TownArt.drawVillager(n);   // 🧑‍🤝‍🧑 村民逛街
   // 🕳️ 神秘山洞（发光漩涡）+ 🪙 散落金币
   if (portal && !dungeonMode) {
     const pt2 = performance.now() / 1000;
@@ -495,7 +495,7 @@ function draw() {
     ctx.fillText((pvpSide === 1 ? '挑战者' : '房主') + (f.stale ? '（掉线中…）' : ''), f.x, f.y - 42); ctx.textAlign = 'left';
     ctx.fillStyle = '#0008'; ctx.fillRect(f.x - 16, f.y - 38, 32, 4);
     ctx.fillStyle = '#e84a4a'; ctx.fillRect(f.x - 16, f.y - 38, 32 * Math.max(0, f.hearts) / (f.maxHearts || 5), 4);
-    if (f.holdFish) drawHeldFish(f.x, f.y, f.holdFish, f.dir || 0);   // 🐟 对面手里拿着什么鱼，我看得见
+    if (f.holdFish) Sky.drawHeldFish(f.x, f.y, f.holdFish, f.dir || 0);   // 🐟 对面手里拿着什么鱼，我看得见
   }
   if (!blink) {
     const dirH = Math.cos(player.dir), dirV = Math.sin(player.dir);
@@ -514,7 +514,7 @@ function draw() {
     } else if (hurtT > 0) {   // 💥 受击后仰：往后一仰
       ctx.save(); ctx.translate(Math.round(player.x), Math.round(player.y)); ctx.rotate(-0.38 * (hurtT / 0.28));
       drawSprite(ctx, spr, -12, -16 - bob, 2, flip); ctx.restore();
-    } else if (sittingBench) drawSeated(player.x, player.y, sittingBench.face);   // 🪑 真坐姿
+    } else if (sittingBench) TownArt.drawSeated(player.x, player.y, sittingBench.face);   // 🪑 真坐姿
     else drawSprite(ctx, spr, player.x - 12, player.y - 16 - bob, 2, flip);
     if (player.atkT > 0) {   // ⚔️ 攻击动作（回旋镖=真一圈扩散环；寒冰弓=更大的弧）
       const t = 1 - player.atkT / ATTACK.swing;
@@ -565,8 +565,8 @@ function draw() {
     /* 🔵 蓝条在桃心下面（桃心是 emoji 画的，蓝条是细线） */
     ctx.fillStyle = '#0008'; ctx.fillRect(player.x - 15, player.y - 24, 30, 3);
     ctx.fillStyle = '#4a8af2'; ctx.fillRect(player.x - 15, player.y - 24, 30 * Math.min(1, (player.mana != null ? player.mana : 100) / (player.maxMana || 100)), 3);
-    if (player.holdFish) drawHeldFish(player.x, player.y, player.holdFish, player.dir);   // 🐟 手里拿着的鱼
-    if (skyMode && fishState && bobber) drawFishing();   // 🎣 甩竿钓鱼中
+    if (player.holdFish) Sky.drawHeldFish(player.x, player.y, player.holdFish, player.dir);   // 🐟 手里拿着的鱼
+    if (skyMode && fishState && bobber) Sky.drawFishing();   // 🎣 甩竿钓鱼中
     /* 🛡️ 穿在身上的盔甲看得见：胸甲/帽子/皇冠 */
     const bobA = bob;
     if (player.owned.gold_armor || player.armor) {   // 胸甲
@@ -657,9 +657,9 @@ window.G = { get player() { return player; }, get zombies() { return zombies; },
   get skillShots() { return skillShots; }, get clouds() { return clouds; }, get fxLines() { return fxLines; }, get netOrbs() { return netOrbs; }, get shocks() { return shocks; },
   get pets() { return pets; }, get dexCounts() { return dexCounts; }, get coins() { return coins; }, get portal() { return portal; }, addPet, toggleDex, toggleBag, get skillSlots() { return skillSlots; }, get chest() { return chest; }, goNextLevel, openChest,
   get townMode() { return townMode; }, get storage() { return storage; }, get ownedHouse() { return ownedHouse; }, get inRoom() { return inRoom; }, get faintDone() { return faintDone; }, enterTown, exitTown, startFaint, buyHouse,
-  enterDungeon, exitDungeon, spawnGoblin, spawnDgnKing, swapJob, applyJob, dgnDie,   // 🌲⇄ 副本+双职业测试钩
+  enterDungeon: Dgn.enterDungeon, exitDungeon: Dgn.exitDungeon, spawnGoblin: Dgn.spawnGoblin, spawnDgnKing: Dgn.spawnDgnKing, swapJob, applyJob, dgnDie: Dgn.dgnDie,   // 🌲⇄ 副本+双职业测试钩
   get dungeonMode() { return dungeonMode; }, get dgnKills() { return dgnKills; }, get dgnKingSpawned() { return dgnKingSpawned; }, get minions() { return minions; }, get turrets() { return turrets; },
-  fishGo, eatFish, openFishShop, sellAllFish, inArena, enterSky: enterPvp,   // ☁️ 天空城测试钩
+  fishGo: Sky.fishGo, eatFish: Sky.eatFish, openFishShop: Sky.openFishShop, sellAllFish: Sky.sellAllFish, inArena, enterSky: enterPvp,   // ☁️ 天空城测试钩
   get skyMode() { return skyMode; }, get fishState() { return fishState; }, get bobber() { return bobber; }, setFishT(t) { fishT = t; },
   castSkill, renderSkills, ownedSkills, spawnStorm: () => { const z = makeStorm(player.x + 150, player.y, Math.random); zombies.push(z); }, spawnVoid: () => { const z = makeVoid(player.x + 150, player.y, Math.random); zombies.push(z); } };
 reset(); if (loadGame()) setBanner('💾 存档已读取，接着玩！');

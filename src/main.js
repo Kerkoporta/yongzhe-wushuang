@@ -111,7 +111,7 @@ function update(dt) {
       const gd = Math.hypot(player.x - DGN_GATE.x, player.y - DGN_GATE.y);   // 🌲 副本大门挡路（从正面按钮进）
       if (gd < 42 && gd > 0) { const ga2 = Math.atan2(player.y - DGN_GATE.y, player.x - DGN_GATE.x); player.x = DGN_GATE.x + Math.cos(ga2) * 42; player.y = DGN_GATE.y + Math.sin(ga2) * 42; }
       if (!plazaSeen && player.x > 920 && player.x < 1480 && player.y > 1560 && player.y < 2120) { plazaSeen = true; setBanner('⛲ 发现小镇广场！喷泉好凉快~'); }
-      runTick(dt); arenaTick(dt); mazeTick();   // 🎡 游乐场三项世界玩法（跑酷/擂台/迷宫）
+      Games.runTick(dt); Games.arenaTick(dt); Games.mazeTick();   // 🎡 游乐场三项世界玩法（跑酷/擂台/迷宫）
     }
     // 🎛️ 情境按钮：宝箱 > 商店 > 长椅（靠近两格内才出现，点了才动作）
     let ctxAct = null, ctxBench = null, ctxPlay = -1;
@@ -120,7 +120,7 @@ function update(dt) {
       else if (nearShop() >= 0) ctxAct = 'shop';
       else if (townMode && !inRoom && Math.hypot(player.x - 1200, player.y - 2080) < 100) ctxAct = 'tower';   // 🗼 试炼塔门口
       else if (townMode && !inRoom && Math.hypot(player.x - DGN_GATE.x, player.y - DGN_GATE.y) < 100) ctxAct = 'dungeon';   // 🌲 副本门口
-      else if (townMode && !inRoom && (ctxPlay = nearPlay()) >= 0) ctxAct = 'play';   // 🎡 游乐项目摊位
+      else if (townMode && !inRoom && (ctxPlay = Games.nearPlay()) >= 0) ctxAct = 'play';   // 🎡 游乐项目摊位
       else if (townMode && !inRoom) { for (const b of BENCHES) if (Math.hypot(player.x - b.x, player.y - b.y) < 64) { ctxAct = 'bench'; ctxBench = b; break; } }
     }
     const eb = document.getElementById('enterBtn');
@@ -196,13 +196,13 @@ function update(dt) {
     if (!townMode && !dungeonMode && !pvpMode && kills >= bossAt) { bossAt += 100; spawnBoss(); }   // 👹 每满 100 杀出一只 BOSS（天空城不出）
     if (dungeonMode && !gameOver && !pvpMode) {   // 🌲 副本里 BOSS 也算波次
       spawnT -= dt;
-      if (!dgnKingSpawned && spawnT <= 0 && zombies.filter(z => !z.dead).length < 9) { spawnT = 1.4; spawnGoblin(); }
-      if (dgnKills >= DGN_GOAL && !dgnKingSpawned) spawnDgnKing();
-      if (dgnExit != null) { dgnExit -= dt; if (dgnExit <= 0) exitDungeon(false); }
+      if (!dgnKingSpawned && spawnT <= 0 && zombies.filter(z => !z.dead).length < 9) { spawnT = 1.4; Dgn.spawnGoblin(); }
+      if (dgnKills >= DGN_GOAL && !dgnKingSpawned) Dgn.spawnDgnKing();
+      if (dgnExit != null) { dgnExit -= dt; if (dgnExit <= 0) Dgn.exitDungeon(false); }
     }
     if (skyMode && !gameOver) {   // ☁️ 天空城：钓鱼+PVP 区+鱼商人
       player.x = Math.max(480, Math.min(1920, player.x)); player.y = Math.max(620, Math.min(1900, player.y));   // 云岛边缘有围墙，掉不下去
-      fishTick(dt);
+      Sky.fishTick(dt);
       const fb = document.getElementById('fishBtn');
       const showFb = nearPond() && !paused;
       fb.style.display = showFb ? 'block' : 'none';
@@ -292,7 +292,7 @@ function update(dt) {
         const dmgGb = rollDmg(1);
         if (touchHurt(player, z, dmgGb)) {
           beep(300, 120, 0.15, 'sawtooth', 0.12); burst(player.x, player.y, '#5a8a2a', 6);
-          if (player.hearts <= 0 && !angelSave()) { dgnDie(); }
+          if (player.hearts <= 0 && !angelSave()) { Dgn.dgnDie(); }
         }
         continue;
       }
