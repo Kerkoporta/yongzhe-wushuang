@@ -18,11 +18,56 @@ const SKILL_FX = {
   /* 🔵 法术时代 10 技（全部耗蓝！蓝每秒回 0.4——恩泽定的珍贵手感） */
   sk11_meteor: ['meteors', 8, 12, '#ff8a3a'], sk11_frostfield: ['freeze', 0, 20, '#7ac8ff', { r: 150, dur: 3 }], sk11_blackhole: ['blackhole', 2, 25, '#8a5ac8', { r: 220 }], sk11_thunder: ['chain', 6, 10, '#ffe84a', { n: 8 }], sk11_dragonbreath: ['cloud', 2, 15, '#ff7a2a', { dur: 3, r: 55, fwd: 80 }],
   sk11_bladestorm: ['spin', 15, 12, '#d8e8ff', { r: 110 }], sk11_heal: ['heal', 2, 30, '#7aff8a'], sk11_shield: ['shield', 0, 30, '#7af2ff', { dur: 5 }], sk11_blink: ['blink', 0, 8, '#8fd8ff', { dist: 128 }], sk11_clone: ['clone', 0, 40, '#b8b8ff', { dur: 8 }],
+  /* ⭐ 满级奥义 10 式：武器/装备升到橙·传说才觉醒（不进商店，只能练出来） */
+  ult_fire: ['spin', 26, 20, '#ff6a2a', { r: 150 }], ult_ice: ['freeze', 0, 18, '#7ac8ff', { r: 260, dur: 4 }], ult_thunder: ['chain', 14, 18, '#fff29a', { n: 12 }], ult_holy: ['spin', 30, 22, '#fff2b0', { r: 160 }], ult_poison: ['cloud', 3, 16, '#7ee85a', { dur: 7, r: 110 }],
+  ult_void: ['blackhole', 4, 24, '#8a5ac8', { r: 260 }], ult_bone: ['chain', 10, 18, '#e8e8f0', { n: 10 }], ult_blood: ['heal', 4, 26, '#ff5a5a'], ult_wind: ['spin', 18, 14, '#a8f2d8', { r: 130 }], ult_brave: ['spin', 22, 16, '#ffd24a', { r: 140 }],
 };
 const MANA_COST = {   // 🔵 新法术耗蓝表（老技能按伤害自动估 5~25）
   sk11_meteor: 30, sk11_frostfield: 25, sk11_blackhole: 35, sk11_thunder: 20, sk11_dragonbreath: 30,
   sk11_bladestorm: 25, sk11_heal: 40, sk11_shield: 30, sk11_blink: 15, sk11_clone: 45,
+  ult_fire: 55, ult_ice: 55, ult_thunder: 55, ult_holy: 60, ult_poison: 50, ult_void: 65, ult_bone: 55, ult_blood: 50, ult_wind: 45, ult_brave: 45,   // ⭐ 奥义都贵：练出来的王牌
 };
+/* ⭐ 满级奥义图鉴：名字+一句介绍（觉醒时展示） */
+const ULT_INFO = {
+  ult_fire: ['🔥 烈焰风暴', '火焰系满级觉醒：周身爆出焚尽一切的烈焰环'],
+  ult_ice: ['❄️ 绝对零度', '冰霜系满级觉醒：大范围冻结 4 秒'],
+  ult_thunder: ['⚡ 万雷天引', '雷电系满级觉醒：十二道天雷连环劈落'],
+  ult_holy: ['✨ 神圣审判', '圣光系满级觉醒：净化全场的圣光爆发'],
+  ult_poison: ['💚 剧毒新星', '毒系满级觉醒：铺天盖地的蚀骨毒雾'],
+  ult_void: ['🕳️ 虚空湮灭', '暗系满级觉醒：撕开吞噬一切的黑洞'],
+  ult_bone: ['💀 凋零诅咒', '骨灵系满级觉醒：怨魂锁链追魂夺命'],
+  ult_blood: ['🩸 血之狂暴', '血系满级觉醒：燃烧战意，大量回血'],
+  ult_wind: ['🌀 风暴之眼', '风系满级觉醒：化身风暴中心席卷八方'],
+  ult_brave: ['⚔️ 勇者怒吼', '凡铁满级觉醒：无畏者的一击定乾坤'],
+};
+/* ⭐ 武器/装备 → 奥义映射：先看特效，再猜名字关键词，最后凡铁兜底 */
+function ultOfItem(key) {
+  const fx = WEAPON_FX[key] || {}, n = (ALLITEMS[key] ? ALLITEMS[key].name : '') + key;
+  if (fx.burn) return 'ult_fire';
+  if (fx.freezePct || fx.freezeDur) return 'ult_ice';
+  if (fx.zap || fx.zapPct) return 'ult_thunder';
+  if (fx.holy) return 'ult_holy';
+  if (fx.poison) return 'ult_poison';
+  if (fx.vampire) return 'ult_blood';
+  if (/火|焰|熔|炎|fire|lava|magma|inferno|flame/.test(n)) return 'ult_fire';
+  if (/冰|雪|霜|寒|ice|frost|snow|freeze|cold|winter/.test(n)) return 'ult_ice';
+  if (/雷|电|霆|thunder|storm|volt|zap|lightning/.test(n)) return 'ult_thunder';
+  if (/圣|光|星|日|晶|holy|light|star|sun|prism|crystal|diamond/.test(n)) return 'ult_holy';
+  if (/毒|瘴|slime|poison|venom|toxic/.test(n)) return 'ult_poison';
+  if (/灵|魂|虚|暗|影|冥|soul|ghost|void|dark|shadow|oblivion|ender|pearl/.test(n)) return 'ult_void';
+  if (/骨|髅|凋|bone|skull|wither|nether/.test(n)) return 'ult_bone';
+  if (/血|牙|吸血|blood|vampire|fang/.test(n)) return 'ult_blood';
+  if (/风|云|羽|翼|wind|cloud|feather|wing|sky/.test(n)) return 'ult_wind';
+  return 'ult_brave';
+}
+function grantUlt(key) {   // ⭐ 满级觉醒：发奥义技能书（进技能库，背包里上阵）
+  const uk = ultOfItem(key);
+  if (player.bought[uk]) { setBanner('⭐ 这件也满级了！奥义「' + ULT_INFO[uk][0] + '」早已在你手中'); return; }
+  player.bought[uk] = true;
+  setBanner('⭐ 满级觉醒！「' + (ALLITEMS[key] || {}).name + '」练到极致，领悟奥义【' + ULT_INFO[uk][0] + '】——' + ULT_INFO[uk][1] + '！去背包技能页上阵！');
+  beep(523, 1046, 0.4, 'sine', 0.18); setTimeout(() => beep(659, 1318, 0.5, 'sine', 0.16), 250); setTimeout(() => beep(784, 1568, 0.6, 'sine', 0.14), 500);
+  burst(player.x, player.y, '#ffd24a', 24);
+}
 function updateMana() { const el = document.getElementById('mana'); if (el) el.textContent = '🔵 ' + Math.floor(player.mana != null ? player.mana : 100); }
 function zMaxHp(z) { return z.boss ? BOSS.hp : z.voidw ? VOIDW.hp : z.storm ? STORM.hp : z.lava ? LAVA.hp : z.ghost ? GHOST.hp : z.skel ? SKELETON.hp : z.crystal ? CRYSTAL.hp : ZOMBIE.hp; }
 function dotDmg(z) { return z.boss ? 1 : Math.max(1, Math.ceil(zMaxHp(z) * 0.1)); }   // 🩸 持续伤害：每 0.1 秒掉十分之一血（BOSS 固定 1）
@@ -140,7 +185,7 @@ function castSkill(key) {
 }
 const skillsEl = document.getElementById('skills');
 let skillRefs = [];
-const ALLITEMS = {}; for (const t of [SHOP, SHOP2, SHOP3, SHOP4, SHOP5, SHOP6, SHOP7, SHOP8, SHOP9, SHOP10, USE_ITEMS]) for (const k in t) ALLITEMS[k] = t[k];   // 全关卡物品表（继承的技能跨关也能用）
+const ALLITEMS = {}; for (const t of [SHOP, SHOP2, SHOP3, SHOP4, SHOP5, SHOP6, SHOP7, SHOP8, SHOP9, SHOP10, USE_ITEMS, ULT_ITEMS]) for (const k in t) ALLITEMS[k] = t[k];   // 全关卡物品表（继承的技能跨关也能用）
 /* 🥷 职业物品（v54）：不进商店货架、不进宝箱抽奖池，只能靠剧情获得 */
 const CLASS_ITEMS = {
   awaken_stone: { name: '觉醒石', icon: '🌟', price: 0, kind: 'awaken', desc: '随机觉醒职业（共 15 个）：第一颗主职业、第二颗副职业，左上角 ⇄ 一键切换！' },

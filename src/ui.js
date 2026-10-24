@@ -129,6 +129,7 @@ function bagTap(k) {
       invB(k).t += 1; player.items.use_stone--; bagPickMode = null;
       setBanner('🔷 叮叮当当！' + ALLITEMS[k].name + ' 升到 ' + TIERS[invB(k).t].n + '！');
       beep(600, 900, 0.15, 'square', 0.16); setTimeout(() => beep(900, 1400, 0.2, 'square', 0.14), 140);
+      if (invB(k).t >= MAX_TIER) setTimeout(() => grantUlt(k), 600);   // ⭐ 敲到传说：顿半秒放觉醒礼花
       applyGear(); updateGold(); saveGame(); renderBag(); return;
     }
     setBanner('🔷 只能升武器或装备哦！（再点一下石头取消）'); renderBag(); return;

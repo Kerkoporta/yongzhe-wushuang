@@ -213,7 +213,19 @@ const WEAPON_FX = {
   glow_pick: { dmg: 8.5, color: '#a8f2ff' },
 };
 function shopNow() { return level === 2 ? SHOP2 : level === 3 ? SHOP3 : level === 4 ? SHOP4 : level === 5 ? SHOP5 : level === 6 ? SHOP6 : level === 7 ? SHOP7 : SHOP; }   // 每关商店完全不同
-const ALLKIND = {}; for (const t of [SHOP, SHOP2, SHOP3, SHOP4, SHOP5, SHOP6, SHOP7, SHOP8, SHOP9, SHOP10, USE_ITEMS]) for (const k in t) ALLKIND[k] = t[k].kind;   // 全商品类型表（过关保留技能/宠物用）
+const ULT_ITEMS = {   // ⭐ 满级奥义 10 式：不进商店，武器/装备练到橙·传说自动觉醒
+  ult_fire: { name: '烈焰风暴', icon: '🔥', price: 0, kind: 'skill', desc: '火系满级觉醒：焚尽一切的烈焰环' },
+  ult_ice: { name: '绝对零度', icon: '❄️', price: 0, kind: 'skill', desc: '冰系满级觉醒：大范围冻结 4 秒' },
+  ult_thunder: { name: '万雷天引', icon: '⚡', price: 0, kind: 'skill', desc: '雷系满级觉醒：十二道天雷连环劈' },
+  ult_holy: { name: '神圣审判', icon: '✨', price: 0, kind: 'skill', desc: '圣系满级觉醒：净化全场的圣光' },
+  ult_poison: { name: '剧毒新星', icon: '💚', price: 0, kind: 'skill', desc: '毒系满级觉醒：蚀骨毒雾铺天盖地' },
+  ult_void: { name: '虚空湮灭', icon: '🕳️', price: 0, kind: 'skill', desc: '暗系满级觉醒：吞噬一切的黑洞' },
+  ult_bone: { name: '凋零诅咒', icon: '💀', price: 0, kind: 'skill', desc: '骨系满级觉醒：怨魂锁链夺命' },
+  ult_blood: { name: '血之狂暴', icon: '🩸', price: 0, kind: 'skill', desc: '血系满级觉醒：战意燃烧大量回血' },
+  ult_wind: { name: '风暴之眼', icon: '🌀', price: 0, kind: 'skill', desc: '风系满级觉醒：化身风暴席卷八方' },
+  ult_brave: { name: '勇者怒吼', icon: '🦁', price: 0, kind: 'skill', desc: '凡铁满级觉醒：无畏者的一击定乾坤' },
+};
+const ALLKIND = {}; for (const t of [SHOP, SHOP2, SHOP3, SHOP4, SHOP5, SHOP6, SHOP7, SHOP8, SHOP9, SHOP10, USE_ITEMS, ULT_ITEMS]) for (const k in t) ALLKIND[k] = t[k].kind;   // 全商品类型表（过关保留技能/宠物用）
 function toggleShop(force) {
   paused = force == null ? !paused : force;
   shopEl.style.display = paused ? 'flex' : 'none';
