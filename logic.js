@@ -109,13 +109,15 @@ function makePlayer() {
 }
 /* 在人物周围一圈圆环上挑生成点（不刷脸上，也不刷出世界） */
 function pickSpawn(p, rnd) {
+  let lx = 40, ly = 40;
   for (let i = 0; i < 20; i++) {
     const a = rnd() * Math.PI * 2, d = SPAWN.ringMin + rnd() * (SPAWN.ringMax - SPAWN.ringMin);
     const x = Math.max(30, Math.min(WORLD.w - 30, p.x + Math.cos(a) * d));
     const y = Math.max(30, Math.min(WORLD.h - 30, p.y + Math.sin(a) * d));
+    lx = x; ly = y;   // 记下每次尝试：实在挑不到远的就用最后一次（世界内），绝不回 (40,40) 角落
     if (Math.hypot(x - p.x, y - p.y) >= SPAWN.ringMin * 0.8) return { x, y };
   }
-  return { x: 40, y: 40 };
+  return { x: lx, y: ly };   // 🐛 修：旧兜底固定 (40,40)，怪会瞬移到地图左上角吓人
 }
 function spawnZombie(p, rnd) {
   const s = pickSpawn(p, rnd);
@@ -130,7 +132,7 @@ const AFFIXES = {
   swift: { icon: '💨', name: '疾电', desc: '跑得飞快' },
 };
 function rollAffix(rnd) {   // 12% 出词缀怪（BOSS/特殊怪不贴；🔮 精英猎场契约提到 40%）
-  const rate = (typeof altarMods !== 'undefined' && altarMods && altarMods.affixRate) || 0.12;
+  const rate = (typeof altarMods !== 'undefined' && altarMods && altarMods.affixRate != null) ? altarMods.affixRate : 0.12;   // 🐛 affixRate=0 也是有效设定（"零精英"挑战），不能用 || 会把 0 吞了
   if (rnd() > rate) return null;
   const keys = Object.keys(AFFIXES);
   return keys[Math.floor(rnd() * keys.length)];

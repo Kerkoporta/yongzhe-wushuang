@@ -370,7 +370,7 @@ function doAssassinTp() {
     if (ALLKIND[k] !== 'weapon') continue;
     const fxk = WEAPON_FX[k] || {};
     if (fxk.bow || fxk.staff || fxk.gun) continue;   // 只挑近战
-    const dps = (fxk.dmg || 1) * T(k);
+    const dps = (fxk.dmg != null ? fxk.dmg : 1) * T(k);   // 🐛 0 伤合法
     if (dps > bestD) { bestD = dps; best = k; }
   }
   if (!best) {   // 没有近战武器：发职业匕首

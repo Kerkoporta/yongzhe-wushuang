@@ -179,7 +179,7 @@ function castSkill(key) {
     player.inv = Math.max(player.inv, 0.3);
     burst(player.x, player.y, color, 14); beep(900, 1500, 0.16, 'sine', 0.14);
   } else if (type === 'clone') {   // 👥 分身术：影子分身拿你一半武器攻击力帮你打
-    const wd = ((WEAPON_FX[player.weapon] || {}).dmg || 1) * 0.5;
+    const wdd = (WEAPON_FX[player.weapon] || {}).dmg; const wd = (wdd != null ? wdd : 1) * 0.5;   // 🐛 0 伤合法
     minions.push({ x: player.x + 20, y: player.y + 10, t: o.dur || 8, cd: 0, clone: true, dmg: Math.max(1, wd) });
     burst(player.x, player.y, color, 14); beep(700, 1100, 0.2, 'sine', 0.14);
   }

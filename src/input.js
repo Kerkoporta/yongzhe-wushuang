@@ -140,7 +140,7 @@ function doAttack(fromAuto) {
   }
   player.atkCount = (player.atkCount || 0) + 1;
   player.atkT = ATTACK.swing; swingDir = -swingDir;   // ↔️ 左右交替挥剑（恩泽点的：先左到右，再右到左）
-  let dmg = (fx.dmg || 1) * T(handKey) + (player.dmgAdd || 0);   // 🌈 按出手的那只手算伤害
+  let dmg = (fx.dmg != null ? fx.dmg : 1) * T(handKey) + (player.dmgAdd || 0);   // 🌈 按出手的那只手算伤害；🐛 修：dmg=0 是合法值（整蛊武器/挑战模式），|| 会把它抬成 1
   if (challengeMode === 'crit') dmg *= 3;   // 📅 每日挑战·勇者暴击日：刀刀×3
   if (typeof sandboxMode !== 'undefined' && sandboxMode && sandboxRule.dmg3) dmg *= 3;   // 🔮 旁观规则：伤害×3
   if (altarMods && altarMods.dmgMul) dmg *= altarMods.dmgMul;   // 🔮 玻璃大炮：伤害×2

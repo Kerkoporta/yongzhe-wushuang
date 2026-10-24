@@ -56,7 +56,7 @@ function resTick(dt) {   // 每帧：半秒重算 + 宠物发锁定弹
     const trio = resActive.some(x => x.type === 'trio');
     p.resT = r.type === 'wp' ? (trio ? 2 : 3.5) : 5;   // 同系 3.5s（大共鸣 2s）/ 异系 5s
     const z = nearestZ(9999); if (!z) continue;
-    const wd = (WEAPON_FX[player.weapon] || {}).dmg || 1;
+    const wd0 = WEAPON_FX[player.weapon] || {}; const wd = wd0.dmg != null ? wd0.dmg : 1;   // 🐛 0 伤是合法值
     const dmg = Math.max(1, Math.round(wd * T(player.weapon) * (r.type === 'wp' ? 1.2 : 0.8)));
     const a = Math.atan2(z.y - p.y, z.x - p.x);
     const e = ELEMS[r.elem];
@@ -72,7 +72,8 @@ function resOnKill(z) {   // 💥 击杀爆裂判定（input.js killZombie 调�
   const w = resActive.find(r => r.type === 'wg' || r.type === 'trio'); if (!w) return;
   const e = ELEMS[w.elem];
   burst(z.x, z.y, e[2], 14);
-  for (const o of zombies.slice()) if (!o.dead && o !== z && Math.hypot(o.x - z.x, o.y - z.y) < 60) hurtZ(o, Math.max(1, (WEAPON_FX[player.weapon] || {}).dmg || 2), e[2]);
+  const wdmg2 = (WEAPON_FX[player.weapon] || {}).dmg;
+  for (const o of zombies.slice()) if (!o.dead && o !== z && Math.hypot(o.x - z.x, o.y - z.y) < 60) hurtZ(o, Math.max(0, wdmg2 != null ? wdmg2 : 2), e[2]);   // 🐛 0 伤合法；爆炸允许 0 伤（只看不疼）
 }
 function resDmgMul() { return resActive.some(r => r.type === 'wp') ? 1.15 : 1; }   // 🔥 同系武器+15%
 function resPetMul(pet) {   // 宠物伤害倍率：同系+40%；羁绊攻速在宠物攻击冷却处

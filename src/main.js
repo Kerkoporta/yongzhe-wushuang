@@ -403,7 +403,7 @@ function update(dt) {
         if (m.friendly) {   // ☄️ 友方陨石（流星火雨）：砸怪不砸自己
           for (const z of zombies.slice()) if (!z.dead && Math.hypot(z.x - m.x, z.y - m.y) < mr + (z.r || 10)) hurtZ(z, m.dmg || 8, m.color);
         } else if (!gameOver && !(player.tpT > 0) && Math.hypot(player.x - m.x, player.y - m.y) < mr + PLAYER.r) {
-          const dmg = rollDmg(m.dmg || 1.5);
+          const dmg = rollDmg(m.dmg != null ? m.dmg : 1.5);   // 🐛 0 伤怪（无害氛围怪）合法
           if (dmg > 0) {
             player.hearts -= dmg; player.inv = 0.8; player.sinceHurt = 0; shakeT = Math.max(shakeT, 0.2);
             burst(player.x, player.y, '#e84a4a', 14); beep(150, 60, 0.3, 'sawtooth', 0.2);
@@ -486,7 +486,7 @@ function update(dt) {
     /* 🏹 玩家的箭（寒冰弓）：自动瞄准射出后直线飞 */
     for (const a of parrows) {
       deflectGhastBalls(a.x, a.y, 16);   // ⚾ 飞行中的箭也能抽回火球
-      if (pvpFoe && !pvpFoe.stale && (!skyMode || inArena(player.x, player.y)) && a.t > 0 && Math.hypot(a.x - pvpFoe.x, a.y - pvpFoe.y) < 14) { a.t = 0; pvpHits.push({ s: ++pvpHitSeq, d: a.dmg || 1 }); pvpWrite(); burst(pvpFoe.x, pvpFoe.y, '#ffb0b0', 8); }   // 📡 PVP：箭中幻影也算（同样要我在 PVP 圈里）
+      if (pvpFoe && !pvpFoe.stale && (!skyMode || inArena(player.x, player.y)) && a.t > 0 && Math.hypot(a.x - pvpFoe.x, a.y - pvpFoe.y) < 14) { a.t = 0; pvpHits.push({ s: ++pvpHitSeq, d: a.dmg != null ? a.dmg : 1 }); pvpWrite(); burst(pvpFoe.x, pvpFoe.y, '#ffb0b0', 8); }   // 📡 PVP：箭中幻影也算；🐛 0 伤箭合法
       a.t -= dt; a.x += a.vx * dt; a.y += a.vy * dt;
       if (a.t <= 0) continue;
       for (const z of zombies) {
