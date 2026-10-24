@@ -4,7 +4,7 @@ function draw() {
   const Z = ZOOMS[zoomLv];   // 🔍 倍数镜：1×/2×/4×
   const camX = Math.max(0, Math.min(WORLD.w - VW / Z, player.x - VW / Z / 2));
   const camY = Math.max(0, Math.min(WORLD.h - VH / Z, player.y - VH / Z / 2));
-  const shx = shakeT > 0 ? (Math.random() - 0.5) * 9 : 0, shy = shakeT > 0 ? (Math.random() - 0.5) * 9 : 0;   // 💥 砸地震屏
+  const shx = shakeT > 0 && settings.shake ? (Math.random() - 0.5) * 9 : 0, shy = shakeT > 0 && settings.shake ? (Math.random() - 0.5) * 9 : 0;   // 💥 砸地震屏（设置里可关）
   ctx.setTransform(DPR * Z, 0, 0, DPR * Z, (-camX + shx) * DPR * Z, (-camY + shy) * DPR * Z);
   // 🗺️ 地面：副本=幽暗密林；小镇=草地+马路+小家；冒险=图案填充
   const LV = LEVELS[level];
@@ -686,7 +686,7 @@ window.G = { get player() { return player; }, get zombies() { return zombies; },
   fishGo: Sky.fishGo, eatFish: Sky.eatFish, openFishShop: Sky.openFishShop, sellAllFish: Sky.sellAllFish, inArena, enterSky: enterPvp,   // ☁️ 天空城测试钩
   get skyMode() { return skyMode; }, get fishState() { return fishState; }, get bobber() { return bobber; }, setFishT(t) { fishT = t; }, get hitstopT() { return hitstopT; },   // 💥 顿帧测试钩
   castSkill, renderSkills, ownedSkills, openSkin, buyMount, mountOf, spawnStorm: () => { const z = makeStorm(player.x + 150, player.y, Math.random); zombies.push(z); }, spawnVoid: () => { const z = makeVoid(player.x + 150, player.y, Math.random); zombies.push(z); } };
-reset(); if (loadGame()) setBanner('💾 存档已读取，接着玩！');
+reset(); loadSettings(); if (loadGame()) setBanner('💾 存档已读取，接着玩！');   // 🔧 设置先进来
 showHome();   // 🏠 开机先进主页选存档
 addEventListener('pointerdown', startMusic, { once: true });   // 🎵 第一次点屏幕时开播（浏览器规矩）
 addEventListener('keydown', startMusic, { once: true });

@@ -98,3 +98,18 @@
 .homeMobs { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
 .homeMobs span { position: absolute; top: 0; font-size: 26px; opacity: .5; animation: mobFloat linear infinite; }
 @keyframes mobFloat { from { transform: translateX(60vw) translateY(0); } to { transform: translateX(-60vw) translateY(10px); } }
+
+/* 🔧 设置面板：iOS 风开关 + 滑条 */
+.cfgRow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 2px;border-bottom:1px solid rgba(255,255,255,.08)}
+.cfgTxt{display:flex;flex-direction:column;font-size:13px}
+.cfgTxt span{font-size:11px;opacity:.6;margin-top:1px}
+.sw{width:46px;height:28px;border-radius:14px;border:0;background:#4a4a55;position:relative;cursor:pointer;transition:background .22s;flex-shrink:0;padding:0}
+.sw i{position:absolute;left:3px;top:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.35);transition:transform .22s cubic-bezier(.34,1.4,.64,1)}
+.sw.on{background:#34c759}
+.sw.on i{transform:translateX(18px)}
+.cfgSl{width:130px;accent-color:#34c759;height:28px}
+/* 🙃 左撇子模式：摇杆右置、攻击/AUTO/技能左置 */
+body.lefty #joy{left:auto;right:26px}
+body.lefty #atkBtn{right:auto;left:20px}
+body.lefty #autoBtn{right:auto;left:28px}
+body.lefty #skills{right:auto;left:118px}

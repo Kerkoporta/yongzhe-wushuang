@@ -4,6 +4,7 @@ let gearOpen = false;
 function toggleGear(force) {
   gearOpen = force == null ? !gearOpen : force;
   paused = gearOpen; if (gearOpen) {
+    renderSettings();   // 🔧 打开设置面板先渲染开关滑条
     document.getElementById('gearNext').style.display = pendingNext ? 'block' : 'none';   // 🗺️ 有下一关可去就亮出来
     document.getElementById('gearFight').style.display = townMode ? 'block' : 'none';   // ⚔️ 小镇里能回去刷怪
     document.getElementById('gearTown').style.display = (townUnlocked && !townMode) ? 'block' : 'none';   // 🏡 刷怪时能回小镇

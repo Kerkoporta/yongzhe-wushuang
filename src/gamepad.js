@@ -1,6 +1,9 @@
 'use strict';
 /* ================= 🎮 手柄模式：摇杆=走路，A=攻击/确认，B=设置；面板开着时摇杆变金属鼠标 ================= */
 let padOn = false, padPrev = {}, padIntroT = 0;
+/* 🎮 系统级连接事件：手柄一插/一按就知道（比每帧轮询更灵敏） */
+addEventListener('gamepadconnected', e => { if (!padOn) { padOn = true; padPrev = {}; showPadIntro(); } });
+addEventListener('gamepaddisconnected', () => { padOn = false; padCursorEl.style.display = 'none'; setBanner('🎮 手柄断开了，重插会再教你一次键位'); });
 function showPadIntro() {   // 🎮 连接/重连介绍卡：全场暂停 5 秒看键位
   padIntroT = 5;
   document.getElementById('padHelp').style.display = 'flex';
@@ -34,7 +37,8 @@ function padTick(dt) {
     return;
   }
   const ax = gp.axes[0] || 0, ay = gp.axes[1] || 0, dead = 0.18;
-  const mx = Math.abs(ax) > dead ? ax : 0, my = Math.abs(ay) > dead ? ay : 0;
+  const sens = settings.sens / 100;
+  const mx = Math.abs(ax) > dead ? ax * sens : 0, my = Math.abs(ay) > dead ? ay * sens : 0;   // 🕹️ 手柄也吃灵敏度
   const pressed = i => { const now = gp.buttons[i] && gp.buttons[i].pressed; const was = padPrev[i]; padPrev[i] = now; return now && !was; };
   const aHit = pressed(0), bHit = pressed(1), xHit = pressed(2), yHit = pressed(3);   // 🎮 标准键位：A下 B右 X左 Y上（⚠️ pressed 有副作用，一键只算一次）
   if (anyPanelOpen()) {   // 🖱️ 鼠标模式：摇杆移光标，A=点，B=关面板

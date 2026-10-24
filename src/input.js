@@ -10,7 +10,7 @@ function showTouch(on) { joy.style.display = atkBtn.style.display = autoBtn.styl
 addEventListener('touchstart', () => showTouch(true), { once: true, passive: true });
 joy.addEventListener('pointerdown', e => { joyId = e.pointerId; const r = joy.getBoundingClientRect(); joyC = { x: r.left + r.width / 2, y: r.top + r.height / 2 }; try { joy.setPointerCapture(e.pointerId); } catch (_) {} });
 joy.addEventListener('pointermove', e => { if (e.pointerId !== joyId) return;
-  let dx = (e.clientX - joyC.x) / 34, dy = (e.clientY - joyC.y) / 34;   // 📱 摇杆小了，灵敏度半径跟着缩
+  let dx = (e.clientX - joyC.x) / (34 * settings.sens / 100), dy = (e.clientY - joyC.y) / (34 * settings.sens / 100);   // 🕹️ 灵敏度可调
   const d = Math.hypot(dx, dy); if (d > 1) { dx /= d; dy /= d; }
   joyVec = { x: dx, y: dy };
   let kx = dx, ky = dy;
@@ -274,7 +274,8 @@ function doAttack(fromAuto) {
     }
   }
 }
-function burst(x, y, color, n) { if (parts.length > 240) return; for (let i = 0; i < n; i++) { const a = Math.random() * 6.28, s = 40 + Math.random() * 90;
+function burst(x, y, color, n) { if (settings.perf) n = Math.ceil(n / 2);   // ⚡ 性能模式：粒子减半
+  if (parts.length > 240) return; for (let i = 0; i < n; i++) { const a = Math.random() * 6.28, s = 40 + Math.random() * 90;
   parts.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s - 30, t: 0.5 + Math.random() * 0.3, c: color }); } }
 function dotBurst(x, y, color) { if (parts.length > 240) return; for (let i = 0; i < 2; i++) { const a = Math.random() * 6.28, s = 30 + Math.random() * 60;
   parts.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s - 20, t: 0.35 + Math.random() * 0.2, c: color }); } }   // 🩸 持续伤害专用小粒子（防卡）

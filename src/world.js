@@ -701,7 +701,7 @@ function beep(f0, f1, dur, type, vol) {
     const o = AC.createOscillator(), g = AC.createGain();
     o.type = type || 'square'; o.frequency.setValueAtTime(f0, AC.currentTime);
     o.frequency.exponentialRampToValueAtTime(Math.max(40, f1), AC.currentTime + dur);
-    g.gain.setValueAtTime(vol || 0.12, AC.currentTime); g.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + dur);
+    g.gain.setValueAtTime((vol || 0.12) * (settings.sfxVol / 100), AC.currentTime); g.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + dur);   // 🔔 音效音量（设置滑条）
     o.connect(g); g.connect(AC.destination); o.start(); o.stop(AC.currentTime + dur);
   } catch (e) {}
 }
