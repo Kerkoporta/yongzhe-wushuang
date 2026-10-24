@@ -86,6 +86,7 @@ function goNextLevel() {   // 🗺️ 真正过关（旧自动过渡搬到这里
   player.hearts = player.maxHearts; updateGold(); revivePets();   // 🐾 过关复活伙伴
   placePortal(); placeShops(); updateScore();
   if (level === 9 && !towerMode) spawnBoss();   // 🐉 末影之地进门就决战（清场之后才召龙！）
+  altarMods = null; altar = null; altarMaybeSpawn();   // 🔮 新关卡：契约清零，25% 刷祭坛
   beep(600, 1200, 0.5, 'sine', 0.2); saveGame();
 }
 /* ================= 🌅 开场剧情：我在哪儿→"你醒了"→宁静小镇（新冒险第一眼） ================= */
@@ -671,6 +672,7 @@ function endlessBossDown(z) {
   if (endlessWave > 7) { endlessWave = 1; endlessRound++; setBanner(`🌀 第 ${endlessRound} 遍开始！BOSS 又变强了！商店已刷新`); }
   else setBanner(`🌀 第 ${endlessWave} 波：${LEVELS[endlessWave].name}的怪来了！商店已刷新`);
   player.hearts = player.maxHearts; placePortal(); revivePets();   // 🐾 无尽过波也复活伙伴
+  altarMods = null; altar = null; altarMaybeSpawn();   // 🔮 塔内新一波：契约清零，25% 刷祭坛
   beep(600, 1200, 0.5, 'sine', 0.2); saveGame(); updateScore();
 }
 /* ================= 🔍 倍数镜（1×/2×/4× 循环） ================= */
@@ -685,6 +687,7 @@ function ctxGo() {
   else if (c.act === 'bench' && c.bench) sitBench(c.bench);
   else if (c.act === 'tower') enterTower();   // 🗼 进试炼塔
   else if (c.act === 'gate') exitTown();   // ⚔️ 出城门=回主线冒险（第一关走起）
+  else if (c.act === 'altar') openAltar();   // 🔮 摸祭坛看契约
   else if (c.act === 'dungeon') Dgn.enterDungeon();   // 🌲 进哥布林森林副本
   else if (c.act === 'fishshop') Sky.openFishShop();   // 🐟 天空城鱼商人
   else if (c.act === 'skyleave') leavePvp();   // 🚪 离开天空城回冒险

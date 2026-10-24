@@ -91,6 +91,8 @@ function killZombie(z) {
   } else {
     g = lootBounty(z, Math.random);   // 💰 僵尸 1~4，骷髅 3~6
     if (z.affix === 'king') g *= 5;                 // 👑 暴君词缀：掉落金币×5
+    if (altarMods && altarMods.goldMul) g *= altarMods.goldMul;   // 🔮 契约金币倍率
+    if (altarMods && altarMods.diaDrop && Math.random() < altarMods.diaDrop) { player.diamonds = (player.diamonds || 0) + 1; updateDia(); }   // 🔮 疾风契约：20% 掉钻
     if (z.affix) g = Math.ceil(g * 1.5);            // 👑 词缀怪都肥一点
     if (player.owned.magnet) g *= 2;                // 🧲 磁铁金币×2
     if (player.owned.book) g = Math.ceil(g * 1.5);  // 📖 经验之书×1.5
@@ -140,6 +142,7 @@ function doAttack(fromAuto) {
   let dmg = (fx.dmg || 1) * T(handKey) + (player.dmgAdd || 0);   // 🌈 按出手的那只手算伤害
   if (challengeMode === 'crit') dmg *= 3;   // 📅 每日挑战·勇者暴击日：刀刀×3
   if (typeof sandboxMode !== 'undefined' && sandboxMode && sandboxRule.dmg3) dmg *= 3;   // 🔮 旁观规则：伤害×3
+  if (altarMods && altarMods.dmgMul) dmg *= altarMods.dmgMul;   // 🔮 玻璃大炮：伤害×2
   if (player.powerT > 0) dmg *= 1.5;   // 💪 力量药水
   if (player.job === 'warrior' && fx.staff) dmg *= 0.9;   // ⚔️ 战士拿法杖只能发挥九成
   if (assassinStrike) dmg *= 2;   // 🥷 刺客落地一刀：×2

@@ -150,13 +150,14 @@ function update(dt) {
       else if (nearShop() >= 0) ctxAct = 'shop';
       else if (townMode && !inRoom && Math.hypot(player.x - 1200, player.y - 2080) < 100) ctxAct = 'tower';   // 🗼 试炼塔门口
       else if (townMode && !inRoom && Math.hypot(player.x - 1200, player.y - 2320) < 110) ctxAct = 'gate';   // ⚔️ 镇南城门：出镇冒险
+      else if (altar && !altar.taken && !townMode && Math.hypot(player.x - altar.x, player.y - altar.y) < 110) ctxAct = 'altar';   // 🔮 紫晶祭坛前（主线/塔内）
       else if (townMode && !inRoom && Math.hypot(player.x - DGN_GATE.x, player.y - DGN_GATE.y) < 100) ctxAct = 'dungeon';   // 🌲 副本门口
       else if (townMode && !inRoom && (ctxPlay = Games.nearPlay()) >= 0) ctxAct = 'play';   // 🎡 游乐项目摊位
       else if (townMode && !inRoom) { for (const b of BENCHES) if (Math.hypot(player.x - b.x, player.y - b.y) < 64) { ctxAct = 'bench'; ctxBench = b; break; } }
     }
     const eb = document.getElementById('enterBtn');
     eb.style.display = ctxAct ? 'block' : 'none';
-    if (ctxAct) eb.textContent = ctxAct === 'chest' ? '🎁 打开宝箱' : ctxAct === 'next' ? '🗺️ 下一关' : ctxAct === 'tower' ? '🗼 进入试炼塔' : ctxAct === 'gate' ? '⚔️ 出镇冒险' : ctxAct === 'dungeon' ? '🌲 进入哥布林森林' : ctxAct === 'bench' ? '🪑 坐下' : ctxAct === 'play' ? '🎮 玩' + ATTRACT[ctxPlay].name : '🚪 进入';
+    if (ctxAct) eb.textContent = ctxAct === 'chest' ? '🎁 打开宝箱' : ctxAct === 'next' ? '🗺️ 下一关' : ctxAct === 'tower' ? '🗼 进入试炼塔' : ctxAct === 'gate' ? '⚔️ 出镇冒险' : ctxAct === 'altar' ? '🔮 触摸祭坛' : ctxAct === 'dungeon' ? '🌲 进入哥布林森林' : ctxAct === 'bench' ? '🪑 坐下' : ctxAct === 'play' ? '🎮 玩' + ATTRACT[ctxPlay].name : '🚪 进入';
     window.__ctx = { act: ctxAct, bench: ctxBench, play: ctxPlay };   // B 键/按钮共用
     if (townMode && !paused && !gameOver) {   // 🏡 小镇里的家：门/床/柜子
       if (ownedHouse && !inRoom && Math.hypot(player.x - 1200, player.y - 700) < 40) { inRoom = true; player.x = 1200; player.y = 1380; setBanner('🏠 到家啦！'); }

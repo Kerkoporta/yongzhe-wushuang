@@ -129,15 +129,16 @@ const AFFIXES = {
   regen: { icon: '♻️', name: '再生', desc: '每秒回血' },
   swift: { icon: '💨', name: '疾电', desc: '跑得飞快' },
 };
-function rollAffix(rnd) {   // 12% 出词缀怪（BOSS/特殊怪不贴）
-  if (rnd() > 0.12) return null;
+function rollAffix(rnd) {   // 12% 出词缀怪（BOSS/特殊怪不贴；🔮 精英猎场契约提到 40%）
+  const rate = (typeof altarMods !== 'undefined' && altarMods && altarMods.affixRate) || 0.12;
+  if (rnd() > rate) return null;
   const keys = Object.keys(AFFIXES);
   return keys[Math.floor(rnd() * keys.length)];
 }
 /* 僵尸追人一步（撞世界边就停） */
 function zombieStep(z, p, dt, speedMul) {
   const dx = p.x - z.x, dy = p.y - z.y, d = Math.hypot(dx, dy) || 1;
-  const sp = ZOMBIE.speed * (speedMul || 1) * (z.affix === 'swift' ? 1.6 : 1) * dt;   // 💨 疾电词缀：飞快
+  const sp = ZOMBIE.speed * (speedMul || 1) * (z.affix === 'swift' ? 1.6 : 1) * ((typeof altarMods !== 'undefined' && altarMods && altarMods.spdMul) || 1) * dt;   // 💨 疾电词缀：飞快；🔮 疾风契约：全员加速
   z.x = Math.max(20, Math.min(WORLD.w - 20, z.x + dx / d * sp));
   z.y = Math.max(20, Math.min(WORLD.h - 20, z.y + dy / d * sp));
 }
@@ -216,6 +217,7 @@ function buyItem(gold, key, off, shop) {
 function regenTick(p, dt) {
   p.sinceHurt += dt;
   const maxH = p.maxHearts || PLAYER.hearts, dl = p.regenDelay || REGEN.delay, ev = p.regenEvery || REGEN.every;
+  if (typeof altarMods !== 'undefined' && altarMods && altarMods.noRegen) return;   // 🔮 贪婪诅咒：不回血
   if (p.sinceHurt < dl || p.hearts >= maxH) return;
   p.regenT += dt;
   while (p.regenT >= ev && p.hearts < maxH) { p.regenT -= ev; p.hearts = Math.min(maxH, p.hearts + REGEN.amount); }
@@ -236,7 +238,8 @@ function touchHurt(p, z, dmg) {
   if (typeof sandboxMode !== 'undefined' && sandboxMode && sandboxRule.god) return false;   // 🔮 旁观规则：无敌
   if (p.inv > 0 || z.dead) return false;
   if (Math.hypot(z.x - p.x, z.y - p.y) > PLAYER.r + (z.r || ZOMBIE.r)) return false;
-  const real = (dmg == null ? 1 : dmg);
+  let real = (dmg == null ? 1 : dmg);
+  if (typeof altarMods !== 'undefined' && altarMods && altarMods.hurtMul) real *= altarMods.hurtMul;   // 🔮 玻璃大炮：受伤也翻倍
   if (p.mount && p.mountHp > 0) { p.mountHp -= real; }   // 🐴 坐骑挡刀：怪先打坐骑
   else p.hearts -= real;
   if (z.affix === 'fire') { p.burnT = 2; p.burnAcc = 0; }   // 🔥 灼烧怪：打中你着火
@@ -250,7 +253,8 @@ function touchHurt(p, z, dmg) {
 /* 难度成长：每 10 只击杀，同屏上限+1、速度微涨（玩到后面越来越刺激） */
 function difficulty(kills) {
   const cap = SPAWN.capBase + Math.floor(kills / 10);
-  const horded = (typeof sandboxMode !== 'undefined' && sandboxMode && sandboxRule.horde) ? cap * 3 : cap;   // 🔮 旁观规则：刷怪×3
+  let horded = (typeof sandboxMode !== 'undefined' && sandboxMode && sandboxRule.horde) ? cap * 3 : cap;   // 🔮 旁观规则：刷怪×3
+  if (typeof altarMods !== 'undefined' && altarMods && altarMods.spawnMul) horded *= altarMods.spawnMul;   // 🔮 围攻契约：刷怪×2
   return { cap: horded, speedMul: 1 + Math.min(0.6, kills * 0.008) };
 }
 /* 👹 BOSS：击杀满 100 出现。体型=10 只僵尸、血量=10 只僵尸(40)；

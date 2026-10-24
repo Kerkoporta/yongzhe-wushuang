@@ -137,6 +137,20 @@ function draw() {
     ctx.fillStyle = '#ffd24a'; ctx.fillRect(chest.x - 2, chest.y - 8, 4, 16);     // 金箍
     ctx.fillStyle = '#ffe84a'; ctx.fillRect(chest.x - 2, chest.y - 2, 4, 4);      // 锁
   }
+  // 🔮 紫晶祭坛：紫石座+浮空紫水晶（上下飘）+紫光晕+符文
+  if (altar && !altar.taken && !townMode && !dungeonMode && !skyMode) {
+    const bobA = Math.sin(performance.now() / 500) * 4, ax = altar.x, ay = altar.y;
+    ctx.globalAlpha = 0.3 + Math.sin(performance.now() / 400) * 0.15; ctx.fillStyle = '#b48af2';
+    ctx.beginPath(); ctx.arc(ax, ay, 34, 0, 6.3); ctx.fill(); ctx.globalAlpha = 1;   // 紫光晕
+    ctx.fillStyle = '#3a2a5a'; ctx.fillRect(ax - 16, ay - 4, 32, 14);   // 底座
+    ctx.fillStyle = '#4a3a6a'; ctx.fillRect(ax - 12, ay - 16, 24, 12);  // 台身
+    ctx.fillStyle = '#2a1a4a'; ctx.fillRect(ax - 16, ay + 8, 32, 4);    // 底沿
+    ctx.fillStyle = '#8a5ac8'; ctx.font = '9px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('🔮', ax - 12, ay - 8); ctx.fillText('🔮', ax + 12, ay - 8);   // 两侧符文
+    ctx.save(); ctx.translate(ax, ay - 30 + bobA); ctx.rotate(Math.PI / 4);   // 浮空紫水晶（菱形+呼吸浮动）
+    const cg = ctx.createLinearGradient(-8, -8, 8, 8); cg.addColorStop(0, '#d8b8ff'); cg.addColorStop(0.5, '#9a5ae8'); cg.addColorStop(1, '#5a2aa8');
+    ctx.fillStyle = cg; ctx.fillRect(-8, -8, 16, 16); ctx.strokeStyle = '#e8d8ff'; ctx.lineWidth = 1.5; ctx.strokeRect(-8, -8, 16, 16);
+    ctx.restore();
+  }
   // 僵尸
   for (const z of zombies) {
     if (z.boss) { drawBoss(z); continue; }   // 👹 BOSS 专属画法
@@ -685,7 +699,8 @@ window.G = { get player() { return player; }, get zombies() { return zombies; },
   get dungeonMode() { return dungeonMode; }, get dgnKills() { return dgnKills; }, get dgnKingSpawned() { return dgnKingSpawned; }, get minions() { return minions; }, get turrets() { return turrets; },
   fishGo: Sky.fishGo, eatFish: Sky.eatFish, openFishShop: Sky.openFishShop, sellAllFish: Sky.sellAllFish, inArena, enterSky: enterPvp,   // ☁️ 天空城测试钩
   get skyMode() { return skyMode; }, get fishState() { return fishState; }, get bobber() { return bobber; }, setFishT(t) { fishT = t; }, get hitstopT() { return hitstopT; },   // 💥 顿帧测试钩
-  castSkill, renderSkills, ownedSkills, openSkin, buyMount, mountOf, spawnStorm: () => { const z = makeStorm(player.x + 150, player.y, Math.random); zombies.push(z); }, spawnVoid: () => { const z = makeVoid(player.x + 150, player.y, Math.random); zombies.push(z); } };
+  castSkill, renderSkills, ownedSkills, openSkin, buyMount, mountOf, spawnStorm: () => { const z = makeStorm(player.x + 150, player.y, Math.random); zombies.push(z); }, spawnVoid: () => { const z = makeVoid(player.x + 150, player.y, Math.random); zombies.push(z); },
+  openAltar, acceptPact, get altar() { return altar; }, get altarMods() { return altarMods; }, forceAltar() { altar = { x: player.x + 80, y: player.y, offers: altarRollOffers(), taken: false }; } };
 reset(); loadSettings(); if (loadGame()) setBanner('💾 存档已读取，接着玩！');   // 🔧 设置先进来
 showHome();   // 🏠 开机先进主页选存档
 addEventListener('pointerdown', startMusic, { once: true });   // 🎵 第一次点屏幕时开播（浏览器规矩）
