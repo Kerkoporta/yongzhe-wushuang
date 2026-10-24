@@ -28,6 +28,7 @@ document.getElementById('overHome').onclick = () => showHome();
 /* 💀 击杀结算（打死的/烧死的/雷劈的/反伤死的都算你的，每只只结一次）：得分+掉金币+吸血 */
 function killZombie(z) {
   if (z.counted) return; z.counted = true; z.dead = true; kills++;
+  shakeT = Math.max(shakeT, z.boss ? 0.4 : 0.16);   // 💥 击杀震屏：BOSS 倒地震得更狠
   if (z.fake) {   // 💎 水晶魔王假身：碎掉不给钱、不进图鉴
     burst(z.x, z.y - 40, '#a8f2ff', 20); setBanner('💥 假身碎了！'); beep(800, 200, 0.2, 'square', 0.12);
     return;
@@ -203,6 +204,7 @@ function doAttack(fromAuto) {
       tgt.x = Math.max(20, Math.min(WORLD.w - 20, tgt.x + (tgt.x - player.x) / dd * skb));
       tgt.y = Math.max(20, Math.min(WORLD.h - 20, tgt.y + (tgt.y - player.y) / dd * skb));
       burst(tgt.x, tgt.y, '#8fd05a', 8); beep(600, 300, 0.08, 'square', 0.1);
+      hitstopT = Math.max(hitstopT, 0.05); shakeT = Math.max(shakeT, 0.12);   // 💥 戳中也有顿帧小套餐
       if (tgt.hp <= 0) killZombie(tgt);
       return;
     }
@@ -214,6 +216,13 @@ function doAttack(fromAuto) {
   if (fx.kbMul) opts.kbMul = (opts.kbMul || 1) * fx.kbMul;
   const preX = player.x, preY = player.y;   // 🗡️ 光影剑：记下原点，0.5 秒后闪回
   const hits = attackHit(player, zombies, opts);
+  if (hits.length) {   // 💥 打击感组合拳：顿帧+震屏+金火花+闪白加长+低沉打击音
+    const big = player.critT > 0 || hits.length >= 3;   // 暴击或一扫一片=重击
+    hitstopT = Math.max(hitstopT, big ? 0.09 : 0.05);
+    shakeT = Math.max(shakeT, big ? 0.22 : 0.14);
+    for (const z of hits) { z.flash = big ? 0.2 : 0.16; burst(z.x, z.y - 6, big ? '#ff9a3d' : '#ffd75e', big ? 10 : 6); }
+    beep(150, 60, 0.09, 'square', 0.14);   // 🔊 砰！
+  }
   for (const z of hits) z.aggroW = null;   // 🐺 你出手，怪就冲你来（仇恨归位）
   if (player.job === 'cleric') for (const z of hits) { if (['zombie', 'skeleton', 'ghost', 'wither', 'bat'].includes(z.kind) && !z.dead) { z.hp -= dmg; z.flash = 0.15; if (z.hp <= 0) killZombie(z); } }   // 💚 牧师：对亡灵×2
   if (player.job === 'rogue') for (const z of hits) { if (z.aggroW && z.aggroW.hp > 0 && !z.dead) { z.hp -= dmg * 1.5; z.flash = 0.15; burst(z.x, z.y, '#ffd24a', 6); if (z.hp <= 0) killZombie(z); } }   // 🃏 盗贼背刺：怪没看你=×2.5

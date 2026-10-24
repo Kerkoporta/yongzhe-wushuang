@@ -3,6 +3,7 @@
 function update(dt) {
   if (paused) return;   // 🏪 逛商店时僵尸等你
   banner.t = Math.max(0, banner.t - dt); shakeT = Math.max(0, shakeT - dt);
+  if (hitstopT > 0) { hitstopT -= dt; return; }   // 💥 顿帧：命中那一瞬全世界冻住（只有震屏还在抖），这才叫打中了！
   if (slamFx) { slamFx.t -= dt; if (slamFx.t <= 0) slamFx = null; }
   hurtT = Math.max(0, hurtT - dt);   // 💥 受击后仰计时
   if (player.hearts < prevHearts) hurtT = 0.28;   // 掉血瞬间后仰一下
@@ -471,8 +472,9 @@ function update(dt) {
             if (z.hp <= 0) killZombie(z);
             continue;
           }
-          z.hp -= a.dmg; z.flash = 0.12; a.t = 0;
+          z.hp -= a.dmg; z.flash = 0.15; a.t = 0;
           z.aggroW = null;   // 🐺 你的箭也是你出手：仇恨归位
+          burst(a.x, a.y, '#ffd75e', 5); shakeT = Math.max(shakeT, 0.07);   // 💥 箭矢命中：金火花+轻震（不给顿帧，箭雨会狂顿）
           if (a.mageBurn && !z.dead) { z.mageBurnT = 2; z.mageBurnAcc = 0; }   // 🔮 法师附火
           if (a.freeze && !z.boss && !z.dead) { z.freezeT = Math.max(z.freezeT || 0, a.freezeDur || 1.5); burst(z.x, z.y, '#a8e8ff', 8); }
           if (a.burn && !z.dead) { z.burnT = 2; z.burnAcc = 0; }   // 🔥 火箭点燃

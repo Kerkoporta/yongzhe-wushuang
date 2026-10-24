@@ -660,7 +660,7 @@ window.G = { get player() { return player; }, get zombies() { return zombies; },
   enterDungeon: Dgn.enterDungeon, exitDungeon: Dgn.exitDungeon, spawnGoblin: Dgn.spawnGoblin, spawnDgnKing: Dgn.spawnDgnKing, swapJob, applyJob, dgnDie: Dgn.dgnDie,   // 🌲⇄ 副本+双职业测试钩
   get dungeonMode() { return dungeonMode; }, get dgnKills() { return dgnKills; }, get dgnKingSpawned() { return dgnKingSpawned; }, get minions() { return minions; }, get turrets() { return turrets; },
   fishGo: Sky.fishGo, eatFish: Sky.eatFish, openFishShop: Sky.openFishShop, sellAllFish: Sky.sellAllFish, inArena, enterSky: enterPvp,   // ☁️ 天空城测试钩
-  get skyMode() { return skyMode; }, get fishState() { return fishState; }, get bobber() { return bobber; }, setFishT(t) { fishT = t; },
+  get skyMode() { return skyMode; }, get fishState() { return fishState; }, get bobber() { return bobber; }, setFishT(t) { fishT = t; }, get hitstopT() { return hitstopT; },   // 💥 顿帧测试钩
   castSkill, renderSkills, ownedSkills, spawnStorm: () => { const z = makeStorm(player.x + 150, player.y, Math.random); zombies.push(z); }, spawnVoid: () => { const z = makeVoid(player.x + 150, player.y, Math.random); zombies.push(z); } };
 reset(); if (loadGame()) setBanner('💾 存档已读取，接着玩！');
 showHome();   // 🏠 开机先进主页选存档

@@ -17,7 +17,7 @@ document.getElementById('gearRot').onclick = () => { toggleGear(false); toggleRo
 
 let player, zombies, kills, spawnT, summonT, parts, gameOver, deco;
 let pets = [], dexCounts = {}, coins = [], portal = null;   // 🐾宠物 / 📖图鉴 / 🪙金币 / 🕳️山洞
-let bossAt = 100, banner = { txt: '', t: 0 }, shakeT = 0, slamFx = null;
+let bossAt = 100, banner = { txt: '', t: 0 }, shakeT = 0, slamFx = null, hitstopT = 0;   // 💥 hitstopT=打击顿帧：命中瞬间全世界冻结一瞬
 /* 🗺️ 关卡：第一关僵尸草原 → 打败 BOSS 进第二关骷髅雪原 */
 const LEVELS = {
   1: { name: '僵尸草原', grassA: '#69b04a', grassB: '#62a844', edge: '#3a6a2a', trunk: '#6a4a2a', leaf: '#3f7a2a', leafHi: '#5aa83c', rock: '#8a8a92', rockHi: '#a8a8b0', enemy: 'zombie', bossName: '👹 僵尸王' },
