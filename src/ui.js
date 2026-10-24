@@ -156,3 +156,40 @@ function bagTap(k) {
   }
   saveGame(); renderBag();
 }
+
+/* ================= 🎨 捏人换装（五部位×八色，联机时对面也看得见） ================= */
+const SKIN_PARTS = [   // 键=皮肤字符（a=鞋，f 被岩浆怪占用了）
+  ['h', '💇 头发', ['#1a1a1a', '#5a3a1a', '#8a6a2a', '#c8a02a', '#c84a2a', '#3a6ee8', '#3aa83c', '#e8e8e8']],
+  ['s', '🙂 皮肤', ['#e8b88a', '#d8a06a', '#b87848', '#8a5430', '#f2d8b8', '#c8e8f2', '#a8d8a8', '#e8a8b8']],
+  ['b', '👕 衣服', ['#3a6ee8', '#e84a4a', '#3aa83c', '#e8b83a', '#8a5ac8', '#3a3a4a', '#f2f2f2', '#e87a2a']],
+  ['p', '👖 裤子', ['#3a3a4a', '#1a2a5a', '#5a3a1a', '#6a6a6a', '#b8a878', '#e8e8e8', '#8a2a2a', '#2a5a3a']],
+  ['a', '👟 鞋子', ['#1a1a1a', '#5a3a1a', '#e8e8e8', '#c83a2a', '#3a6ee8', '#e8c84a', '#8a8a92', '#e8a8c8']],
+];
+const SKIN_DEFAULT = { h: '#5a3a1a', s: '#e8b88a', b: '#3a6ee8', p: '#3a3a4a', a: '#1a1a1a' };
+function openSkin() {
+  renderSkinRows(); drawSkinPreview();
+  document.getElementById('skin').style.display = 'flex';
+}
+function renderSkinRows() {   // 五排色板，当前选中的带金框
+  const rows = document.getElementById('skinRows'); rows.innerHTML = '';
+  for (const [key, label, colors] of SKIN_PARTS) {
+    const row = document.createElement('div'); row.style.margin = '6px 0';
+    row.innerHTML = '<div style="font-size:13px;font-weight:bold;margin-bottom:3px">' + label + '</div>';
+    const wrap = document.createElement('div'); wrap.style.cssText = 'display:flex;gap:5px;flex-wrap:wrap';
+    for (const c of colors) {
+      const sw = document.createElement('button');
+      sw.style.cssText = 'width:30px;height:30px;border-radius:8px;border:' + (player.skin[key] === c ? '3px solid #ffd24a' : '2px solid #555') + ';background:' + c + ';cursor:pointer';
+      sw.onclick = () => { player.skin[key] = c; beep(600, 900, 0.05, 'sine', 0.07); renderSkinRows(); drawSkinPreview(); };
+      wrap.appendChild(sw);
+    }
+    row.appendChild(wrap); rows.appendChild(row);
+  }
+}
+function drawSkinPreview() {   // 实时预览：正面小人
+  const cv = document.getElementById('skinCv'), c2 = cv.getContext('2d');
+  c2.clearRect(0, 0, cv.width, cv.height);
+  drawPlayerSpr(c2, MAN_DOWN, 12, 8, 6, false, player.skin);
+}
+document.getElementById('homeSkin').onclick = () => { openSkin(); beep(500, 800, 0.08, 'sine', 0.1); };
+document.getElementById('skinDone').onclick = () => { document.getElementById('skin').style.display = 'none'; saveGame(); setBanner('🎨 新形象保存啦！联机时对面也能看见'); beep(700, 1200, 0.15, 'sine', 0.12); };
+document.getElementById('skinReset').onclick = () => { player.skin = Object.assign({}, SKIN_DEFAULT); renderSkinRows(); drawSkinPreview(); beep(300, 500, 0.08, 'sine', 0.08); };

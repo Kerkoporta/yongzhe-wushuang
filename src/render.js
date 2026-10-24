@@ -72,6 +72,14 @@ function draw() {
       ctx.beginPath(); ctx.ellipse(DGN_GATE.x, DGN_GATE.y - 6, 22, 30, 0, 0, 6.3); ctx.stroke(); ctx.globalAlpha = 1;   // 绿光脉动
       ctx.font = '16px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('👺', DGN_GATE.x, DGN_GATE.y - 44 + Math.sin(ttw * 2) * 2); ctx.textAlign = 'left';
       ctx.fillStyle = '#b8e8a8'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('哥布林森林', DGN_GATE.x, DGN_GATE.y + 36); ctx.textAlign = 'left';
+      /* ⚔️ 镇南城门（1200,2320）：出镇冒险入口——两根石柱+横楣+飘动的勇者旗 */
+      ctx.fillStyle = '#6a6a74'; ctx.fillRect(1152, 2256, 22, 76); ctx.fillRect(1226, 2256, 22, 76);   // 左右石柱
+      ctx.fillStyle = '#83838c'; ctx.fillRect(1146, 2244, 108, 16);   // 横楣
+      ctx.fillStyle = '#1a1208'; ctx.fillRect(1174, 2268, 52, 64);   // 门洞（黑洞洞的门外世界）
+      ctx.strokeStyle = '#ffd24a'; ctx.globalAlpha = 0.5 + Math.sin(ttw * 3) * 0.3; ctx.lineWidth = 3; ctx.strokeRect(1174, 2268, 52, 64); ctx.globalAlpha = 1;   // 金光脉动：城门在召唤
+      const flagW = Math.sin(ttw * 4) * 3;   // 🚩 旗子飘动
+      ctx.fillStyle = '#c83a2a'; ctx.beginPath(); ctx.moveTo(1200, 2244); ctx.lineTo(1200, 2224); ctx.lineTo(1222 + flagW, 2231); ctx.lineTo(1200, 2238); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#f2d8a8'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('⚔️ 城 门 · 出 镇 冒 险', 1200, 2346); ctx.textAlign = 'left';
       // ⭐ 喷泉周围地砖拼花（八角星）
       ctx.strokeStyle = 'rgba(255,255,255,.25)'; ctx.lineWidth = 3; ctx.beginPath();
       for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4; ctx.moveTo(1200 + Math.cos(a) * 62, 1840 + Math.sin(a) * 62); ctx.lineTo(1200 + Math.cos(a + 0.5) * 78, 1840 + Math.sin(a + 0.5) * 78); }
@@ -487,7 +495,7 @@ function draw() {
     const fside = Math.abs(Math.cos(f.dir)) > Math.abs(Math.sin(f.dir));
     const fspr = fside ? MAN_SIDE : (Math.sin(f.dir) < 0 ? MAN_UP : MAN_DOWN);
     ctx.globalAlpha = f.stale ? 0.35 : 1;
-    drawSprite(ctx, fspr, f.x - 12, f.y - 16 - fb, 2, fside && Math.cos(f.dir) < 0);
+    drawPlayerSpr(ctx, fspr, f.x - 12, f.y - 16 - fb, 2, fside && Math.cos(f.dir) < 0, f.skin);
     ctx.strokeStyle = '#ff5a5a'; ctx.lineWidth = 2; ctx.strokeRect(f.x - 12, f.y - 16 - fb, 24, 32);   // 红框标记=对手
     ctx.globalAlpha = 1;
     if (f.swing) { ctx.strokeStyle = '#ffb0b0'; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(f.x, f.y - 4, 26, 0, 6.3); ctx.stroke(); }
@@ -505,17 +513,17 @@ function draw() {
     if (gameOver) {   // 💀 死亡动画：缓缓倒下+淡出
       ctx.save(); ctx.globalAlpha = Math.max(0, 1 - deathT / 1.15);
       ctx.translate(Math.round(player.x), Math.round(player.y - 6)); ctx.rotate(Math.min(1.5, deathT * 2.6));
-      drawSprite(ctx, spr, -12, -10, 2, flip); ctx.restore(); ctx.globalAlpha = 1;
+      drawPlayerSpr(ctx, spr, -12, -10, 2, flip, player.skin); ctx.restore(); ctx.globalAlpha = 1;
     } else if (playerFlyT > 0) {   // 🦅 被顶飞：抛物线飞起+影子留在原地
       const ph = 1 - playerFlyT / 0.9, flyH = Math.sin(ph * Math.PI) * 46;
       ctx.globalAlpha = 0.3; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.ellipse(player.x, player.y + 2, 10, 4, 0, 0, 6.3); ctx.fill(); ctx.globalAlpha = 1;
       ctx.save(); ctx.translate(Math.round(player.x), Math.round(player.y - flyH)); ctx.rotate(ph * 5);
-      drawSprite(ctx, spr, -12, -16, 2, flip); ctx.restore();
+      drawPlayerSpr(ctx, spr, -12, -16, 2, flip, player.skin); ctx.restore();
     } else if (hurtT > 0) {   // 💥 受击后仰：往后一仰
       ctx.save(); ctx.translate(Math.round(player.x), Math.round(player.y)); ctx.rotate(-0.38 * (hurtT / 0.28));
-      drawSprite(ctx, spr, -12, -16 - bob, 2, flip); ctx.restore();
+      drawPlayerSpr(ctx, spr, -12, -16 - bob, 2, flip, player.skin); ctx.restore();
     } else if (sittingBench) TownArt.drawSeated(player.x, player.y, sittingBench.face);   // 🪑 真坐姿
-    else drawSprite(ctx, spr, player.x - 12, player.y - 16 - bob, 2, flip);
+    else drawPlayerSpr(ctx, spr, player.x - 12, player.y - 16 - bob, 2, flip, player.skin);
     if (player.atkT > 0) {   // ⚔️ 攻击动作（回旋镖=真一圈扩散环；寒冰弓=更大的弧）
       const t = 1 - player.atkT / ATTACK.swing;
       ctx.strokeStyle = player.swingColor || 'rgba(255,255,255,.9)';
@@ -661,7 +669,7 @@ window.G = { get player() { return player; }, get zombies() { return zombies; },
   get dungeonMode() { return dungeonMode; }, get dgnKills() { return dgnKills; }, get dgnKingSpawned() { return dgnKingSpawned; }, get minions() { return minions; }, get turrets() { return turrets; },
   fishGo: Sky.fishGo, eatFish: Sky.eatFish, openFishShop: Sky.openFishShop, sellAllFish: Sky.sellAllFish, inArena, enterSky: enterPvp,   // ☁️ 天空城测试钩
   get skyMode() { return skyMode; }, get fishState() { return fishState; }, get bobber() { return bobber; }, setFishT(t) { fishT = t; }, get hitstopT() { return hitstopT; },   // 💥 顿帧测试钩
-  castSkill, renderSkills, ownedSkills, spawnStorm: () => { const z = makeStorm(player.x + 150, player.y, Math.random); zombies.push(z); }, spawnVoid: () => { const z = makeVoid(player.x + 150, player.y, Math.random); zombies.push(z); } };
+  castSkill, renderSkills, ownedSkills, openSkin, spawnStorm: () => { const z = makeStorm(player.x + 150, player.y, Math.random); zombies.push(z); }, spawnVoid: () => { const z = makeVoid(player.x + 150, player.y, Math.random); zombies.push(z); } };
 reset(); if (loadGame()) setBanner('💾 存档已读取，接着玩！');
 showHome();   // 🏠 开机先进主页选存档
 addEventListener('pointerdown', startMusic, { once: true });   // 🎵 第一次点屏幕时开播（浏览器规矩）

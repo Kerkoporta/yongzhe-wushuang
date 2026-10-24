@@ -261,7 +261,7 @@ const MINIS = {
 };
 
 
-document.getElementById('playClose').onclick = closePlay;
+document.getElementById('playClose').onclick = () => Games.closePlay();   // 🎡（箭头包一层：closePlay 在 Games 对象里）
 
 playCv.addEventListener('pointerdown', e => { if (!playId) return; e.preventDefault(); const [x, y] = Games.playXY(e); const g = MINIS[playId]; if (g.down) g.down(playSt, x, y); else if (g.tap) g.tap(playSt, x, y); });
 playCv.addEventListener('pointermove', e => { if (!playId) return; const [x, y] = Games.playXY(e); const g = MINIS[playId]; if (g.move) g.move(playSt, x, y); });

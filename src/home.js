@@ -37,7 +37,7 @@ function renderHome() {
     beep(700, 1000, 0.12, 'sine', 0.12); renderHome();
   };
 }
-document.getElementById('homeNew').onclick = () => { for (const k of [SAVE_KEY, SAVE_KEY + '_g0', SAVE_KEY + '_g1', SAVE_KEY + '_bak', SAVE_KEY_TOWN]) { try { localStorage.removeItem(k); } catch (e) {} } gameOver = false; reset(); closeHome(); setBanner('🆕 新的冒险开始！'); };
+document.getElementById('homeNew').onclick = () => { for (const k of [SAVE_KEY, SAVE_KEY + '_g0', SAVE_KEY + '_g1', SAVE_KEY + '_bak', SAVE_KEY_TOWN]) { try { localStorage.removeItem(k); } catch (e) {} } gameOver = false; reset(); closeHome(); startFaint(); };   // 🌅 新冒险先播开场剧情（我在哪儿→你醒了→小镇醒来）
 document.getElementById('homePvp').onclick = () => { openLobby(); };
 document.getElementById('pvpClose').onclick = () => { document.getElementById('pvpLob').style.display = 'none'; };
 document.getElementById('gearHome').onclick = () => { toggleGear(false); showHome(); };

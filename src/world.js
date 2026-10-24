@@ -88,27 +88,46 @@ function goNextLevel() {   // 🗺️ 真正过关（旧自动过渡搬到这里
   if (level === 9 && !towerMode) spawnBoss();   // 🐉 末影之地进门就决战（清场之后才召龙！）
   beep(600, 1200, 0.5, 'sine', 0.2); saveGame();
 }
-/* ================= 💉 无尽第 8 遍剧情：毒针→晕倒→神秘人→小镇 ================= */
+/* ================= 🌅 开场剧情：我在哪儿→"你醒了"→宁静小镇（新冒险第一眼） ================= */
 let faintDone = false, townMode = false, townUnlocked = false, ownedHouse = false, inRoom = false, storage = {};
-function startFaint() {
-  if (faintDone) return; faintDone = true; paused = true; saveGame();
+const INTRO_LINES = [   // 📜 神秘人的话（点一下换一句）
+  '你醒了。',
+  '你在森林边上晕倒了，是我把你背回来的。',
+  '外面现在到处是怪物……不安全。先在小镇歇歇吧。',
+  '养好了就从镇子的城门出发——东边的草原，等着勇者呢。',
+];
+function startFaint() {   // 🌅 开场剧情（新冒险第一眼；老触发点：faintDone 后自动跳过）
+  if (faintDone) return; faintDone = true;
   const el = document.getElementById('faint'), txt = document.getElementById('faintTxt'), npc = document.getElementById('faintNpc'), dlg = document.getElementById('faintDlg');
-  el.style.display = 'flex'; el.style.background = 'rgba(0,0,0,0)';
-  txt.style.opacity = 1; txt.textContent = '💉 毒针！你中毒了…';
+  paused = true;
+  el.style.display = 'flex'; el.style.background = 'rgba(0,0,0,1)';
+  txt.style.opacity = 0; txt.textContent = '……我在哪儿？';   // 🌑 黑屏，主角心里犯迷糊
   npc.style.display = 'none'; dlg.style.display = 'none';
-  beep(800, 200, 0.6, 'sawtooth', 0.2);
-  setTimeout(() => { el.style.background = 'rgba(0,0,0,1)'; txt.textContent = '你晕过去了…'; }, 1500);
-  setTimeout(() => { el.style.background = 'rgba(20,16,10,.94)'; txt.style.opacity = 0; npc.style.display = 'block'; dlg.style.display = 'flex'; beep(400, 700, 0.3, 'sine', 0.15); }, 3400);
+  beep(200, 120, 0.8, 'sine', 0.12);
+  setTimeout(() => { txt.style.transition = 'opacity 1.2s'; txt.style.opacity = 1; }, 600);   // 「我在哪儿」慢慢浮出来
+  setTimeout(() => {   // 💡 亮起来：是温暖的小屋，神秘人坐在旁边
+    el.style.background = 'rgba(26,20,12,.96)'; txt.style.opacity = 0;
+    npc.style.display = 'block'; dlg.style.display = 'flex';
+    beep(400, 700, 0.3, 'sine', 0.15);
+    let li = 0;
+    dlg.innerHTML = '<div id="introTxt" style="font-size:18px;font-weight:bold;margin-bottom:10px;min-height:52px">' + INTRO_LINES[0] + '</div>'
+      + '<button id="introNext">▶ 继续</button>'
+      + '<button id="introSkip" style="margin-top:6px;opacity:.75">⏭ 跳过剧情</button>';
+    const goTown = () => { document.getElementById('faint').style.display = 'none'; saveGame(); enterTown(); setBanner('🚪 想出镇冒险？走到镇子下方的城门，或打开装备面板点「出发战斗」！'); };
+    document.getElementById('introNext').onclick = () => {   // 点一下换下一句，说完进镇
+      li++; beep(600, 900, 0.06, 'sine', 0.08);
+      if (li >= INTRO_LINES.length) { goTown(); return; }
+      document.getElementById('introTxt').textContent = INTRO_LINES[li];
+      if (li === INTRO_LINES.length - 1) document.getElementById('introNext').textContent = '🏡 在小镇歇下';
+    };
+    document.getElementById('introSkip').onclick = goTown;   // ⏭ 急性子直接进镇
+  }, 2600);
 }
-document.getElementById('faintRun').onclick = () => {   // ① 跑掉继续杀怪：进度原样
+document.getElementById('faintRun').onclick = () => {   // （旧按钮已不在剧情里出现，保险留一个关掉面板的出口）
   document.getElementById('faint').style.display = 'none'; paused = false;
-  setBanner('🏃 你跑回了无尽回廊！第' + endlessRound + '遍·第' + endlessWave + '波，接着刷！');
-  saveGame();
 };
-document.getElementById('faintStay').onclick = () => {   // ② 留在这里：神秘人走了，进小镇
-  const npc = document.getElementById('faintNpc');
-  npc.style.transition = 'transform 1s, opacity 1s'; npc.style.transform = 'translateX(140px)'; npc.style.opacity = '0';
-  setTimeout(() => { document.getElementById('faint').style.display = 'none'; npc.style.cssText = ''; enterTown(); }, 1000);
+document.getElementById('faintStay').onclick = () => {   // 同上
+  document.getElementById('faint').style.display = 'none'; paused = false;
 };
 /* ================= 🏡 宁静小镇（马路+商店街+小家） ================= */
 function enterTown() {
@@ -666,6 +685,7 @@ function ctxGo() {
   else if (c.act === 'shop') openMapShop(nearShop());
   else if (c.act === 'bench' && c.bench) sitBench(c.bench);
   else if (c.act === 'tower') enterTower();   // 🗼 进试炼塔
+  else if (c.act === 'gate') exitTown();   // ⚔️ 出城门=回主线冒险（第一关走起）
   else if (c.act === 'dungeon') Dgn.enterDungeon();   // 🌲 进哥布林森林副本
   else if (c.act === 'fishshop') Sky.openFishShop();   // 🐟 天空城鱼商人
   else if (c.act === 'skyleave') leavePvp();   // 🚪 离开天空城回冒险

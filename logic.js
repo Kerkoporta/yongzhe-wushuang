@@ -105,7 +105,7 @@ const SHOP2 = {
 };
 let _id = 1;
 function makePlayer() {
-  return { x: WORLD.w / 2, y: WORLD.h / 2, dir: 0, hearts: PLAYER.hearts, atkT: 0, cd: 0, inv: 0, walkT: 0, moving: false, sinceHurt: 99, regenT: 0, gold: 0, weapon: null, armor: false, owned: {}, bought: {}, maxHearts: PLAYER.hearts, speedMul: 1, dmgAdd: 0, diamonds: 0, slots: { off: 0, pet: 0, skill: 0 }, offhands2: [], items: {} };   // 💎 钻石+扩展槽+🍗道具袋
+  return { x: WORLD.w / 2, y: WORLD.h / 2, dir: 0, hearts: PLAYER.hearts, atkT: 0, cd: 0, inv: 0, walkT: 0, moving: false, sinceHurt: 99, regenT: 0, gold: 0, weapon: null, armor: false, owned: {}, bought: {}, maxHearts: PLAYER.hearts, speedMul: 1, dmgAdd: 0, diamonds: 0, slots: { off: 0, pet: 0, skill: 0 }, offhands2: [], items: {}, skin: { h: '#5a3a1a', s: '#e8b88a', b: '#3a6ee8', p: '#3a3a4a', a: '#1a1a1a' } };   // 💎 钻石+扩展槽+🍗道具袋+🎨皮肤（h头发 s皮肤 b衣服 p裤子 a鞋子）
 }
 /* 在人物周围一圈圆环上挑生成点（不刷脸上，也不刷出世界） */
 function pickSpawn(p, rnd) {

@@ -1,6 +1,6 @@
 'use strict';
 /* ================= 像素小人 & 僵尸（字符串画出来的，MC 风） ================= */
-const PAL = { k:'#1a1a1a', s:'#e8b88a', h:'#5a3a1a', b:'#3a6ee8', B:'#2a4ab8', p:'#3a3a4a', g:'#5aa83c', G:'#3f7a2a', d:'#2f5a1f', t:'#3a7a8a', w:'#f2f2f2', r:'#e84a4a',
+const PAL = { k:'#1a1a1a', s:'#e8b88a', h:'#5a3a1a', b:'#3a6ee8', B:'#2a4ab8', p:'#3a3a4a', a:'#1a1a1a', g:'#5aa83c', G:'#3f7a2a', d:'#2f5a1f', t:'#3a7a8a', w:'#f2f2f2', r:'#e84a4a',
   c:'#c8ccd4', e:'#eef1f6', u:'#8a6a38', i:'#7ae8f2', I:'#a8f2ff', f:'#ff9a3d', F:'#ffd24a', m:'#c8c8d8', y:'#ffe84a', n:'#d8b87a', o:'#8fd8ff', W:'#eaf8ff', R:'#a03a2a', K:'#4a90c8', S:'#e8e8e8', v:'#b48af2', V:'#d0b0ff',
   q:'#f0e6b0', Q:'#d8c884', D:'#b8a860', E:'#c8bfa0', C:'#a89878', Y:'#8ff2ea', N:'#4ac8c0', J:'#ff7a2a', j:'#a83810', O:'#ffd24a' };
 /* 🗡️ 九把武器的像素真身（8×10，尖朝上，拿在手里专用） */
@@ -180,11 +180,11 @@ const GHOST_DOWN = [
 const LAVA_DOWN = [
 '....jj....','..jjJJjj..','.jJJJJJJj.','.jJkJJkJj.','.jJJJJJJj.','jJJJOOJJJj','jJJOOOOJJj','jJJOOOOJJj','jJJJOOJJJj','.jJJJJJJj.','..jj..jj..','........'];
 const MAN_DOWN = [
-'..hhhhhhhh..','.hhhhhhhhhh.','.hssssssssh.','.ssssssssss.','.skssssssks.','.ssssssssss.','..ssssssss..','..bbbbbbbb..','.bbbbbbbbbb.','.sbBbbbbBbs.','.sbbbbbbbb s'.replace(' ','.'),'..bbbbbbbb..','..pppppppp..','..ppp..ppp..','..pp....pp..','..kk....kk..'];
+'..hhhhhhhh..','.hhhhhhhhhh.','.hssssssssh.','.ssssssssss.','.skssssssks.','.ssssssssss.','..ssssssss..','..bbbbbbbb..','.bbbbbbbbbb.','.sbBbbbbBbs.','.sbbbbbbbb s'.replace(' ','.'),'..bbbbbbbb..','..pppppppp..','..ppp..ppp..','..pp....pp..','..aa....aa..'];
 const MAN_UP = [
-'..hhhhhhhh..','.hhhhhhhhhh.','.hhhhhhhhhh.','.hhhhhhhhhh.','.hhhhhhhhhh.','.hhhhhhhhhh.','..hhhhhhhh..','..bbbbbbbb..','.bbbbbbbbbb.','.sbBbbbbBbs.','.sbbbbbbbbs.','..bbbbbbbb..','..pppppppp..','..ppp..ppp..','..pp....pp..','..kk....kk..'];
+'..hhhhhhhh..','.hhhhhhhhhh.','.hhhhhhhhhh.','.hhhhhhhhhh.','.hhhhhhhhhh.','.hhhhhhhhhh.','..hhhhhhhh..','..bbbbbbbb..','.bbbbbbbbbb.','.sbBbbbbBbs.','.sbbbbbbbbs.','..bbbbbbbb..','..pppppppp..','..ppp..ppp..','..pp....pp..','..aa....aa..'];
 const MAN_SIDE = [
-'...hhhhhhh..','..hhhhhhhh..','..hssssssh..','..ssssssss..','..ssskssss..','..ssssssss..','...ssssss...','...bbbbbb...','..bbbbbbb...','..sBbbbbb...','..sbbbbbb...','...bbbbbb...','...pppppp...','...ppp.ppp..','...pp...pp..','...kk...kk..'];
+'...hhhhhhh..','..hhhhhhhh..','..hssssssh..','..ssssssss..','..ssskssss..','..ssssssss..','...ssssss...','...bbbbbb...','..bbbbbbb...','..sBbbbbb...','..sbbbbbb...','...bbbbbb...','...pppppp...','...ppp.ppp..','...pp...pp..','...aa...aa..'];
 const ZOM_DOWN = [
 '..gggggggg..','.gggggggggg.','.gGggggggGg.','.gggggggggg.','.gkggggggkg.','.ggggddggg.','..gggggggg..','..tttttttt..','.tttttttttt.','.gtTttttTtg.','.gttttttttg.','..tttttttt..','..dddddddd..','..ddd..ddd..','..dd....dd..','..kk....kk..'];
 const ZOM_SIDE = [
@@ -198,6 +198,21 @@ function drawSprite(ctx, spr, x, y, px, flip) {
     const ch = spr[r][flip ? spr[r].length - 1 - c : c];
     if (ch === '.') continue;
     ctx.fillStyle = PAL[ch] || '#f0f';
+    ctx.fillRect(x + c * px, y + r * px, px, px);
+  }
+}
+/* 🎨 玩家专用绘制：皮肤调色板覆盖（捏人系统——skin={h头发 s皮肤 b衣服 p裤子 a鞋子}，B=衣服暗纹自动加深） */
+function darkenHex(hex) {   // 颜色加深 30%（衣服暗纹）
+  const n = parseInt(hex.slice(1), 16);
+  const f = v => Math.max(0, Math.round(v * 0.7));
+  return '#' + [f(n >> 16 & 255), f(n >> 8 & 255), f(n & 255)].map(v => v.toString(16).padStart(2, '0')).join('');
+}
+function drawPlayerSpr(ctx, spr, x, y, px, flip, skin) {
+  const sk = skin || {};
+  for (let r = 0; r < spr.length; r++) for (let c = 0; c < spr[r].length; c++) {
+    const ch = spr[r][flip ? spr[r].length - 1 - c : c];
+    if (ch === '.') continue;
+    ctx.fillStyle = ch === 'B' ? (sk.B || darkenHex(sk.b || PAL.b)) : (sk[ch] || PAL[ch] || '#f0f');
     ctx.fillRect(x + c * px, y + r * px, px, px);
   }
 }
