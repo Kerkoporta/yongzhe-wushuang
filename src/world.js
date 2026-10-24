@@ -482,7 +482,7 @@ function rollShopItems(kind) {
   });
   // 🔷 升级石：武器店每件货 1% 概率变成石头（恩泽设计：稀有的工匠，一块升一级，封顶橙·传说）
   if (kind === 'weapon') for (let i = 0; i < items.length; i++) {
-    if (Math.random() < 0.01) items[i] = { stone: true, price: towerMode ? 3000 : 300, sold: false };   // 无尽涨价（恩泽定的：普通 300 / 无尽 3000）
+    if (Math.random() < 0.01) items[i] = { key: 'use_stone', use: true, price: towerMode ? 3000 : 300, sold: false };   // 🔷 升级石进道具袋：点它→点谁升谁（无尽涨价 300/3000 恩泽定的）
   }
   // 🍗 一次性道具：每家店固定带 2 样，永远买不光（无限购！）
   const upool = Object.keys(USE_ITEMS);
@@ -543,11 +543,6 @@ function renderMapShop() {
     const btn = it.use ? (player.gold >= itp ? `<button data-ms="${i}">💰${itp}</button>` : `<button disabled>💰${itp}（差${itp - player.gold}）</button>`)   // 🍗 道具永不售罄
       : it.sold ? '<button disabled>卖光了</button>'
       : player.gold >= itp ? `<button data-ms="${i}">💰${itp}</button>` : `<button disabled>💰${itp}（差${itp - player.gold}）</button>`;
-    if (it.stone) {   // 🔷 升级石
-      const wb = invB(player.weapon), full = wb && wb.t >= MAX_TIER;
-      h += `<div class="shopIt"><div class="ic">🔷</div><div><div class="nm" style="color:#a8d8ff;font-weight:bold">升级石</div><div class="ds">工匠当场把「${ALLITEMS[player.weapon] ? ALLITEMS[player.weapon].name : '武器'}」升一级（最高橙·传说）${full ? '——你手里这把已经是传说啦！' : ''}</div></div>${full ? '<button disabled>已满级</button>' : btn}</div>`;
-      continue;
-    }
     const d = ALLITEMS[it.key];
     const tb = (s.kind === 'weapon' || s.kind === 'gear') && !it.use ? `<span style="color:${TIERS[it.tier].c};font-weight:bold">［${TIERS[it.tier].n}］</span>` : '';
     const own = it.use && player.items && player.items[it.key] ? `（背包有 ${player.items[it.key]} 个）` : '';
@@ -567,16 +562,6 @@ function buyFromMapShop(i) {
   const s = mapShops[curShop]; if (!s) return;
   const it = s.items[i]; const itp = it ? Math.ceil(it.price * (1 - shopDisc())) : 0;   // 🃏 盗贼 8 折
   if (!it || it.sold || player.gold < itp) { beep(160, 90, 0.15, 'square', 0.1); return; }
-  if (it.stone) {   // 🔷 升级石：工匠当场把手里的武器升一级（封顶橙·传说）
-    if (!player.weapon) { setBanner('🔷 你手上空空的！先买一把武器再来找工匠'); beep(160, 90, 0.15, 'square', 0.1); return; }
-    let wb = invB(player.weapon);
-    if (!wb) { addToInv(player.weapon, 0); wb = invB(player.weapon); }   // 武器没进过背包：先登记再升
-    if (wb.t >= MAX_TIER) { setBanner('🔷 工匠挠头：这把已经到顶啦！'); beep(160, 90, 0.15, 'square', 0.1); return; }
-    wb.t += 1; it.sold = true; player.gold -= itp;
-    setBanner(`🔷 叮叮当当！${ALLITEMS[player.weapon].name} 升到 ${TIERS[wb.t].n}！`);
-    beep(600, 900, 0.15, 'square', 0.16); setTimeout(() => beep(900, 1400, 0.2, 'square', 0.14), 140);
-    applyGear(); updateGold(); saveGame(); renderMapShop(); return;
-  }
   player.gold -= itp;   // 🃏 盗贼 8 折后的价
   if (it.use) {   // 🍗 一次性道具：进道具袋，永不售罄（不标 sold）
     player.items = player.items || {}; player.items[it.key] = (player.items[it.key] || 0) + 1;

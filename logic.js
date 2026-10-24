@@ -843,6 +843,7 @@ const USE_ITEMS = {
   use_speed: { name: '疾跑药水', icon: '⚡', price: 50, kind: 'use', desc: '15 秒跑得飞快（+40%）' },
   use_bomb: { name: '手雷', icon: '💣', price: 60, kind: 'use', desc: '朝面前扔出，轰！周围怪掉 8 血' },
   use_totem: { name: '复活图腾', icon: '❤️‍🔥', price: 200, kind: 'use', desc: '放背包就行：倒下时自动满血复活一次' },
+  use_stone: { name: '升级石', icon: '🔷', price: 300, kind: 'use', desc: '点它，再点想升级的武器/装备——点谁升谁（最高橙·传说）' },
 };
 /* 🐾 宠物（七关各 10 只，出战帮你咬怪；宠物继承，过关不收回！最多 3 只出战） */
 const PETS = {
