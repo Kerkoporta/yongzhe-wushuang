@@ -23,7 +23,7 @@ function atkEnd() { holdAtk = false; }
 atkBtn.addEventListener('pointerup', atkEnd); atkBtn.addEventListener('pointercancel', atkEnd); atkBtn.addEventListener('pointerleave', atkEnd);
 autoBtn.addEventListener('pointerdown', e => { e.preventDefault(); autoOn = !autoOn; autoBtn.classList.toggle('on', autoOn); if (autoOn) autoT = 0; });
 document.getElementById('again').onclick = reset;
-document.getElementById('overHome').onclick = () => showHome();
+document.getElementById('overHome').onclick = () => { reset(); document.getElementById('over').style.display = 'none'; showHome(); };   // 💀 死亡回主页：人已重置到第一关——这时（自动/手动）存的档只能是第一关，死亡不再白嫖进度
 
 /* 💀 击杀结算（打死的/烧死的/雷劈的/反伤死的都算你的，每只只结一次）：得分+掉金币+吸血 */
 function killZombie(z) {
@@ -55,7 +55,7 @@ function killZombie(z) {
       if (dmg > 0) {
         player.hearts -= dmg; player.inv = 0.6; player.sinceHurt = 0;
         burst(player.x, player.y, '#e84a4a', 8);
-        if (player.hearts <= 0) { if (!angelSave()) { player.hearts = 0; gameOver = true; document.getElementById('over').style.display = 'flex'; document.getElementById('overScore').textContent = `你击败了 ${kills} 只怪物！`; saveGame(); } }
+        if (player.hearts <= 0) { if (!angelSave()) { player.hearts = 0; gameOver = true; document.getElementById('over').style.display = 'flex'; document.getElementById('overScore').textContent = `你击败了 ${kills} 只怪物！`; } }   // 💀 死亡不存档
       }
     }
   }

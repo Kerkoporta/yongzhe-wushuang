@@ -29,7 +29,7 @@ function update(dt) {
   if (bearCd > 0) bearCd = Math.max(0, bearCd - dt);
   if (player.shieldT > 0) player.shieldT = Math.max(0, player.shieldT - dt);   // 🛡️ 魔法护盾倒计时
   const m0 = Math.floor(player.mana != null ? player.mana : 100);
-  player.mana = Math.min(player.maxMana || 100, (player.mana != null ? player.mana : 100) + 0.4 * dt);   // 🔵 蓝条：每秒回 0.4（恩泽定的，法术超珍贵）
+  player.mana = Math.min(player.maxMana || 100, (player.mana != null ? player.mana : 100) + 4 * dt);   // 🔵 蓝条：每 0.1 秒回 0.4（=每秒 4 点，恩泽 1023 改的，法术放得更勤了）
   if (Math.floor(player.mana) !== m0) updateMana();
   const bkBtn = document.getElementById('blockBtn');
   if (player.job === 'tank' && !gameOver && !paused && !townMode) {
@@ -232,7 +232,7 @@ function update(dt) {
         const dmgC = rollDmg(0.5);
         if (touchHurt(player, z, dmgC)) {
           beep(300, 120, 0.15, 'sawtooth', 0.12); burst(player.x, player.y, '#a8f2ff', 6);
-          if (player.hearts <= 0 && !angelSave()) { gameOver = true; document.getElementById('overScore').textContent = `你这局打败了 ${kills} 只怪物！`; document.getElementById('over').style.display = 'flex'; saveGame(); }
+          if (player.hearts <= 0 && !angelSave()) { gameOver = true; document.getElementById('overScore').textContent = `你这局打败了 ${kills} 只怪物！`; document.getElementById('over').style.display = 'flex'; }   // 💀 死亡不存档（要存只能回主页存第一关）
         }
         continue;
       }
@@ -245,7 +245,7 @@ function update(dt) {
         const dmgT = rollDmg(0.5);
         if (touchHurt(player, z, dmgT)) {
           beep(300, 120, 0.15, 'sawtooth', 0.12); burst(player.x, player.y, '#ffe84a', 6);
-          if (player.hearts <= 0 && !angelSave()) { gameOver = true; document.getElementById('overScore').textContent = `你这局打败了 ${kills} 只怪物！`; document.getElementById('over').style.display = 'flex'; saveGame(); }
+          if (player.hearts <= 0 && !angelSave()) { gameOver = true; document.getElementById('overScore').textContent = `你这局打败了 ${kills} 只怪物！`; document.getElementById('over').style.display = 'flex'; }   // 💀 死亡不存档（要存只能回主页存第一关）
         }
         continue;
       }
@@ -255,7 +255,7 @@ function update(dt) {
         const dmgV = rollDmg(1);
         if (touchHurt(player, z, dmgV)) {
           beep(260, 100, 0.2, 'sine', 0.16); burst(player.x, player.y, '#b48af2', 10); shakeT = Math.max(shakeT, 0.15);
-          if (player.hearts <= 0 && !angelSave()) { gameOver = true; document.getElementById('overScore').textContent = `你这局打败了 ${kills} 只怪物！`; document.getElementById('over').style.display = 'flex'; saveGame(); }
+          if (player.hearts <= 0 && !angelSave()) { gameOver = true; document.getElementById('overScore').textContent = `你这局打败了 ${kills} 只怪物！`; document.getElementById('over').style.display = 'flex'; }   // 💀 死亡不存档（要存只能回主页存第一关）
         }
         continue;
       }
@@ -264,7 +264,7 @@ function update(dt) {
         const dmgG = rollDmg(1);
         if (touchHurt(player, z, dmgG)) {
           beep(300, 120, 0.2, 'sine', 0.16); burst(player.x, player.y, '#8ff2ea', 10); shakeT = Math.max(shakeT, 0.15);
-          if (player.hearts <= 0 && !angelSave()) { gameOver = true; document.getElementById('overScore').textContent = `你这局打败了 ${kills} 只怪物！`; document.getElementById('over').style.display = 'flex'; saveGame(); }
+          if (player.hearts <= 0 && !angelSave()) { gameOver = true; document.getElementById('overScore').textContent = `你这局打败了 ${kills} 只怪物！`; document.getElementById('over').style.display = 'flex'; }   // 💀 死亡不存档（要存只能回主页存第一关）
         }
         continue;
       }
@@ -306,7 +306,7 @@ function update(dt) {
         const dmgL = rollDmg(1);
         if (touchHurt(player, z, dmgL)) {
           beep(260, 100, 0.2, 'sawtooth', 0.16); burst(player.x, player.y, '#ff7a2a', 10); shakeT = Math.max(shakeT, 0.15);
-          if (player.hearts <= 0 && !angelSave()) { gameOver = true; document.getElementById('overScore').textContent = `你这局打败了 ${kills} 只怪物！`; document.getElementById('over').style.display = 'flex'; saveGame(); }
+          if (player.hearts <= 0 && !angelSave()) { gameOver = true; document.getElementById('overScore').textContent = `你这局打败了 ${kills} 只怪物！`; document.getElementById('over').style.display = 'flex'; }   // 💀 死亡不存档（要存只能回主页存第一关）
         }
         continue;
       }
@@ -347,7 +347,7 @@ function update(dt) {
         if (dmg > 0) {
           player.hearts -= dmg; player.inv = 0.8; player.sinceHurt = 0; shakeT = Math.max(shakeT, 0.2);
           burst(player.x, player.y, '#e84a4a', 14); beep(150, 60, 0.3, 'sawtooth', 0.2);
-          if (player.hearts <= 0) { if (!angelSave()) { player.hearts = 0; gameOver = true; document.getElementById('over').style.display = 'flex'; document.getElementById('overScore').textContent = `你击败了 ${kills} 只怪物！`; saveGame(); } }
+          if (player.hearts <= 0) { if (!angelSave()) { player.hearts = 0; gameOver = true; document.getElementById('over').style.display = 'flex'; document.getElementById('overScore').textContent = `你击败了 ${kills} 只怪物！`; } }   // 💀 死亡不存档
         } else { burst(player.x, player.y, '#e8f4ff', 8); }
       }
       if (ga.t <= 0) burst(ga.x, ga.y, '#c8ccd4', 8);   // 5 秒没中就消散
@@ -368,7 +368,7 @@ function update(dt) {
           if (dmg > 0) {
             player.hearts -= dmg; player.inv = 0.8; player.sinceHurt = 0; shakeT = Math.max(shakeT, 0.2);
             burst(player.x, player.y, '#e84a4a', 14); beep(150, 60, 0.3, 'sawtooth', 0.2);
-            if (player.hearts <= 0) { if (!angelSave()) { player.hearts = 0; gameOver = true; document.getElementById('over').style.display = 'flex'; document.getElementById('overScore').textContent = `你击败了 ${kills} 只怪物！`; saveGame(); } }
+            if (player.hearts <= 0) { if (!angelSave()) { player.hearts = 0; gameOver = true; document.getElementById('over').style.display = 'flex'; document.getElementById('overScore').textContent = `你击败了 ${kills} 只怪物！`; } }   // 💀 死亡不存档
           }
         }
       }
@@ -388,7 +388,7 @@ function update(dt) {
             if (dmg > 0) {
               player.hearts -= dmg; player.inv = 0.5; player.sinceHurt = 0;
               burst(player.x, player.y, '#ffe84a', 8); beep(400, 150, 0.15, 'square', 0.14);
-              if (player.hearts <= 0) { if (!angelSave()) { player.hearts = 0; gameOver = true; document.getElementById('overScore').textContent = `你这局打败了 ${kills} 只怪物！`; document.getElementById('over').style.display = 'flex'; saveGame(); } }
+              if (player.hearts <= 0) { if (!angelSave()) { player.hearts = 0; gameOver = true; document.getElementById('overScore').textContent = `你这局打败了 ${kills} 只怪物！`; document.getElementById('over').style.display = 'flex'; } }   // 💀 死亡不存档（要存只能回主页存第一关）
             }
             break;
           }
@@ -409,7 +409,7 @@ function update(dt) {
         if (dmg > 0) {
           player.hearts -= dmg; player.inv = 0.5; player.sinceHurt = 0;
           burst(player.x, player.y, '#ff7a2a', 8); beep(200, 100, 0.15, 'sawtooth', 0.12);
-          if (player.hearts <= 0) { if (!angelSave()) { player.hearts = 0; gameOver = true; document.getElementById('over').style.display = 'flex'; document.getElementById('overScore').textContent = `你击败了 ${kills} 只怪物！`; saveGame(); } }
+          if (player.hearts <= 0) { if (!angelSave()) { player.hearts = 0; gameOver = true; document.getElementById('over').style.display = 'flex'; document.getElementById('overScore').textContent = `你击败了 ${kills} 只怪物！`; } }   // 💀 死亡不存档
         }
       }
     } else player.lavaAcc = 0;

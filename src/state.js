@@ -117,7 +117,7 @@ function witherTick(z, dt) {
     if (z.chargeWarn <= 0) { z.charge = { sx: z.x, sy: z.y, vx: z.warnDx * 900, vy: z.warnDy * 900, left: 320 }; z.chargeWarn = null; }
   }
   const dmgW = rollDmg(1);   // 碰到也掉 1 心
-  if (touchHurt(player, z, dmgW)) { beep(300, 120, 0.2, 'sawtooth', 0.16); burst(player.x, player.y, '#4a6aff', 8); if (player.hearts <= 0 && !angelSave()) { gameOver = true; document.getElementById('overScore').textContent = `你这局打败了 ${kills} 只怪物！`; document.getElementById('over').style.display = 'flex'; saveGame(); } }
+  if (touchHurt(player, z, dmgW)) { beep(300, 120, 0.2, 'sawtooth', 0.16); burst(player.x, player.y, '#4a6aff', 8); if (player.hearts <= 0 && !angelSave()) { gameOver = true; document.getElementById('overScore').textContent = `你这局打败了 ${kills} 只怪物！`; document.getElementById('over').style.display = 'flex'; } }   // 💀 死亡不存档
 }
 /* 🐉 末影龙（第九关 BOSS，10000 血）：盘旋飞行；①龙息=朝玩家喷紫气，落地成紫雾（站雾里每秒半心，和 MC 一个判定）②俯冲=把玩家顶飞，落地掉 3 血 */
 let playerFlyT = 0;   // 被顶飞中（不能动，落地结算）
@@ -215,7 +215,7 @@ function titanTick(z, dt) {
   }
   if (!z.lunge) {   // 扑击时普通接触不抢戏（撕咬 3 血才是正戏）
     const dmgT = rollDmg(1);
-    if (touchHurt(player, z, dmgT)) { beep(300, 120, 0.2, 'sawtooth', 0.16); burst(player.x, player.y, '#7ec850', 8); if (player.hearts <= 0 && !angelSave()) { gameOver = true; document.getElementById('overScore').textContent = `你这局打败了 ${kills} 只怪物！`; document.getElementById('over').style.display = 'flex'; saveGame(); } }
+    if (touchHurt(player, z, dmgT)) { beep(300, 120, 0.2, 'sawtooth', 0.16); burst(player.x, player.y, '#7ec850', 8); if (player.hearts <= 0 && !angelSave()) { gameOver = true; document.getElementById('overScore').textContent = `你这局打败了 ${kills} 只怪物！`; document.getElementById('over').style.display = 'flex'; } }   // 💀 死亡不存档
   }
 }
 /* 🟢 史莱姆小怪：一蹦一跳追人（MC 同款弹跳） */
@@ -384,7 +384,7 @@ function bossUpdate(z, dt) {
     const dx = player.x - z.x, dy = player.y - z.y, d = Math.hypot(dx, dy) || 1;
     z.x += dx / d * 50 * dt; z.y += dy / d * 50 * dt;
     const dmgF = rollDmg(0.5);
-    if (touchHurt(player, z, dmgF)) { if (player.hearts <= 0 && !angelSave()) { gameOver = true; document.getElementById('overScore').textContent = `你这局打败了 ${kills} 只怪物！`; document.getElementById('over').style.display = 'flex'; saveGame(); } }
+    if (touchHurt(player, z, dmgF)) { if (player.hearts <= 0 && !angelSave()) { gameOver = true; document.getElementById('overScore').textContent = `你这局打败了 ${kills} 只怪物！`; document.getElementById('over').style.display = 'flex'; } }   // 💀 死亡不存档
     return;
   }
   const ev = bossTick(z, player, dt, ZOMBIE.speed * (z.spdMul || 1));   // 🌀 无尽 BOSS 速度加成
@@ -428,7 +428,7 @@ function bossUpdate(z, dt) {
       if (dmg > 0) {
         player.hearts -= dmg; player.inv = 0.6; player.sinceHurt = 0;
         burst(player.x, player.y, '#b48af2', 10);
-        if (player.hearts <= 0) { if (!angelSave()) { player.hearts = 0; gameOver = true; document.getElementById('overScore').textContent = `你这局打败了 ${kills} 只怪物！`; document.getElementById('over').style.display = 'flex'; saveGame(); } }
+        if (player.hearts <= 0) { if (!angelSave()) { player.hearts = 0; gameOver = true; document.getElementById('overScore').textContent = `你这局打败了 ${kills} 只怪物！`; document.getElementById('over').style.display = 'flex'; } }   // 💀 死亡不存档
       }
     }
   }
@@ -457,7 +457,7 @@ function bossUpdate(z, dt) {
       if (dmg > 0) {
         player.hearts -= dmg; player.inv = 0.4; player.sinceHurt = 0; shakeT = Math.max(shakeT, 0.1);
         burst(player.x, player.y, '#8ff2ea', 8); beep(400, 200, 0.15, 'sine', 0.14);
-        if (player.hearts <= 0) { if (!angelSave()) { player.hearts = 0; gameOver = true; document.getElementById('over').style.display = 'flex'; document.getElementById('overScore').textContent = `你击败了 ${kills} 只怪物！`; saveGame(); } }
+        if (player.hearts <= 0) { if (!angelSave()) { player.hearts = 0; gameOver = true; document.getElementById('over').style.display = 'flex'; document.getElementById('overScore').textContent = `你击败了 ${kills} 只怪物！`; } }   // 💀 死亡不存档
       }
     }
   }
