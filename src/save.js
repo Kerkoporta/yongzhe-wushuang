@@ -138,6 +138,7 @@ function applySave(s) {
 let saveGen = 0;
 const SAVE_KEY_TOWN = 'zombie_fight_save_town';   // 🏡 小镇独立自动存档
 function saveGame() {
+  if (sandboxMode) return;   // 🔮 旁观者模式不写档：一切数据退出即清
   if (pvpMode && !skyMode) return;   // 📡 老 PVP 不写主档；☁️天空城要写（钓鱼卖鱼的钱得留住）
   try {
     const data = JSON.stringify(packSave());

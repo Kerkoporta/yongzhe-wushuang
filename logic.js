@@ -233,6 +233,7 @@ function playerStep(p, mx, my, dt, speedMul) {
 }
 /* 僵尸碰到玩家：掉心+弹开+短暂无敌。dmg=本次伤害（铁盔甲触发时传 0.5）。返回是否真的抓到了 */
 function touchHurt(p, z, dmg) {
+  if (typeof sandboxMode !== 'undefined' && sandboxMode && sandboxRule.god) return false;   // 🔮 旁观规则：无敌
   if (p.inv > 0 || z.dead) return false;
   if (Math.hypot(z.x - p.x, z.y - p.y) > PLAYER.r + (z.r || ZOMBIE.r)) return false;
   const real = (dmg == null ? 1 : dmg);
@@ -248,7 +249,9 @@ function touchHurt(p, z, dmg) {
 }
 /* 难度成长：每 10 只击杀，同屏上限+1、速度微涨（玩到后面越来越刺激） */
 function difficulty(kills) {
-  return { cap: SPAWN.capBase + Math.floor(kills / 10), speedMul: 1 + Math.min(0.6, kills * 0.008) };
+  const cap = SPAWN.capBase + Math.floor(kills / 10);
+  const horded = (typeof sandboxMode !== 'undefined' && sandboxMode && sandboxRule.horde) ? cap * 3 : cap;   // 🔮 旁观规则：刷怪×3
+  return { cap: horded, speedMul: 1 + Math.min(0.6, kills * 0.008) };
 }
 /* 👹 BOSS：击杀满 100 出现。体型=10 只僵尸、血量=10 只僵尸(40)；
    技能①双臂砸地：周围 10 格（150px）内玩家掉 2 心，冷却 20 秒；

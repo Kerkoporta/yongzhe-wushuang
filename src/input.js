@@ -119,9 +119,9 @@ function killZombie(z) {
 /* ⚔️ 战士（v56）：双持状态；🛡️ 坦克（v57）：格挡状态 */
 let warriorHand = false, lastSwingKey = null, blockT = 0, blockCd = 0;
 const weapFam = k => { const f = WEAPON_FX[k] || {}; return f.bow ? 'bow' : f.staff ? 'staff' : f.gun ? 'gun' : 'melee'; };   // 武器家族：近战/弓/法杖/枪
-function skillMax() { return (player.job === 'tank' ? 4 : 5) + (player.slots ? player.slots.skill : 0); }   // 🛡️ 坦克代价：技能位 5→4；💎 钻石商店可加格
-function petMax() { return 3 + (player.slots ? player.slots.pet : 0); }   // 🐾 宠物位：默认 3，钻石商店可加
-function offMax() { return (player.job === 'warrior' ? 1 : 0) + (player.slots ? player.slots.off : 0); }   // ⚔️ 副手位：战士自带 1，钻石商店人人可加
+function skillMax() { return sandboxMode ? 99 : (player.job === 'tank' ? 4 : 5) + (player.slots ? player.slots.skill : 0); }   // 🛡️ 坦克代价：技能位 5→4；💎 钻石商店可加格；🔮 旁观者全上阵
+function petMax() { return sandboxMode ? 99 : 3 + (player.slots ? player.slots.pet : 0); }   // 🐾 宠物位：默认 3，钻石商店可加；🔮 旁观者全出战
+function offMax() { return sandboxMode ? 4 : (player.job === 'warrior' ? 1 : 0) + (player.slots ? player.slots.off : 0); }   // ⚔️ 副手位：战士自带 1，钻石商店人人可加；🔮 旁观者四手全開
 function doAttack(fromAuto) {
   if (gameOver || paused || player.tpT > 0 || player.frozenT > 0 || blockT > 0) return;   // 🗡️残影/❄️冻结/🛡️举盾中不能出手
   let handKey = player.weapon;
@@ -139,6 +139,7 @@ function doAttack(fromAuto) {
   player.atkT = ATTACK.swing; swingDir = -swingDir;   // ↔️ 左右交替挥剑（恩泽点的：先左到右，再右到左）
   let dmg = (fx.dmg || 1) * T(handKey) + (player.dmgAdd || 0);   // 🌈 按出手的那只手算伤害
   if (challengeMode === 'crit') dmg *= 3;   // 📅 每日挑战·勇者暴击日：刀刀×3
+  if (typeof sandboxMode !== 'undefined' && sandboxMode && sandboxRule.dmg3) dmg *= 3;   // 🔮 旁观规则：伤害×3
   if (player.powerT > 0) dmg *= 1.5;   // 💪 力量药水
   if (player.job === 'warrior' && fx.staff) dmg *= 0.9;   // ⚔️ 战士拿法杖只能发挥九成
   if (assassinStrike) dmg *= 2;   // 🥷 刺客落地一刀：×2

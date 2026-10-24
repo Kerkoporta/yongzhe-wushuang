@@ -16,6 +16,10 @@ function drawDragonFly(ctx) {   // 屏幕坐标：黑影+紫光眼睛，从右�
 }
 function update(dt) {
   if (paused) return;   // 🏪 逛商店时僵尸等你
+  if (sandboxMode && gameOver) {   // 🔮 旁观者死了：不进死亡结算，直接回选关台（装备全在）
+    gameOver = false; deathT = 0; player.hearts = player.maxHearts; player.x = WORLD.w / 2; player.y = WORLD.h / 2;
+    document.getElementById('over').style.display = 'none'; openSandboxPicker(); return;
+  }
   banner.t = Math.max(0, banner.t - dt); shakeT = Math.max(0, shakeT - dt);
   if (hitstopT > 0) { hitstopT -= dt; return; }   // 💥 顿帧：命中那一瞬全世界冻住（只有震屏还在抖），这才叫打中了！
   if (slamFx) { slamFx.t -= dt; if (slamFx.t <= 0) slamFx = null; }

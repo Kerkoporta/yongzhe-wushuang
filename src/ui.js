@@ -212,5 +212,6 @@ function drawSkinPreview() {   // 实时预览：正面小人
 }
 document.getElementById('homeSkin').onclick = () => { openSkin(); beep(500, 800, 0.08, 'sine', 0.1); };
 document.getElementById('homeDaily').onclick = () => { startDaily(); };   // 📅 每日挑战
+document.getElementById('homeSandbox').onclick = () => { enterSandbox(); };   // 🔮 旁观者模式
 document.getElementById('skinDone').onclick = () => { document.getElementById('skin').style.display = 'none'; saveGame(); setBanner('🎨 新形象保存啦！联机时对面也能看见'); beep(700, 1200, 0.15, 'sine', 0.12); };
 document.getElementById('skinReset').onclick = () => { player.skin = Object.assign({}, SKIN_DEFAULT); renderSkinRows(); drawSkinPreview(); beep(300, 500, 0.08, 'sine', 0.08); };
