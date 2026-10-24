@@ -264,12 +264,18 @@ function draw() {
     const side = Math.abs(player.x - z.x) > Math.abs(player.y - z.y);
     const spr = z.skel ? (side ? SKEL_SIDE : SKEL_DOWN) : (side ? ZOM_SIDE : ZOM_DOWN), flip = side && z.x < player.x;
     drawSprite(ctx, spr, z.x - 12, z.y - 16 - hop, 2, flip);
+    if (z.affix) {   // 👑 精英词缀：头顶图标+名牌色描边
+      ctx.font = '11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(AFFIXES[z.affix].icon, z.x, z.y - 30 - hop); ctx.textAlign = 'left';
+      ctx.strokeStyle = z.affix === 'king' ? '#ffd24a' : z.affix === 'fire' ? '#ff7a2a' : z.affix === 'ice' ? '#a8d8f2' : z.affix === 'swift' ? '#ffe84a' : '#7ee85a';
+      ctx.lineWidth = 1.5; ctx.strokeRect(z.x - 13, z.y - 17 - hop, 26, 34);
+    }
     if (z.flash > 0) { ctx.globalAlpha = Math.min(1, z.flash * 8); ctx.fillStyle = 'rgba(255,255,255,.75)'; ctx.fillRect(z.x - 12, z.y - 16 - hop, 24, 32); ctx.globalAlpha = 1; }
     if (z.freezeT > 0) { ctx.fillStyle = 'rgba(140,210,255,.45)'; ctx.fillRect(z.x - 12, z.y - 16 - hop, 24, 32); }   // 🏹 冻成蓝冰棍
     if (z.zapT > 0) { ctx.fillStyle = 'rgba(255,232,74,.8)'; ctx.fillRect(z.x - 6, z.y - 30 - hop, 12, 46); }        // ⚡ 雷劈光柱
     // 血条：绿格子
     ctx.fillStyle = '#0008'; ctx.fillRect(z.x - 12, z.y - 24 - hop, 24, 4);
-    ctx.fillStyle = '#e84a4a'; ctx.fillRect(z.x - 12, z.y - 24 - hop, 24 * (z.hp / (z.skel ? SKELETON.hp : ZOMBIE.hp)), 4);
+    ctx.fillStyle = '#7ee85a'; ctx.fillRect(z.x - 12, z.y - 24 - hop, 24 * Math.min(1, z.hp / (z.maxHp || 8)), 4);   // 👑 用最大血防暴君爆框
+    
   }
   // 🔥 岩浆水洼（踩了每秒半心）
   for (const p of puddles) {
@@ -628,6 +634,7 @@ function draw() {
   }
   // 血心已搬到玩家头顶（跟着玩家动，不挡 BOSS 血条）
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  drawDragonFly(ctx);   // 🐉 开场钩子：龙影从屏幕顶部呼啸掠过
   ctx.font = '22px sans-serif';
   // 装备栏小图标（武器+已买装备，最多摆 10 个）
   const TBLH = shopNow();

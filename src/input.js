@@ -27,6 +27,7 @@ document.getElementById('overHome').onclick = () => { reset(); document.getEleme
 
 /* 💀 击杀结算（打死的/烧死的/雷劈的/反伤死的都算你的，每只只结一次）：得分+掉金币+吸血 */
 function killZombie(z) {
+  dailyOnKill();   // 📅 每日挑战计数
   if (z.counted) return; z.counted = true; z.dead = true; kills++;
   shakeT = Math.max(shakeT, z.boss ? 0.4 : 0.16);   // 💥 击杀震屏：BOSS 倒地震得更狠
   if (z.fake) {   // 💎 水晶魔王假身：碎掉不给钱、不进图鉴
@@ -89,6 +90,8 @@ function killZombie(z) {
     }
   } else {
     g = lootBounty(z, Math.random);   // 💰 僵尸 1~4，骷髅 3~6
+    if (z.affix === 'king') g *= 5;                 // 👑 暴君词缀：掉落金币×5
+    if (z.affix) g = Math.ceil(g * 1.5);            // 👑 词缀怪都肥一点
     if (player.owned.magnet) g *= 2;                // 🧲 磁铁金币×2
     if (player.owned.book) g = Math.ceil(g * 1.5);  // 📖 经验之书×1.5
     if (player.owned.ice_necklace) g = Math.ceil(g * 1.5);   // 📿 冰晶项链×1.5
@@ -135,6 +138,7 @@ function doAttack(fromAuto) {
   player.atkCount = (player.atkCount || 0) + 1;
   player.atkT = ATTACK.swing; swingDir = -swingDir;   // ↔️ 左右交替挥剑（恩泽点的：先左到右，再右到左）
   let dmg = (fx.dmg || 1) * T(handKey) + (player.dmgAdd || 0);   // 🌈 按出手的那只手算伤害
+  if (challengeMode === 'crit') dmg *= 3;   // 📅 每日挑战·勇者暴击日：刀刀×3
   if (player.powerT > 0) dmg *= 1.5;   // 💪 力量药水
   if (player.job === 'warrior' && fx.staff) dmg *= 0.9;   // ⚔️ 战士拿法杖只能发挥九成
   if (assassinStrike) dmg *= 2;   // 🥷 刺客落地一刀：×2

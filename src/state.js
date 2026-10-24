@@ -47,6 +47,11 @@ function spawnEnemy() {   // 按关卡出怪（试炼塔按波次）
   const s = pickSpawn(player, Math.random);
   zombies.push(level === 2 ? makeSkeleton(s.x, s.y, Math.random) : level === 3 ? makeGhost(s.x, s.y, Math.random) : level === 4 ? makeLava(s.x, s.y, Math.random) : level === 5 ? makeStorm(s.x, s.y, Math.random) : level === 6 ? makeVoid(s.x, s.y, Math.random) : level === 7 ? makeCrystal(s.x, s.y, Math.random) : level === 8 ? makeWSkel(s.x, s.y) : level === 10 ? makeCreeper(s.x, s.y) : level === 11 ? makeSlime(s.x, s.y, 2) : level === 12 ? makeBat(s.x, s.y) : spawnZombie(player, Math.random));
   zombies[zombies.length - 1].kind = ['', 'zombie', 'skeleton', 'ghost', 'lava', 'storm', 'voidw', 'crystal', 'wskeleton', 'none', 'creeper', 'slime', 'bat'][level];   // 📖 图鉴计数用
+  const zz = zombies[zombies.length - 1], aff = rollAffix(Math.random);   // 👑 12% 精英词缀
+  zz.maxHp = zz.hp;   // ♻️ 再生词缀回血上限
+  if (aff && !zz.boss) { zz.affix = aff; if (aff === 'king') { zz.hp *= 3; zz.maxHp = zz.hp; zz.r = (zz.r || 10) * 1.35; } }   // 暴君：血×3 个头大一号
+  if (challengeMode === 'swift') zz.affix = 'swift';   // 📅 每日挑战规则：全员疾电
+  if (challengeMode === 'tough') { zz.hp *= 2; zz.maxHp = zz.hp; }   // 📅 全员皮糙肉厚
 }
 function setBanner(t) { banner = { txt: t, t: 2.6 }; }
 /* 👹 BOSS 登场：击杀满 100（之后每 100 一只） */
@@ -515,6 +520,8 @@ function reset() {
   blockT = 0; blockCd = 0;   // 🛡️ 格挡清零
   wolves = []; wolfT = 0;   // 🐺 狼群解散
   player.mount = null; player.mountHp = 0; player.mountCd = 0; player.mountAtkT = 0;   // 🐴 新冒险没坐骑
+  challengeMode = null; chKills = 0;   // 📅 重置=挑战模式也清掉（重新进才算）
+  dragonHookT = 4;   // 🐉 新局 4 秒后播龙影钩子（只有第一关真的播）
   minions = []; turrets = [];   // ☠️🧲 小弟炮塔解散
   bearCd = 0; freezeAllT = 0; chronoT = 20; clericT = 2; turretT = 6;   // 🌟 职业被动计时器归零
   level = 1; earrows = []; parrows = [];

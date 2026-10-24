@@ -87,3 +87,14 @@
   #overCard{background:#2a4a2a;border:4px solid #7ec850;border-radius:18px;padding:26px 34px;text-align:center;color:#fff}
   #again{margin-top:14px;padding:12px 28px;font-size:20px;font-weight:bold;border:0;border-radius:12px;background:#7ec850;color:#14300e;cursor:pointer}
   #tip{position:fixed;left:50%;bottom:8px;transform:translateX(-50%);z-index:5;color:rgba(255,255,255,.75);font:13px sans-serif;pointer-events:none;text-shadow:0 1px 3px #000}
+
+/* 🏠 主页动态封面：标题金光脉动 + 怪物剪影飘浮 */
+#homeCard > div:first-child {
+  background: linear-gradient(90deg, #ffd24a, #fff2c8, #ffd24a); background-size: 200% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: goldShine 2.4s linear infinite;
+}
+@keyframes goldShine { 0% { background-position: 0% 0; } 100% { background-position: 200% 0; } }
+.homeMobs { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.homeMobs span { position: absolute; top: 0; font-size: 26px; opacity: .5; animation: mobFloat linear infinite; }
+@keyframes mobFloat { from { transform: translateX(60vw) translateY(0); } to { transform: translateX(-60vw) translateY(10px); } }

@@ -1,5 +1,19 @@
 'use strict';
-/* ================= 主循环 ================= */
+/* ================= 🐉 末影龙钩子：第一关开场黑影掠顶 ================= */
+let dragonHookT = 0, dragonFlyT = 0;
+function drawDragonFly(ctx) {   // 屏幕坐标：黑影+紫光眼睛，从右向左呼啸扫过
+  if (dragonFlyT <= 0) return;
+  const t = 1 - dragonFlyT / 1.6;   // 0→1
+  const x = 420 - t * 560, y = 60 + Math.sin(t * 6) * 12, s = 1 + t * 0.4;
+  ctx.save(); ctx.translate(x, y); ctx.scale(s, s); ctx.globalAlpha = 0.85;
+  ctx.fillStyle = '#1a0a2a';
+  ctx.beginPath(); ctx.ellipse(0, 0, 46, 12, 0, 0, 6.3); ctx.fill();   // 身
+  ctx.beginPath(); ctx.moveTo(-30, -4); ctx.lineTo(-70, -26); ctx.lineTo(-46, 2); ctx.closePath(); ctx.fill();   // 左翅
+  ctx.beginPath(); ctx.moveTo(30, -4); ctx.lineTo(70, -26); ctx.lineTo(46, 2); ctx.closePath(); ctx.fill();   // 右翅
+  ctx.beginPath(); ctx.moveTo(-44, 0); ctx.lineTo(-72, 6); ctx.lineTo(-46, 8); ctx.closePath(); ctx.fill();   // 尾
+  ctx.fillStyle = '#b48af2'; ctx.fillRect(38, -6, 4, 3); ctx.fillRect(38, 3, 4, 3);   // 💜 紫眼睛
+  ctx.restore(); ctx.globalAlpha = 1;
+}
 function update(dt) {
   if (paused) return;   // 🏪 逛商店时僵尸等你
   banner.t = Math.max(0, banner.t - dt); shakeT = Math.max(0, shakeT - dt);
@@ -27,6 +41,15 @@ function update(dt) {
   if (blockCd > 0) blockCd = Math.max(0, blockCd - dt);
   if (player.bearT > 0) player.bearT = Math.max(0, player.bearT - dt);   // 🐻 熊形态倒计时
   mountTick(dt);   // 🐴 坐骑：自动攻击+阵亡检测+复活冷却
+  if (player.burnT > 0) { player.burnT -= dt; player.burnAcc = (player.burnAcc || 0) + dt; if (player.burnAcc >= 1) { player.burnAcc -= 1; player.hearts -= 0.5; player.sinceHurt = 0; burst(player.x, player.y, '#ff9a3d', 4); } }   // 🔥 灼烧词缀打的：着火每秒半心
+  if ((player.slowT || 0) > 0) player.slowT -= dt;   // ❄️ 霜冻减速倒计时
+  if (dragonHookT > 0) {   // 🐉 开场钩子：第一关 4 秒后龙影掠顶
+    dragonHookT -= dt;
+    if (dragonHookT <= 0 && level === 1 && !townMode && !dungeonMode && !skyMode) {
+      dragonFlyT = 1.6; setBanner('🐉 一头巨龙从头顶呼啸而过……它好像在第九关等着谁'); beep(90, 60, 0.8, 'sawtooth', 0.2);
+    }
+  }
+  if (dragonFlyT > 0) dragonFlyT -= dt;
   if (bearCd > 0) bearCd = Math.max(0, bearCd - dt);
   if (player.shieldT > 0) player.shieldT = Math.max(0, player.shieldT - dt);   // 🛡️ 魔法护盾倒计时
   const m0 = Math.floor(player.mana != null ? player.mana : 100);
@@ -65,6 +88,7 @@ function update(dt) {
       if (keys['w'] || keys['arrowup']) my -= 1; if (keys['s'] || keys['arrowdown']) my += 1;
       if (rotated) { const t = mx; mx = my; my = -t; }   // 🔄 转屏后输入方向跟着转 90°
       const slow = player.drainSlow ? 0.4 : 1; player.drainSlow = false;   // ⛓️ 夺魂锁链减速
+      if ((player.slowT || 0) > 0) player.drainSlow = true;   // ❄️ 霜冻词缀怪打的：减速中
       if (Math.abs(mx) + Math.abs(my) > 0.1) playerStillT = 0; else playerStillT += dt;   // 🤫 站着不动计时（坚守者瞎，看不见静止的你）
       playerStep(player, mx, my, dt, (player.speedMul || 1) * slow * (player.speedT > 0 ? 1.4 : 1) * (player.job === 'engineer' ? 0.9 : 1) * (player.mount ? mountOf(player.mount).speed : 1));   // 👟 跑鞋皇冠加速+⚡疾跑药水+🧲工程师腿短+🐴坐骑提速
     }
@@ -221,6 +245,7 @@ function update(dt) {
       if (freezeAllT > 0) { z.flash = Math.max(0, z.flash - dt); continue; }   // ⏳ 时空冻结：全场罚站（时间真的停了）
       if (z.boss) { if (dotTick(z, dt)) continue; bossUpdate(z, dt); continue; }   // 👹 BOSS 有自己的大脑（🔥 但燃烧/中毒照掉血——恩泽点名末影龙要吃燃烧）
       z.flash = Math.max(0, z.flash - dt); z.walkT += dt; z.zapT = Math.max(0, (z.zapT || 0) - dt);
+      if (z.affix === 'regen' && !z.dead) z.hp = Math.min(z.maxHp || z.hp, z.hp + 0.6 * dt);   // ♻️ 再生词缀：慢慢回血
       if (dotTick(z, dt)) continue;   // 🔥 DoT 结算（燃烧/附火/中毒）
       if (z.freezeT > 0) { z.freezeT -= dt; continue; }   // 🏹 冰冻：动不了也咬不了人
       if (z.slowT > 0) z.slowT -= dt;   // 🐾 宠物减速

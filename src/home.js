@@ -9,10 +9,10 @@ function showHome() {
   homeOpen = true; paused = true;   // 怪物全部罚站
   const bst = bestEndless();
   document.getElementById('homeBest').textContent = bst ? `🏆 无尽榜最佳：第${bst.round}遍·第${bst.wave}波` : '🗼 试炼塔：通关第十二关去小镇，无尽挑战爬最高！';
-  renderHome(); homeEl.style.display = 'flex';
+  renderHome(); homeEl.style.display = 'flex'; homeMobsStart();   // 🏠 封面飘起怪物剪影
 }
 function closeHome() {
-  homeOpen = false; paused = false;
+  homeOpen = false; paused = false; homeMobsStop();
   homeEl.style.display = 'none';
   document.getElementById('over').style.display = 'none';
 }
@@ -220,3 +220,20 @@ function toggleShop(force) {
   if (paused) renderShop();
 }
 document.getElementById('shopClose').onclick = () => { curShop = -1; diaPicking = false; toggleShop(false); };
+
+/* 🏠 主页动态封面：怪物剪影从右往左飘过（进游戏就停） */
+let homeMobT = null;
+function homeMobsStart() {
+  homeMobsStop();
+  const card = document.getElementById('homeCard'); if (!card) return;
+  const wrap = document.createElement('div'); wrap.className = 'homeMobs'; wrap.id = 'homeMobs';
+  card.style.position = 'relative'; card.style.overflow = 'hidden'; card.prepend(wrap);
+  const icons = ['🧟', '👻', '🐉', '🔥', '💀', '🦇'];
+  for (let i = 0; i < 6; i++) {
+    const s = document.createElement('span'); s.textContent = icons[i];
+    s.style.animationDuration = (7 + i * 2.3) + 's'; s.style.animationDelay = (-i * 2.1) + 's'; s.style.top = (12 + i * 14) + '%';
+    wrap.appendChild(s);
+  }
+}
+function homeMobsStop() { const w = document.getElementById('homeMobs'); if (w) w.remove(); }
+const _closeHome2 = closeHome;

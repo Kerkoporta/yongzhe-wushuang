@@ -121,10 +121,23 @@ function spawnZombie(p, rnd) {
   const s = pickSpawn(p, rnd);
   return { id: _id++, x: s.x, y: s.y, hp: ZOMBIE.hp, flash: 0, walkT: rnd() * 10, dead: false };
 }
+/* 👑 精英词缀表：刷怪 12% 带词缀（fire灼烧/ice霜冻/king暴君/regen再生/swift疾电） */
+const AFFIXES = {
+  fire: { icon: '🔥', name: '灼烧', desc: '打中你会着火' },
+  ice: { icon: '❄️', name: '霜冻', desc: '打中你会减速' },
+  king: { icon: '👑', name: '暴君', desc: '血×3 掉落×5' },
+  regen: { icon: '♻️', name: '再生', desc: '每秒回血' },
+  swift: { icon: '💨', name: '疾电', desc: '跑得飞快' },
+};
+function rollAffix(rnd) {   // 12% 出词缀怪（BOSS/特殊怪不贴）
+  if (rnd() > 0.12) return null;
+  const keys = Object.keys(AFFIXES);
+  return keys[Math.floor(rnd() * keys.length)];
+}
 /* 僵尸追人一步（撞世界边就停） */
 function zombieStep(z, p, dt, speedMul) {
   const dx = p.x - z.x, dy = p.y - z.y, d = Math.hypot(dx, dy) || 1;
-  const sp = ZOMBIE.speed * (speedMul || 1) * dt;
+  const sp = ZOMBIE.speed * (speedMul || 1) * (z.affix === 'swift' ? 1.6 : 1) * dt;   // 💨 疾电词缀：飞快
   z.x = Math.max(20, Math.min(WORLD.w - 20, z.x + dx / d * sp));
   z.y = Math.max(20, Math.min(WORLD.h - 20, z.y + dy / d * sp));
 }
@@ -225,6 +238,8 @@ function touchHurt(p, z, dmg) {
   const real = (dmg == null ? 1 : dmg);
   if (p.mount && p.mountHp > 0) { p.mountHp -= real; }   // 🐴 坐骑挡刀：怪先打坐骑
   else p.hearts -= real;
+  if (z.affix === 'fire') { p.burnT = 2; p.burnAcc = 0; }   // 🔥 灼烧怪：打中你着火
+  if (z.affix === 'ice') { p.drainSlow = true; p.slowT = 2; }   // ❄️ 霜冻怪：打中你减速 2 秒
   p.inv = HURT.invincible; p.sinceHurt = 0; p.regenT = 0;
   const dx = p.x - z.x, dy = p.y - z.y, d = Math.hypot(dx, dy) || 1;
   p.x = Math.max(16, Math.min(WORLD.w - 16, p.x + dx / d * HURT.knock));
