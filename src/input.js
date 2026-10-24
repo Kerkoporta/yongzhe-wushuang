@@ -77,15 +77,15 @@ function killZombie(z) {
       endlessBossDown(z);
       chest = { x: z.x, y: z.y, taken: false };
       setBanner('🌀 BOSS 倒下！宝箱掉下来啦，走过去打开！');
-    } else if (level < 12) {   // 🎁 普通关：掉宝箱，开完问要不要进下一关
+    } else if (level < 13) {   // 🎁 普通关：掉宝箱，开完问要不要进下一关
       pendingNext = 'level'; chest = { x: z.x, y: z.y, taken: false };
       setBanner('👑 BOSS 倒下！宝箱掉下来了，走过去打开！');
       saveGame();
-    } else {   // 👿 第十二关坚守者倒了：主线通关！掉宝箱，开完进小镇（试炼塔等你）
+    } else {   // 🪞 第十三关镜面魔王倒了：主线通关！掉宝箱，开完进小镇（试炼塔等你）
       player.gold += 800; updateGold();
       for (let i = 0; i < 40; i++) burst(player.x + (Math.random() - 0.5) * 300, player.y + (Math.random() - 0.5) * 300, ['#ffd24a', '#4a6aff', '#a8f2ff', '#7ec850'][i % 4]);
       pendingNext = 'town'; chest = { x: z.x, y: z.y, taken: false };
-      setBanner('👿 坚守者倒下了！主线通关！宝箱掉下来了，走过去打开！');
+      setBanner('🪞 镜面魔王倒下了！主线通关！宝箱掉下来了，走过去打开！');
       beep(600, 1200, 0.6, 'sine', 0.2); setTimeout(() => beep(800, 1600, 0.6, 'sine', 0.2), 250);
       saveGame();
     }

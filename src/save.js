@@ -100,10 +100,11 @@ function applySave(s) {
   }
   if (s.music != null) { musicOn = !!s.music; document.getElementById('gearMusic').textContent = musicOn ? '🎵 音乐：开' : '🔇 音乐：关'; }
   if (!!s.rot !== rotated) toggleRotate();   // 🔄 转屏状态跟着存档走
-  bossAt = s.bossAt || 100; level = (s.level >= 1 && s.level <= 12) ? s.level : 1;   // 🐛 关卡钳制跟着主线走（12 关时代）
+  bossAt = s.bossAt || 100; level = (s.level >= 1 && s.level <= 13) ? s.level : 1;   // 🐛 关卡钳制跟着主线走（🪞 13 关时代）
   fixOldBought();   // 🌈 老存档的武器/装备升级成正式品质条目
   endlessRound = s.endlessRound || 1; endlessWave = s.endlessWave || 1; waveKills = s.waveKills || 0;   // 🌀 无尽进度回来
-  chest = s.chest || null; pendingNext = s.pendingNext || null;   // 🎁 没开的宝箱回来
+  chest = s.chest || null; pendingNext = s.pendingNext || null;
+  if (level === 12 && pendingNext === 'town' && !s.townUnlocked) pendingNext = 'level';   // 🪞 旧档待开宝箱继续去镜面洞穴   // 🎁 没开的宝箱回来
   faintDone = !!s.faintDone; townMode = !!s.townMode; townUnlocked = !!s.townUnlocked; ownedHouse = !!s.ownedHouse; storage = s.storage || {}; inRoom = false;   // 💉🏡 剧情进度回来（进门状态不存）
   if (s.skin) player.skin = s.skin;   // 🎨 捏人形象读档回来（老档没有就用默认配色）
   player.mount = s.mount || null; player.mountHp = s.mountHp || 0; player.mountCd = 0;   // 🐴 坐骑读档回来

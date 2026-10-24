@@ -327,6 +327,7 @@ function update(dt) {
         }
         continue;
       }
+      if (z.mirror) { mirrorUpdate(z, dt); continue; }   // 🪞 镜面怪追击与复制技能
       if (z.goblin) {   // 🌲 哥布林：抡木棍追人，抓到 1 心
         zombieStep(z, (z.aggroW && z.aggroW.hp > 0) ? z.aggroW : player, dt, diff.speedMul * cloakMul * slowF);
         const dmgGb = rollDmg(1);
@@ -494,6 +495,7 @@ function update(dt) {
         if (Math.hypot(a.x - z.x, a.y - z.y) < (z.r || ZOMBIE.r) + 6) {
           if (a.wave) {   // 🌪️ 法师剑风：穿透，一只怪只刮一次
             if (a.hitIds[z.id]) continue; a.hitIds[z.id] = 1;
+            if (mirrorBlocks(z)) { a.t = 0; break; }   // 🛡️ 镜面挡下弹道
             z.hp -= a.dmg; z.flash = 0.12; z.aggroW = null;   // 🐺 剑风也是你出手
             burst(a.x, a.y, '#a8e8ff', 4);
             if (z.hp <= 0) killZombie(z);
@@ -501,6 +503,7 @@ function update(dt) {
           }
           if (a.pierce) {   // 🏹 游侠穿透箭：一只怪只中一次，穿过去继续飞
             if (a.hitIds[z.id]) continue; a.hitIds[z.id] = 1;
+            if (mirrorBlocks(z)) { a.t = 0; break; }   // 🛡️ 镜面挡下弹道
             z.hp -= a.dmg; z.flash = 0.12; z.aggroW = null;
             if (a.mageBurn && !z.dead) { z.mageBurnT = 2; z.mageBurnAcc = 0; }
             if (a.freeze && !z.boss && !z.dead) { z.freezeT = Math.max(z.freezeT || 0, a.freezeDur || 1.5); burst(z.x, z.y, '#a8e8ff', 8); }
@@ -511,6 +514,7 @@ function update(dt) {
             if (z.hp <= 0) killZombie(z);
             continue;
           }
+          if (mirrorBlocks(z)) { a.t = 0; break; }   // 🛡️ 镜面挡下弹道
           z.hp -= a.dmg; z.flash = 0.15; a.t = 0;
           z.aggroW = null;   // 🐺 你的箭也是你出手：仇恨归位
           burst(a.x, a.y, '#ffd75e', 5); shakeT = Math.max(shakeT, 0.07);   // 💥 箭矢命中：金火花+轻震（不给顿帧，箭雨会狂顿）

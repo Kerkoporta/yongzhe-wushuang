@@ -42,6 +42,7 @@ const ULT_INFO = {
 };
 /* 🌈 物品 → 十元素系（灵魂共鸣和满级奥义共用）：先看特效，再猜名字关键词，最后凡铁兜底 */
 function elemOf(key) {
+  if (key === 'mirror' || key === 'mirrorKing' || key === 'boss13') return 'brave';   // 🪞 镜面复制不改变凡系归属
   const fx = WEAPON_FX[key] || {}, n = (ALLITEMS[key] ? ALLITEMS[key].name : '') + key;
   if (fx.burn) return 'fire';
   if (fx.freezePct || fx.freezeDur) return 'ice';
@@ -78,7 +79,7 @@ function nearestZ(rng) {   // 最近的活怪
   return bz;
 }
 function hurtZ(z, dmg, color) {   // 技能直伤结算（吃击杀计数）
-  if (z.dead) return;
+  if (z.dead || mirrorBlocks(z)) return;   // 🛡️ 镜面格挡技能直伤
   z.hp -= dmg; z.flash = 0.12; burst(z.x, z.y, color, 7);
   if (z.hp <= 0) killZombie(z);
 }

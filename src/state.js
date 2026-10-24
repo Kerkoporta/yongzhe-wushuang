@@ -32,6 +32,7 @@ const LEVELS = {
   10: { name: '苦力怕矿洞', grassA: '#2a3020', grassB: '#242a1c', edge: '#141810', trunk: '#3a3428', leaf: '#5a6a3a', leafHi: '#7a8a4a', rock: '#4a4a44', rockHi: '#6a6a60', enemy: 'creeper', bossName: '🧨 泰坦苦力怕' },
   11: { name: '史莱姆沼泽', grassA: '#1e3026', grassB: '#1a2a22', edge: '#0c1812', trunk: '#2a3a2a', leaf: '#3a6a4a', leafHi: '#5a9a6a', rock: '#2a4438', rockHi: '#4a6a58', enemy: 'slime', bossName: '👻 恶魂' },
   12: { name: '深邃古城', grassA: '#0e1a1e', grassB: '#0c161a', edge: '#060c0e', trunk: '#1a2e34', leaf: '#2a4a44', leafHi: '#3a6a5a', rock: '#16262c', rockHi: '#26424a', enemy: 'bat', bossName: '👿 坚守者' },
+  13: { name: '镜面洞穴', grassA: '#bfc8d0', grassB: '#d3dae0', edge: '#727e8c', trunk: '#96a4b2', leaf: '#dae5ee', leafHi: '#ffffff', rock: '#a5b5c4', rockHi: '#ffffff', enemy: 'mirror', bossName: '🪞 镜面魔王' },
 };
 let level = 1, earrows = [], parrows = [], garrows = [], meteors = [], puddles = [], skillShots = [], clouds = [], fxLines = [], netOrbs = null, shocks = [];   // 各种飞行物与特效
 let towerMode = false;   // 🗼 试炼塔（无尽）中：第八关是凋零关主线，无尽搬进了小镇试炼塔
@@ -40,13 +41,35 @@ function makeWSkel(x, y) { return { id: _id++, x, y, hp: 8, r: 11, ws: true, dea
 function makeCreeper(x, y) { return { id: _id++, x, y, hp: 6, r: 10, creep: true, dead: false, flash: 0, walkT: Math.random() * 9, kind: 'creeper' }; }   // 🧨 MC 苦力怕：6 血，靠近就自爆
 function makeSlime(x, y, size) { return { id: _id++, x, y, hp: [2, 4, 8][size], r: [7, 10, 14][size], slime: true, size, dead: false, flash: 0, walkT: Math.random() * 9, kind: 'slime' }; }   // 🟢 MC 史莱姆：大 8 血/中 4/小 2，打死分裂
 function makeBat(x, y) { return { id: _id++, x, y, hp: 2, r: 8, bat: true, dead: false, flash: 0, walkT: Math.random() * 9, kind: 'bat' }; }   // 🦇 洞穴蝙蝠：2 血，飞得飞快
+/* 🪞 捕获此刻玩家装备、技能与出战宠物，出生以后不随玩家改变 */
+function mirrorSnapshot() {
+  return { dmg: player.weapon ? ((WEAPON_FX[player.weapon] || {}).dmg == null ? 1 : WEAPON_FX[player.weapon].dmg) * T(player.weapon) : 1,
+    maxHearts: player.maxHearts, tank: player.job === 'tank',
+    speed: PLAYER.speed * (player.speedMul || 1) * (player.speedT > 0 ? 1.4 : 1) * (player.job === 'engineer' ? 0.9 : 1) * (player.mount ? mountOf(player.mount).speed : 1),
+    skills: Object.keys(player.bought).filter(k => player.bought[k] && ALLKIND[k] === 'skill'), pets: pets.filter(p => !p.dead) };
+}
+/* 🪞 敌方技能化为可躲避的镜光弹，保留原技能颜色、冷却与伤害强弱 */
+function mirrorUpdate(z, dt) {
+  z.walkT += dt; z.flash = Math.max(0, z.flash - dt);
+  zombieStep(z, player, dt, z.speed / ZOMBIE.speed * (z.spdMul || 1) * (z.slowT > 0 ? 0.5 : 1));
+  z.skills.forEach((key, i) => {
+    z.skillTimers[i] -= dt;
+    if (z.skillTimers[i] > 0) return;
+    const def = SKILL_FX[key] || [], dx = player.x - z.x, dy = player.y - z.y, d = Math.hypot(dx, dy) || 1;
+    z.skillTimers[i] = z.mirrorKing ? (def[2] || 6) : 6;
+    earrows.push({ x: z.x, y: z.y, vx: dx / d * 220, vy: dy / d * 220, t: 4, mirrorSkill: key, color: def[3] || '#ffffff', dmg: Math.max(1, Math.min(2.5, (def[1] || 4) / 8)) });
+  });
+  if (touchHurt(player, z, rollDmg((z.dmg + z.petDmg) * (z.atkMul || 1))) && player.hearts <= 0 && !angelSave()) {
+    gameOver = true; document.getElementById('overScore').textContent = '你击败了 ' + kills + ' 只怪物！'; document.getElementById('over').style.display = 'flex';
+  }
+}
 function spawnEnemy() {   // 按关卡出怪（试炼塔按波次）
   if (pvpMode) return;   // 📡 PVP 擂台不刷怪，只有对面那个真人
   if (towerMode) { waveSpawn(); return; }
   if (level === 9) return;   // 🐉 末影之地只有末影龙，一只小怪都没有
   const s = pickSpawn(player, Math.random);
-  zombies.push(level === 2 ? makeSkeleton(s.x, s.y, Math.random) : level === 3 ? makeGhost(s.x, s.y, Math.random) : level === 4 ? makeLava(s.x, s.y, Math.random) : level === 5 ? makeStorm(s.x, s.y, Math.random) : level === 6 ? makeVoid(s.x, s.y, Math.random) : level === 7 ? makeCrystal(s.x, s.y, Math.random) : level === 8 ? makeWSkel(s.x, s.y) : level === 10 ? makeCreeper(s.x, s.y) : level === 11 ? makeSlime(s.x, s.y, 2) : level === 12 ? makeBat(s.x, s.y) : spawnZombie(player, Math.random));
-  zombies[zombies.length - 1].kind = ['', 'zombie', 'skeleton', 'ghost', 'lava', 'storm', 'voidw', 'crystal', 'wskeleton', 'none', 'creeper', 'slime', 'bat'][level];   // 📖 图鉴计数用
+  zombies.push(level === 2 ? makeSkeleton(s.x, s.y, Math.random) : level === 3 ? makeGhost(s.x, s.y, Math.random) : level === 4 ? makeLava(s.x, s.y, Math.random) : level === 5 ? makeStorm(s.x, s.y, Math.random) : level === 6 ? makeVoid(s.x, s.y, Math.random) : level === 7 ? makeCrystal(s.x, s.y, Math.random) : level === 8 ? makeWSkel(s.x, s.y) : level === 10 ? makeCreeper(s.x, s.y) : level === 11 ? makeSlime(s.x, s.y, 2) : level === 12 ? makeBat(s.x, s.y) : level === 13 ? makeMirror(s.x, s.y, mirrorSnapshot(), Math.random) : spawnZombie(player, Math.random));
+  zombies[zombies.length - 1].kind = ['', 'zombie', 'skeleton', 'ghost', 'lava', 'storm', 'voidw', 'crystal', 'wskeleton', 'none', 'creeper', 'slime', 'bat', 'mirror'][level];   // 📖 图鉴计数用
   const zz = zombies[zombies.length - 1], aff = rollAffix(Math.random);   // 👑 12% 精英词缀
   zz.maxHp = zz.hp;   // ♻️ 再生词缀回血上限
   if (altarMods && altarMods.hpMul) { zz.hp *= altarMods.hpMul; zz.maxHp = zz.hp; }   // 🔮 嗜血契约：怪血×3
@@ -60,11 +83,11 @@ function spawnBoss() {
   for (const z of zombies) if (!z.boss) z.dead = true;   // 👑 BOSS 登场清场
   summonT = 10;   // 10 秒后开始召唤小怪
   const pos = pickSpawn(player, Math.random);
-  const b = makeBoss(pos.x, pos.y);
+  const b = (towerMode ? endlessWave : level) === 13 ? makeMirror(pos.x, pos.y, mirrorSnapshot(), Math.random, true) : makeBoss(pos.x, pos.y);
   if (towerMode) {   // 🗼 试炼塔：BOSS 类型按波次，血/速+2%×遍、攻+1%×遍
     const w = endlessWave, R = endlessRound;
     b.skelBoss = w === 2; b.ghostBoss = w === 3; b.lavaBoss = w === 4; b.stormBoss = w === 5; b.voidBoss = w === 6; b.crystalBoss = w === 7;
-    b.hp = b.maxHp = Math.round((BOSS.hp + (w - 1) * 15) * (1 + 0.02 * R));
+    b.hp = b.maxHp = Math.round((b.mirrorKing ? b.hp : (BOSS.hp + (w - 1) * 15)) * (1 + 0.02 * R));
     b.spdMul = 1 + 0.02 * R; b.atkMul = 1 + 0.01 * R;
     b.kind = 'boss' + w;
     zombies.push(b);
@@ -84,11 +107,11 @@ function spawnBoss() {
   b.ghast = level === 11;      // 👻 第十一关出恶魂（火球可打回去）
   b.warden = level === 12;     // 👿 第十二关出坚守者（50 万血！盲眼听声辨位+音波炮）
   b.kind = 'boss' + level;     // 📖 图鉴计数用
-  b.hp = b.maxHp = BOSS.hp + (level - 1) * 15;   // 🌡️ 难度爬坡：每关 BOSS 血更厚（40→55→70→85→100→115）
+  if (!b.mirrorKing) b.hp = b.maxHp = BOSS.hp + (level - 1) * 15;   // 🌡️ 难度爬坡：每关 BOSS 血更厚（40→55→70→85→100→115）
   if (b.ender) b.hp = b.maxHp = 10000;   // 🐉 末影龙一万血（恩泽定的）
   if (b.warden) b.hp = b.maxHp = 500000;   // 👿 坚守者五十万血（恩泽定的，慢慢磨！）
   zombies.push(b);
-  setBanner('⚠️ ' + LEVELS[level].bossName + '出现了！');
+  setBanner(b.mirrorKing ? '🪞 镜面魔王：它就是你自己！' : '⚠️ ' + LEVELS[level].bossName + '出现了！');
   beep(90, 45, 0.6, 'sawtooth', 0.3); setTimeout(() => beep(60, 30, 0.8, 'sawtooth', 0.35), 200);
 }
 /* 💀 凋灵（第八关 BOSS）：普攻=蓝色凋灵骷髅头（命中 2 血）；技能=直线冲锋 3×10 格（96×320px），路径内 2.5 血，冷却 30 秒 */
@@ -379,6 +402,7 @@ function dotTick(z, dt) {
   return false;
 }
 function bossUpdate(z, dt) {
+  if (z.mirrorKing) { mirrorUpdate(z, dt); return; }   // 🪞 魔王使用玩家快照
   if (z.dgnKing) { Dgn.dgnKingTick(z, dt); return; }   // 👑 哥布林王有自己的大脑
   if (z.warden) { wardenTick(z, dt); return; }   // 👿 坚守者有自己的大脑
   if (z.ghast) { ghastTick(z, dt); return; }   // 👻 恶魂有自己的大脑

@@ -158,6 +158,7 @@ function attackHit(p, zombies, opts) {
     const ang = Math.atan2(dy, dx);
     let diff = Math.abs(ang - p.dir); if (diff > Math.PI) diff = Math.PI * 2 - diff;
     if (diff <= arc / 2) {
+      if (mirrorBlocks(z)) continue;   // 🛡️ 镜面格挡整次挥击
       z.hp -= dmg; z.flash = 0.12;
       const kb = ATTACK.knock * (z.boss ? 0.15 : 1) * ((opts && opts.kbMul) || 1);   // 👹 BOSS 太重，只退一点；🔨 战锤击退×3
       z.x = Math.max(20, Math.min(WORLD.w - 20, z.x + (dx / (d || 1)) * kb));
@@ -992,4 +993,22 @@ function crystalTick(c, p, dt, speedMul, rnd) {
   }
   return ev;
 }
-if (typeof module !== 'undefined') module.exports = { WORLD, PLAYER, ZOMBIE, SPAWN, ATTACK, HURT, REGEN, SHOP, SHOP2, SHOP3, SHOP4, SHOP5, SHOP6, SHOP7, SKBOOKS, PETS, BOSS, SKELETON, GHOST, LAVA, STORM, VOIDW, CRYSTAL, makePlayer, pickSpawn, spawnZombie, zombieStep, attackHit, lootGold, lootBounty, buyItem, regenTick, playerStep, touchHurt, difficulty, makeBoss, bossTick, makeSkeleton, skeletonTick, makeGhost, ghostTick, makeLava, lavaTick, makeStorm, stormTick, makeVoid, voidTick, makeCrystal, crystalTick, FISH, MOUNTS };
+/* 🪞 出生快照：先独立掷五次硬币，再随机补足或删到两项 */
+let mirrorId = 0;   // 🪞 镜面独立编号，穿透弹命中记录不串怪
+function makeMirror(x, y, snapshot, rnd, king) {
+  const r = rnd || Math.random, s = snapshot || {}, pool = ['attack', 'health', 'block', 'skill', 'pet'];
+  let copied = king ? pool.slice() : pool.filter(() => r() < 0.5);
+  while (!king && copied.length > 2) copied.splice(Math.floor(r() * copied.length), 1);
+  while (!king && copied.length < 2) { const rest = pool.filter(k => !copied.includes(k)); copied.push(rest[Math.floor(r() * rest.length)]); }
+  const skills = (s.skills || []).slice(), chosen = [];
+  while (skills.length && chosen.length < (king ? 2 : copied.includes('skill') ? 1 : 0)) chosen.push(skills.splice(Math.floor(r() * skills.length), 1)[0]);
+  const hp = king ? (s.maxHearts || 5) * 8 : copied.includes('health') ? (s.maxHearts || 5) : 3;
+  const z = { id: 'mirror' + (++mirrorId), x, y, hp, maxHp: hp, r: king ? 18 : 12, mirror: true, mirrorKing: !!king, boss: !!king, kind: king ? 'mirrorKing' : 'mirror', dead: false, flash: 0, walkT: 0,
+    copied, dmg: copied.includes('attack') ? (s.dmg == null ? 1 : s.dmg) : 2, blockChance: !king && copied.includes('block') ? (s.tank ? 0.5 : 0.3) : 0,
+    speed: king ? (s.speed || PLAYER.speed) : ZOMBIE.speed, skills: chosen, skillTimers: chosen.map(() => 6), petDmg: 0 };
+  if (copied.includes('pet') && (s.pets || []).length) z.petDmg = s.pets[Math.floor(r() * s.pets.length)].dmg || 0;
+  return z;
+}
+/* 🛡️ 玩家攻击统一抽取镜面格挡 */
+function mirrorBlocks(z, rnd) { return !!(z.blockChance && (rnd || Math.random)() < z.blockChance); }
+if (typeof module !== 'undefined') module.exports = { makeMirror, mirrorBlocks, WORLD, PLAYER, ZOMBIE, SPAWN, ATTACK, HURT, REGEN, SHOP, SHOP2, SHOP3, SHOP4, SHOP5, SHOP6, SHOP7, SKBOOKS, PETS, BOSS, SKELETON, GHOST, LAVA, STORM, VOIDW, CRYSTAL, makePlayer, pickSpawn, spawnZombie, zombieStep, attackHit, lootGold, lootBounty, buyItem, regenTick, playerStep, touchHurt, difficulty, makeBoss, bossTick, makeSkeleton, skeletonTick, makeGhost, ghostTick, makeLava, lavaTick, makeStorm, stormTick, makeVoid, voidTick, makeCrystal, crystalTick, FISH, MOUNTS };

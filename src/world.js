@@ -72,7 +72,7 @@ function goNextLevel() {   // 🗺️ 真正过关（旧自动过渡搬到这里
   const what = pendingNext; pendingNext = null; chest = null;
   if (what === 'level') {
     level++; campaignLv = level;   // 🧭 主线进度推进
-    setBanner((level === 2 ? '❄️ 第二关：骷髅雪原！' : level === 3 ? '👻 第三关：鬼魂地狱！' : level === 4 ? '🌋 第四关：熔岩火山！' : level === 5 ? '⛈️ 第五关：天空雷域！' : level === 6 ? '🕳️ 第六关：虚空之境！' : level === 8 ? '💀 第八关：凋零之地！凋灵骷髅大举入侵！' : level === 9 ? '🐉 第九关：末影之地！没有小怪，只有末影龙！' : level === 10 ? '🧨 第十关：苦力怕矿洞！听脚步声，嘶嘶响就跑！' : level === 11 ? '🟢 第十一关：史莱姆沼泽！打死还会分裂！' : level === 12 ? '👿 第十二关：深邃古城！别乱动——坚守者瞎但听得见！' : '💎 第七关：水晶洞窟！') + '全部家当都继承，商店已刷新！');
+    setBanner((level === 2 ? '❄️ 第二关：骷髅雪原！' : level === 3 ? '👻 第三关：鬼魂地狱！' : level === 4 ? '🌋 第四关：熔岩火山！' : level === 5 ? '⛈️ 第五关：天空雷域！' : level === 6 ? '🕳️ 第六关：虚空之境！' : level === 8 ? '💀 第八关：凋零之地！凋灵骷髅大举入侵！' : level === 9 ? '🐉 第九关：末影之地！没有小怪，只有末影龙！' : level === 10 ? '🧨 第十关：苦力怕矿洞！听脚步声，嘶嘶响就跑！' : level === 11 ? '🟢 第十一关：史莱姆沼泽！打死还会分裂！' : level === 13 ? '🪞 第十三关：镜面洞穴！当心复制你的镜面怪！' : level === 12 ? '👿 第十二关：深邃古城！别乱动——坚守者瞎但听得见！' : '💎 第七关：水晶洞窟！') + '全部家当都继承，商店已刷新！');
   } else {   // what === 'town'：主线通关→剧情→进小镇（🗼 试炼塔在小镇广场南边）
     townUnlocked = true; setBanner('🏆 主线通关！宁静小镇开启，试炼塔在等你！');
     for (const o of zombies) o.dead = true;
@@ -657,10 +657,10 @@ function recordEndless() {
   try { localStorage.setItem(LB_KEY, JSON.stringify(lb.slice(0, 5))); } catch (e) {}
 }
 function bestEndless() { return getLB()[0] || null; }
-const WAVE_KIND = ['', 'zombie', 'skeleton', 'ghost', 'lava', 'storm', 'voidw', 'crystal'];
+const WAVE_KIND = ['', 'zombie', 'skeleton', 'ghost', 'lava', 'storm', 'voidw', 'crystal', 'wskeleton', 'ghost', 'creeper', 'slime', 'bat', 'mirror'];
 function waveSpawn() {   // 无尽模式按波次出怪
   const w = endlessWave, s2 = pickSpawn(player, Math.random);
-  zombies.push(w === 2 ? makeSkeleton(s2.x, s2.y, Math.random) : w === 3 ? makeGhost(s2.x, s2.y, Math.random) : w === 4 ? makeLava(s2.x, s2.y, Math.random) : w === 5 ? makeStorm(s2.x, s2.y, Math.random) : w === 6 ? makeVoid(s2.x, s2.y, Math.random) : w === 7 ? makeCrystal(s2.x, s2.y, Math.random) : spawnZombie(player, Math.random));
+  zombies.push(w === 2 ? makeSkeleton(s2.x, s2.y, Math.random) : w === 3 ? makeGhost(s2.x, s2.y, Math.random) : w === 4 ? makeLava(s2.x, s2.y, Math.random) : w === 5 ? makeStorm(s2.x, s2.y, Math.random) : w === 6 ? makeVoid(s2.x, s2.y, Math.random) : w === 7 ? makeCrystal(s2.x, s2.y, Math.random) : w === 8 ? makeWSkel(s2.x, s2.y) : w === 9 ? makeGhost(s2.x, s2.y, Math.random) : w === 10 ? makeCreeper(s2.x, s2.y) : w === 11 ? makeSlime(s2.x, s2.y, 2) : w === 12 ? makeBat(s2.x, s2.y) : w === 13 ? makeMirror(s2.x, s2.y, mirrorSnapshot(), Math.random) : spawnZombie(player, Math.random));
   zombies[zombies.length - 1].kind = WAVE_KIND[w];
 }
 function endlessBossDown(z) {
@@ -669,7 +669,7 @@ function endlessBossDown(z) {
   earrows = []; parrows = []; garrows = []; meteors = []; puddles = []; skillShots = []; clouds = []; fxLines = []; netOrbs = null; shocks = [];
   placeShops();   // 🏪 无尽每打完一波 BOSS：商店重新抽签（类型+位置+货全换新的）
   waveKills = 0; endlessWave++;
-  if (endlessWave > 7) { endlessWave = 1; endlessRound++; setBanner(`🌀 第 ${endlessRound} 遍开始！BOSS 又变强了！商店已刷新`); }
+  if (endlessWave > 13) { endlessWave = 1; endlessRound++; setBanner(`🌀 第 ${endlessRound} 遍开始！BOSS 又变强了！商店已刷新`); }
   else setBanner(`🌀 第 ${endlessWave} 波：${LEVELS[endlessWave].name}的怪来了！商店已刷新`);
   player.hearts = player.maxHearts; placePortal(); revivePets();   // 🐾 无尽过波也复活伙伴
   altarMods = null; altar = null; altarMaybeSpawn();   // 🔮 塔内新一波：契约清零，25% 刷祭坛

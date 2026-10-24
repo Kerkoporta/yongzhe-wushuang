@@ -111,6 +111,14 @@ function draw() {
   } else {
     ctx.fillStyle = groundPattern(); ctx.fillRect(camX, camY, VW, VH);
   }
+  if (level === 13 && !townMode && !dungeonMode && !skyMode) {   // 🪞 洞穴镜面裂纹与银白反光
+    ctx.save(); ctx.strokeStyle = '#f8fcff'; ctx.lineWidth = 2; ctx.globalAlpha = 0.55;
+    for (let x = Math.floor(camX / 160) * 160; x < camX + VW / Z + 160; x += 160) for (let y = Math.floor(camY / 160) * 160; y < camY + VH / Z + 160; y += 160) {
+      ctx.beginPath(); ctx.moveTo(x + 20, y + 20); ctx.lineTo(x + 60, y + 60); ctx.lineTo(x + 130, y + 40); ctx.stroke();
+      ctx.fillStyle = '#fff'; ctx.fillRect(x + 58, y + 52, 3, 16); ctx.fillRect(x + 52, y + 58, 16, 3);
+    }
+    ctx.restore();
+  }
   if (!townMode && !dungeonMode) {   // 冒险模式才画边缘+装饰（🌲 副本自己画林子）
   ctx.strokeStyle = LV.edge; ctx.lineWidth = 12; ctx.strokeRect(0, 0, WORLD.w, WORLD.h);
   for (const d of deco) { if (d.x < camX - 60 || d.x > camX + VW + 60 || d.y < camY - 60 || d.y > camY + VH + 60) continue;
@@ -153,6 +161,7 @@ function draw() {
   }
   // 僵尸
   for (const z of zombies) {
+    if (z.mirror) { drawMirror(z); continue; }   // 🪞 镜面怪与魔王共用银甲像素
     if (z.boss) { drawBoss(z); continue; }   // 👹 BOSS 专属画法
     if (z.elite) {   // ✨ 精英怪：脚下金色光环
       ctx.strokeStyle = '#ffd24a'; ctx.globalAlpha = 0.8; ctx.lineWidth = 3;
@@ -473,7 +482,9 @@ function draw() {
   }
   // ➹ 箭（双方）：飞行小箭+拖尾（灵魂系青色发光，火箭橙色，激光=青白光束）
   for (const a of earrows) {
-    if (a.laser) {   // 💠 激光弹：青白光束+白芯
+    if (a.mirrorSkill) {   // 🪞 复制技能保留元素色与白色镜芯
+      ctx.fillStyle = a.color; ctx.beginPath(); ctx.arc(a.x, a.y, 7, 0, 6.3); ctx.fill(); ctx.fillStyle = '#fff'; ctx.fillRect(a.x - 2, a.y - 2, 4, 4);
+    } else if (a.laser) {   // 💠 激光弹：青白光束+白芯
       const ang = Math.atan2(a.vy, a.vx);
       ctx.save(); ctx.translate(a.x, a.y); ctx.rotate(ang);
       ctx.strokeStyle = '#7ae8f2'; ctx.globalAlpha = 0.85; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(-14, 0); ctx.lineTo(8, 0); ctx.stroke();

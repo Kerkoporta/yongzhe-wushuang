@@ -8,7 +8,7 @@ function showHome() {
   saveGame();   // 进主页先存好
   homeOpen = true; paused = true;   // 怪物全部罚站
   const bst = bestEndless();
-  document.getElementById('homeBest').textContent = bst ? `🏆 无尽榜最佳：第${bst.round}遍·第${bst.wave}波` : '🗼 试炼塔：通关第十二关去小镇，无尽挑战爬最高！';
+  document.getElementById('homeBest').textContent = bst ? `🏆 无尽榜最佳：第${bst.round}遍·第${bst.wave}波` : '🗼 试炼塔：通关第十三关去小镇，无尽挑战爬最高！';
   renderHome(); homeEl.style.display = 'flex'; homeMobsStart();   // 🏠 封面飘起怪物剪影
 }
 function closeHome() {
@@ -212,7 +212,7 @@ const WEAPON_FX = {
   cavern_lord: { dmg: 25, burn: true, zapPct: 0.25, holy: true, color: '#eaf8ff' },
   glow_pick: { dmg: 8.5, color: '#a8f2ff' },
 };
-function shopNow() { return level === 2 ? SHOP2 : level === 3 ? SHOP3 : level === 4 ? SHOP4 : level === 5 ? SHOP5 : level === 6 ? SHOP6 : level === 7 ? SHOP7 : SHOP; }   // 每关商店完全不同
+function shopNow() { return level === 13 ? SHOP10 : level === 2 ? SHOP2 : level === 3 ? SHOP3 : level === 4 ? SHOP4 : level === 5 ? SHOP5 : level === 6 ? SHOP6 : level === 7 ? SHOP7 : SHOP; }   // 每关商店完全不同
 const ULT_ITEMS = {   // ⭐ 满级奥义 10 式：不进商店，武器/装备练到橙·传说自动觉醒
   ult_fire: { name: '烈焰风暴', icon: '🔥', price: 0, kind: 'skill', desc: '火系满级觉醒：焚尽一切的烈焰环' },
   ult_ice: { name: '绝对零度', icon: '❄️', price: 0, kind: 'skill', desc: '冰系满级觉醒：大范围冻结 4 秒' },

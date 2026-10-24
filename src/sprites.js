@@ -389,3 +389,18 @@ function drawMountSpr(ctx, art, pal, x, y, px, flip, t) {   // t=走路计时（
     ctx.fillRect(x + c * px, y + r * px - bob + yo, px, px);
   }
 }
+
+/* 🪞 银白半透明镜面像素：胸前白色镜芯 */
+const MIRROR = ['...QQQQ...', '..QqqqqQ..', '..QkqqkQ..', '...QQQQ...', '..DQQQQD..', '.DQEEEEQD.', '.DQEQQEQD.', '..QEQQEQ..', '..QQQQQQ..', '...DDDD...', '...D..D...', '..QQ..QQ..'];
+function drawMirror(z) {
+  const px = z.mirrorKing ? 3 : 2;
+  ctx.save(); ctx.globalAlpha = z.flash > 0 ? 1 : z.mirrorKing ? 0.98 : 0.78;
+  const colors = { Q: '#eaf2fa', q: '#b8c8d8', D: '#8194a8', E: '#ffffff', k: '#34485c' };
+  for (let y = 0; y < MIRROR.length; y++) for (let x = 0; x < MIRROR[y].length; x++) { const c = MIRROR[y][x]; if (c !== '.') { ctx.fillStyle = colors[c]; ctx.fillRect(z.x + (x - 5) * px, z.y + (y - 11) * px, px, px); } }
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(z.x - px, z.y - 6 * px, 3 * px, 3 * px);
+  ctx.globalAlpha = 1; ctx.font = '12px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#263849';
+  const icons = { attack: '⚔️', health: '❤️', block: '🛡️', skill: '✨', pet: '🐾' };
+  ctx.fillText(z.mirrorKing ? '🪞 镜面魔王' : z.copied.map(k => icons[k]).join(''), z.x, z.y - 13 * px);
+  if (z.mirrorKing) { ctx.fillStyle = '#384956'; ctx.fillRect(z.x - 30, z.y - 15 * px, 60, 4); ctx.fillStyle = '#fff'; ctx.fillRect(z.x - 30, z.y - 15 * px, 60 * Math.max(0, z.hp / z.maxHp), 4); }
+  ctx.restore();
+}

@@ -5,7 +5,7 @@ const sandboxRule = { dmg3: false, god: false, horde: false };   // 🎛️ 试�
 const LEVEL_LIST = [
   [1, '🧟 第1关·僵尸草原'], [2, '❄️ 第2关·骷髅雪原'], [3, '👻 第3关·鬼魂地狱'], [4, '🌋 第4关·熔岩火山'],
   [5, '⛈️ 第5关·天空雷域'], [6, '🕳️ 第6关·虚空之境'], [7, '💎 第7关·水晶洞窟'], [8, '💀 第8关·凋零之地'],
-  [9, '🐉 第9关·末影之地'], [10, '🧨 第10关·苦力怕矿洞'], [11, '🟢 第11关·史莱姆沼泽'], [12, '👿 第12关·深邃古城'],
+  [9, '🐉 第9关·末影之地'], [10, '🧨 第10关·苦力怕矿洞'], [11, '🟢 第11关·史莱姆沼泽'], [12, '👿 第12关·深邃古城'], [13, '🪞 第13关·镜面洞穴'],
 ];
 function enterSandbox() {   // 🔮 进来：正常档先存好+备份，然后全解锁开玩
   saveGame(); sandboxBackup = packSave();
@@ -22,7 +22,7 @@ function enterSandbox() {   // 🔮 进来：正常档先存好+备份，然后�
   setBanner('🔮 旁观者模式！全部家当都在背包里，随便试！');
   openSandboxPicker();
 }
-function openSandboxPicker() {   // 🗺️ 选关台：12 关+小镇+副本+天空城+规则开关+退出
+function openSandboxPicker() {   // 🗺️ 选关台：13 关+小镇+副本+天空城+规则开关+退出
   paused = true;
   const p = document.getElementById('sandbox');
   let h = '<div style="font-size:17px;font-weight:bold;text-align:center;margin-bottom:6px">🔮 旁观者模式 · 选一张地图</div>';
