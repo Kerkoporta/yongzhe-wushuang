@@ -227,7 +227,7 @@ function homeMobsStart() {
   homeMobsStop();
   const card = document.getElementById('homeCard'); if (!card) return;
   const wrap = document.createElement('div'); wrap.className = 'homeMobs'; wrap.id = 'homeMobs';
-  card.style.position = 'relative'; card.style.overflow = 'hidden'; card.prepend(wrap);
+  card.style.position = 'relative'; card.prepend(wrap);   /* ⚠️ 别动 card 的 overflow：CSS 里定了可滚动，内联会盖掉它 */
   const icons = ['🧟', '👻', '🐉', '🔥', '💀', '🦇'];
   for (let i = 0; i < 6; i++) {
     const s = document.createElement('span'); s.textContent = icons[i];

@@ -49,7 +49,7 @@
   #rot.rot90 #skills{gap:5px;bottom:118px;right:112px}
   #rot.rot90 .skl{width:38px;height:38px;font-size:15px;border-width:2px}
   #home{position:fixed;inset:0;z-index:20;display:none;align-items:center;justify-content:center;background:rgba(10,14,24,.86)}
-  #homeCard{background:#14202e;border:4px solid #ffd24a;border-radius:18px;padding:20px 22px;color:#fff;font-family:sans-serif;width:min(360px,88vw);max-height:86vh;display:flex;flex-direction:column}
+  #homeCard{background:#14202e;border:4px solid #ffd24a;border-radius:18px;padding:20px 22px;color:#fff;font-family:sans-serif;width:min(360px,88vw);max-height:86vh;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden}   /* 📜 纵向可滚底部按钮不被裁；横向锁死防飘字层撑出滚动条 */
   #homeNew{margin-top:14px;width:100%;padding:12px;border:0;border-radius:12px;background:#7ec850;color:#14300e;font-weight:bold;font-size:16px;cursor:pointer}
   .slot{display:flex;align-items:center;gap:8px;background:#1e2c3c;border:2px solid #3a5a78;border-radius:12px;padding:9px 10px;margin-top:8px;font-size:12px}
   .slot .inf{flex:1;line-height:1.5}
