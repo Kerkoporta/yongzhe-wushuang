@@ -392,6 +392,7 @@ function placeTownShops() {   // 🛣️ 马路两边排排坐：8 家店 + 房�
     mapShops.push({ x: 480 + i * 205, y: 1200 + (i % 2 ? -110 : 110), kind, label, items: rollShopItems(kind) });
   }
   mapShops.push({ x: 2150, y: 1200 - 110, kind: 'house', label: '🏠 房产中介', items: [] });
+  mapShops.push({ x: 250, y: 1200 + 110, kind: 'mount', label: '🐴 马厩', items: [] });   // 🐴 马厩：20 匹坐骑（买/骑/换）
 }
 function buyHouse() {
   if (ownedHouse || player.gold < 10000) { beep(160, 90, 0.15, 'square', 0.1); return; }
@@ -505,6 +506,19 @@ function renderMapShop() {
   const s = mapShops[curShop]; if (!s) return;
   document.getElementById('shopTitle').textContent = s.label;
   let h = '';
+  if (s.kind === 'mount') {   // 🐴 马厩：20 匹坐骑（越贵越快/血越厚/攻越强）
+    h = '<div class="htxt" style="text-align:center;margin-bottom:6px">🐴 挑一匹坐骑！怪物会先打它，它也会帮你踢怪</div>';
+    if (player.mount) { const cur = mountOf(player.mount); h += '<div class="htxt" style="text-align:center;color:#7ae8f2">现在骑着：' + cur.icon + ' ' + cur.name + '（❤️' + Math.ceil(player.mountHp) + '/' + cur.hp + '）——再点它=下马</div>'; }
+    if ((player.mountCd || 0) > 0) h += '<div class="htxt" style="text-align:center;color:#e8a05a">😴 坐骑休息中：' + Math.ceil(player.mountCd) + ' 秒后可骑</div>';
+    for (const m of MOUNTS) {
+      const own = mountOwned(m.key), riding = player.mount === m.key;
+      h += '<div class="shopIt"><div class="ic">' + m.icon + '</div><div><div class="nm" style="' + (riding ? 'color:#7ae8f2' : own ? 'color:#7ee85a' : '') + '">' + m.name + (riding ? '（骑乘中）' : own ? '（已有）' : '') + '</div><div class="ds">' + m.desc + '——移速×' + m.speed + ' ❤️' + m.hp + ' 蹄击' + m.dmg + '血/' + m.cd + '秒</div></div>'
+        + (own ? '<button data-mi="' + m.key + '">' + (riding ? '🔽 下马' : '🐴 骑上') + '</button>' : player.gold >= m.price ? '<button data-mi="' + m.key + '">💰' + m.price + '</button>' : '<button disabled>💰' + m.price + '</button>') + '</div>';
+    }
+    shopItems.innerHTML = h;
+    for (const b of shopItems.querySelectorAll('button[data-mi]')) b.onclick = () => { buyMount(b.dataset.mi); renderMapShop(); };
+    return;
+  }
   if (s.kind === 'house') {   // 🏠 房产中介：一万买小家
     h = ownedHouse ? '<div class="htxt">你已经有自己的小家啦！北边那栋蓝房子就是</div>'
       : `<div class="shopIt"><div class="ic">🏡</div><div><div class="nm">温馨小房间</div><div class="ds">有床有柜子！床能睡觉回满血+存档，柜子能存背包里的宝贝</div></div>${player.gold >= 10000 ? '<button data-house="1">💰10000</button>' : `<button disabled>💰10000（差${10000 - player.gold}）</button>`}</div>`;

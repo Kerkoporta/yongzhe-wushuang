@@ -157,6 +157,31 @@ function attackHit(p, zombies, opts) {
   }
   return hit;
 }
+
+/* 🐴 坐骑表（20 匹）：speed=移速加成 hp=坐骑血（怪先打坐骑） dmg/cd=坐骑自动攻击（偏慢） art=骨架+配色
+   骨架五种：horse马/wolf狼/dragon龙/mech机械/ghost幽灵；配色=字符→颜色（H主体 h鬃/饰 k眼 w翅尾 c履带 g幽灵体） */
+const MOUNTS = [
+  { key: 'pony', name: '小棕马', icon: '🐴', price: 500, speed: 1.10, hp: 20, dmg: 1, cd: 2.0, art: 'horse', pal: { H: '#8a5a2a', h: '#5a3a1a' }, desc: '忠实的小马驹' },
+  { key: 'whorse', name: '白马', icon: '🐴', price: 1200, speed: 1.18, hp: 30, dmg: 2, cd: 2.0, art: 'horse', pal: { H: '#e8e8e8', h: '#b8b8c8' }, desc: '雪白的骏马' },
+  { key: 'black', name: '黑骏马', icon: '🐴', price: 2500, speed: 1.26, hp: 45, dmg: 3, cd: 1.9, art: 'horse', pal: { H: '#2a2a32', h: '#4a4a5a' }, desc: '黑夜一样的快' },
+  { key: 'goldhorse', name: '黄金战马', icon: '🏇', price: 5000, speed: 1.34, hp: 65, dmg: 4, cd: 1.9, art: 'horse', pal: { H: '#d8a82a', h: '#ffd24a' }, desc: '浑身闪着金光' },
+  { key: 'gwolf', name: '灰狼', icon: '🐺', price: 800, speed: 1.15, hp: 25, dmg: 2, cd: 1.8, art: 'wolf', pal: { W: '#8a8a92', w: '#6a6a72' }, desc: '野性的伙伴' },
+  { key: 'icewolf', name: '冰原狼', icon: '🐺', price: 2000, speed: 1.24, hp: 40, dmg: 3, cd: 1.8, art: 'wolf', pal: { W: '#d8f2ff', w: '#a8d8f2' }, desc: '从雪原来的' },
+  { key: 'firewolf', name: '烈焰狼', icon: '🐺', price: 4500, speed: 1.32, hp: 60, dmg: 5, cd: 1.7, art: 'wolf', pal: { W: '#e85a2a', w: '#ff9a3d' }, desc: '跑起来拖着火星' },
+  { key: 'ironpig', name: '钢铁战猪', icon: '🐗', price: 3000, speed: 1.20, hp: 80, dmg: 3, cd: 2.2, art: 'mech', pal: { M: '#8a8a92', m: '#5a5a62', c: '#4a4a52' }, desc: '皮糙肉厚的坦克' },
+  { key: 'dino', name: '小恐龙', icon: '🦕', price: 6000, speed: 1.38, hp: 90, dmg: 6, cd: 1.8, art: 'dragon', pal: { D: '#5aa83c', d: '#3f7a2a', w: '#3f7a2a', a: '#ffd24a' }, desc: '还没长大的小暴龙' },
+  { key: 'turtle', name: '机械龟', icon: '🐢', price: 4000, speed: 1.12, hp: 150, dmg: 2, cd: 2.5, art: 'mech', pal: { M: '#4a7a4a', m: '#2a4a2a', c: '#6a6a72' }, desc: '慢，但超能扛' },
+  { key: 'eagle', name: '巨鹰', icon: '🦅', price: 8000, speed: 1.45, hp: 70, dmg: 7, cd: 1.7, art: 'dragon', pal: { D: '#8a6a3a', d: '#5a4a2a', w: '#c8b88a', a: '#ffd24a' }, desc: '乘风而行' },
+  { key: 'gdragon', name: '小青龙', icon: '🐉', price: 12000, speed: 1.55, hp: 100, dmg: 8, cd: 1.6, art: 'dragon', pal: { D: '#3aa88a', d: '#2a7a6a', w: '#7ae8d2', a: '#ffd24a' }, desc: '青龙摆尾' },
+  { key: 'rdragon', name: '赤龙', icon: '🐉', price: 18000, speed: 1.70, hp: 130, dmg: 10, cd: 1.6, art: 'dragon', pal: { D: '#c83a2a', d: '#8a2a1a', w: '#ff8a5a', a: '#ffd24a' }, desc: '龙焰过境' },
+  { key: 'ghosthorse', name: '幽灵马', icon: '👻', price: 7000, speed: 1.50, hp: 50, dmg: 6, cd: 1.7, art: 'ghost', pal: { G: '#a8f2ff', g: '#7ae8f2' }, desc: '半透明的灵魂战马，泛着幽光' },
+  { key: 'voltpanther', name: '雷电豹', icon: '⚡', price: 15000, speed: 1.85, hp: 80, dmg: 9, cd: 1.5, art: 'wolf', pal: { W: '#4a4a6a', w: '#ffe84a' }, desc: '快如闪电' },
+  { key: 'jelly', name: '水母浮艇', icon: '🎐', price: 10000, speed: 1.48, hp: 90, dmg: 7, cd: 1.8, art: 'ghost', pal: { G: '#d0a8ff', g: '#b48af2' }, desc: '漂浮发光的水母船' },
+  { key: 'lavaliz', name: '熔岩蜥', icon: '🦎', price: 16000, speed: 1.60, hp: 140, dmg: 10, cd: 1.7, art: 'dragon', pal: { D: '#8a2a1a', d: '#5a1a0a', w: '#ff7a2a', a: '#ffd24a' }, desc: '背上淌着岩浆' },
+  { key: 'frostbear', name: '冰霜巨熊', icon: '🐻', price: 14000, speed: 1.52, hp: 160, dmg: 8, cd: 2.0, art: 'horse', pal: { H: '#d8f2ff', h: '#a8d8f2' }, desc: '极地霸主' },
+  { key: 'astray', name: '星界鳐', icon: '🌌', price: 25000, speed: 2.00, hp: 120, dmg: 11, cd: 1.6, art: 'ghost', pal: { G: '#2a2a5a', g: '#4a6aff' }, desc: '缀满星星的夜空鳐鱼' },
+  { key: 'qilin', name: '圣光麒麟', icon: '👑', price: 30000, speed: 2.20, hp: 200, dmg: 12, cd: 1.4, art: 'horse', pal: { H: '#fff2c8', h: '#ffd24a' }, desc: '传说中的神兽，金光护体' },
+];
 /* 击杀掉落：僵尸 1~4，骷髅 3~6，鬼魂 4~8，岩浆怪 5~10，雷云精 6~12，虚空行者 8~15 */
 function lootGold(rnd) { return 1 + Math.floor(rnd() * 4); }
 function lootBounty(z, rnd) {
@@ -197,7 +222,10 @@ function playerStep(p, mx, my, dt, speedMul) {
 function touchHurt(p, z, dmg) {
   if (p.inv > 0 || z.dead) return false;
   if (Math.hypot(z.x - p.x, z.y - p.y) > PLAYER.r + (z.r || ZOMBIE.r)) return false;
-  p.hearts -= (dmg == null ? 1 : dmg); p.inv = HURT.invincible; p.sinceHurt = 0; p.regenT = 0;
+  const real = (dmg == null ? 1 : dmg);
+  if (p.mount && p.mountHp > 0) { p.mountHp -= real; }   // 🐴 坐骑挡刀：怪先打坐骑
+  else p.hearts -= real;
+  p.inv = HURT.invincible; p.sinceHurt = 0; p.regenT = 0;
   const dx = p.x - z.x, dy = p.y - z.y, d = Math.hypot(dx, dy) || 1;
   p.x = Math.max(16, Math.min(WORLD.w - 16, p.x + dx / d * HURT.knock));
   p.y = Math.max(16, Math.min(WORLD.h - 16, p.y + dy / d * HURT.knock));
@@ -939,4 +967,4 @@ function crystalTick(c, p, dt, speedMul, rnd) {
   }
   return ev;
 }
-if (typeof module !== 'undefined') module.exports = { WORLD, PLAYER, ZOMBIE, SPAWN, ATTACK, HURT, REGEN, SHOP, SHOP2, SHOP3, SHOP4, SHOP5, SHOP6, SHOP7, SKBOOKS, PETS, BOSS, SKELETON, GHOST, LAVA, STORM, VOIDW, CRYSTAL, makePlayer, pickSpawn, spawnZombie, zombieStep, attackHit, lootGold, lootBounty, buyItem, regenTick, playerStep, touchHurt, difficulty, makeBoss, bossTick, makeSkeleton, skeletonTick, makeGhost, ghostTick, makeLava, lavaTick, makeStorm, stormTick, makeVoid, voidTick, makeCrystal, crystalTick, FISH };
+if (typeof module !== 'undefined') module.exports = { WORLD, PLAYER, ZOMBIE, SPAWN, ATTACK, HURT, REGEN, SHOP, SHOP2, SHOP3, SHOP4, SHOP5, SHOP6, SHOP7, SKBOOKS, PETS, BOSS, SKELETON, GHOST, LAVA, STORM, VOIDW, CRYSTAL, makePlayer, pickSpawn, spawnZombie, zombieStep, attackHit, lootGold, lootBounty, buyItem, regenTick, playerStep, touchHurt, difficulty, makeBoss, bossTick, makeSkeleton, skeletonTick, makeGhost, ghostTick, makeLava, lavaTick, makeStorm, stormTick, makeVoid, voidTick, makeCrystal, crystalTick, FISH, MOUNTS };

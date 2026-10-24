@@ -510,6 +510,15 @@ function draw() {
     const side = Math.abs(dirH) > Math.abs(dirV);
     const spr = side ? MAN_SIDE : (dirV < 0 ? MAN_UP : MAN_DOWN), flip = side && dirH < 0;
     const bob = player.moving ? Math.abs(Math.sin(player.walkT * 9)) * 2 : 0;
+    if (player.mount && !gameOver && !sittingBench && playerFlyT <= 0) {   // 🐴 骑乘：坐骑驮着你（它在脚下，你骑高了）
+      const mo = mountOf(player.mount);
+      if (mo) {
+        drawMountSpr(ctx, mo.art, mo.pal, player.x - 21, player.y - 6, 3, flip, player.moving ? player.walkT : null);
+        ctx.fillStyle = '#0008'; ctx.fillRect(player.x - 16, player.y - 34, 32, 3);   // 坐骑血条（绿）
+        ctx.fillStyle = '#7ee85a'; ctx.fillRect(player.x - 16, player.y - 34, 32 * Math.max(0, player.mountHp) / mo.hp, 3);
+      }
+    }
+    const rideUp = player.mount ? 12 : 0;   // 🐴 骑乘时人抬高
     if (gameOver) {   // 💀 死亡动画：缓缓倒下+淡出
       ctx.save(); ctx.globalAlpha = Math.max(0, 1 - deathT / 1.15);
       ctx.translate(Math.round(player.x), Math.round(player.y - 6)); ctx.rotate(Math.min(1.5, deathT * 2.6));
@@ -523,7 +532,7 @@ function draw() {
       ctx.save(); ctx.translate(Math.round(player.x), Math.round(player.y)); ctx.rotate(-0.38 * (hurtT / 0.28));
       drawPlayerSpr(ctx, spr, -12, -16 - bob, 2, flip, player.skin); ctx.restore();
     } else if (sittingBench) TownArt.drawSeated(player.x, player.y, sittingBench.face);   // 🪑 真坐姿
-    else drawPlayerSpr(ctx, spr, player.x - 12, player.y - 16 - bob, 2, flip, player.skin);
+    else drawPlayerSpr(ctx, spr, player.x - 12, player.y - 16 - bob - rideUp, 2, flip, player.skin);
     if (player.atkT > 0) {   // ⚔️ 攻击动作（回旋镖=真一圈扩散环；寒冰弓=更大的弧）
       const t = 1 - player.atkT / ATTACK.swing;
       ctx.strokeStyle = player.swingColor || 'rgba(255,255,255,.9)';
@@ -669,7 +678,7 @@ window.G = { get player() { return player; }, get zombies() { return zombies; },
   get dungeonMode() { return dungeonMode; }, get dgnKills() { return dgnKills; }, get dgnKingSpawned() { return dgnKingSpawned; }, get minions() { return minions; }, get turrets() { return turrets; },
   fishGo: Sky.fishGo, eatFish: Sky.eatFish, openFishShop: Sky.openFishShop, sellAllFish: Sky.sellAllFish, inArena, enterSky: enterPvp,   // ☁️ 天空城测试钩
   get skyMode() { return skyMode; }, get fishState() { return fishState; }, get bobber() { return bobber; }, setFishT(t) { fishT = t; }, get hitstopT() { return hitstopT; },   // 💥 顿帧测试钩
-  castSkill, renderSkills, ownedSkills, openSkin, spawnStorm: () => { const z = makeStorm(player.x + 150, player.y, Math.random); zombies.push(z); }, spawnVoid: () => { const z = makeVoid(player.x + 150, player.y, Math.random); zombies.push(z); } };
+  castSkill, renderSkills, ownedSkills, openSkin, buyMount, mountOf, spawnStorm: () => { const z = makeStorm(player.x + 150, player.y, Math.random); zombies.push(z); }, spawnVoid: () => { const z = makeVoid(player.x + 150, player.y, Math.random); zombies.push(z); } };
 reset(); if (loadGame()) setBanner('💾 存档已读取，接着玩！');
 showHome();   // 🏠 开机先进主页选存档
 addEventListener('pointerdown', startMusic, { once: true });   // 🎵 第一次点屏幕时开播（浏览器规矩）

@@ -326,3 +326,66 @@ for (const key in WEAPON_SPRITES) {
 }
 WEAPON_CANVAS.assassin_dagger = WEAPON_CANVAS.stone_sword;   // 🥷 职业匕首先用石剑贴图
 WEAPON_CANVAS.wood_sword = WEAPON_CANVAS.stone_sword;   // ⚔️ 木剑也先用石剑贴图
+
+/* ================= 🐴 坐骑骨架（5 种，配色走各坐骑的 pal 覆盖） ================= */
+const MOUNT_ARTS = {
+  horse: [   // 🐴 马形：高头+鬃毛+四条长腿
+    '....hh........',
+    '...hHHh.......',
+    '...kHHH.......',
+    '...HHHH.......',
+    '..HHHHHHHHHH..',
+    '.HHHHHHHHHHHHh',
+    '.HHHHHHHHHHHHh',
+    '..HHH...HHH...',
+    '..HH....HH....',
+    '..HH....HH....'],
+  wolf: [   // 🐺 狼形：尖耳+扁长身+拖尾
+    '..a..a........',
+    '..aakkW.......',
+    '..WWWWW.......',
+    '.WWWWWWWWWWw..',
+    '.WWWWWWWWWWw..',
+    '..WWWWWWWW....',
+    '..WW...WW.....',
+    '..WW...WW.....'],
+  dragon: [   // 🐉 龙形：双角+大翅膀+粗尾
+    '..a......a....',
+    '..kDDDDk......',
+    '.w.DDDDDD..w..',
+    '.wwDDDDDDDww..',
+    '..DDDDDDDDDDd.',
+    '..DDDDDDDDDDd.',
+    '...DDD..DDD...',
+    '...DD...DD....'],
+  mech: [   // 🤖 机械形：方头+铆钉身+活塞腿
+    '....kk........',
+    '...MMMMMM.....',
+    '..MMMMMMMMMM..',
+    '.MMMMMMMMMMMm.',
+    '.MMmMMMMMMMM..',
+    '..MMMMMMMMMM..',
+    '..cc..cc..cc..',
+    '..cc..cc..cc..'],
+  ghost: [   // 👻 幽灵形：圆头+无腿波浪下摆（幽魂那种飘逸感）
+    '....gggg......',
+    '..ggGGGGgg....',
+    '..gGkGGkGg....',
+    '..gGGGGGGg....',
+    '.gGGGGGGGGg...',
+    '.gGGGGGGGGGg..',
+    '.gGGGGGGGGGg..',
+    '.gGg.gGg.gGg..'],
+};
+function drawMountSpr(ctx, art, pal, x, y, px, flip, t) {   // t=走路计时（腿/下摆微微摆动=流畅感）
+  const spr = MOUNT_ARTS[art] || MOUNT_ARTS.horse;
+  const bob = t != null ? Math.round(Math.abs(Math.sin(t * 9)) * 1.5) : 0;   // 走动时上下颠
+  for (let r = 0; r < spr.length; r++) for (let c = 0; c < spr[r].length; c++) {
+    const ch = spr[r][flip ? spr[r].length - 1 - c : c];
+    if (ch === '.') continue;
+    ctx.fillStyle = (pal && pal[ch]) || PAL[ch] || '#f0f';
+    const isLeg = r >= spr.length - 2;   // 最底两行=腿/下摆，走动时交替伸缩
+    const yo = isLeg && t != null && Math.sin(t * 9 + c) > 0 ? -px : 0;
+    ctx.fillRect(x + c * px, y + r * px - bob + yo, px, px);
+  }
+}

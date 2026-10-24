@@ -26,6 +26,7 @@ function update(dt) {
   }
   if (blockCd > 0) blockCd = Math.max(0, blockCd - dt);
   if (player.bearT > 0) player.bearT = Math.max(0, player.bearT - dt);   // 🐻 熊形态倒计时
+  mountTick(dt);   // 🐴 坐骑：自动攻击+阵亡检测+复活冷却
   if (bearCd > 0) bearCd = Math.max(0, bearCd - dt);
   if (player.shieldT > 0) player.shieldT = Math.max(0, player.shieldT - dt);   // 🛡️ 魔法护盾倒计时
   const m0 = Math.floor(player.mana != null ? player.mana : 100);
@@ -65,7 +66,7 @@ function update(dt) {
       if (rotated) { const t = mx; mx = my; my = -t; }   // 🔄 转屏后输入方向跟着转 90°
       const slow = player.drainSlow ? 0.4 : 1; player.drainSlow = false;   // ⛓️ 夺魂锁链减速
       if (Math.abs(mx) + Math.abs(my) > 0.1) playerStillT = 0; else playerStillT += dt;   // 🤫 站着不动计时（坚守者瞎，看不见静止的你）
-      playerStep(player, mx, my, dt, (player.speedMul || 1) * slow * (player.speedT > 0 ? 1.4 : 1) * (player.job === 'engineer' ? 0.9 : 1));   // 👟 跑鞋皇冠加速+⚡疾跑药水+🧲工程师腿短
+      playerStep(player, mx, my, dt, (player.speedMul || 1) * slow * (player.speedT > 0 ? 1.4 : 1) * (player.job === 'engineer' ? 0.9 : 1) * (player.mount ? mountOf(player.mount).speed : 1));   // 👟 跑鞋皇冠加速+⚡疾跑药水+🧲工程师腿短+🐴坐骑提速
     }
     if ((autoOn || holdAtk) && !(player.frozenT > 0) && blockT <= 0) { autoT -= dt; if (autoT <= 0) { autoT = 0.2; doAttack(true); } }   // ⚔️ 自动/按住：0.2 秒一刀（举盾时停手）
     /* ✨ 技能冷却递减 + 按钮显示 */

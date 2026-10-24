@@ -514,6 +514,7 @@ function reset() {
   tpWindowT = 0; tpLand = null; prevBow = null; assassinStrike = false; assassinSwapT = 0;   // 🥷 刺客状态清零
   blockT = 0; blockCd = 0;   // 🛡️ 格挡清零
   wolves = []; wolfT = 0;   // 🐺 狼群解散
+  player.mount = null; player.mountHp = 0; player.mountCd = 0; player.mountAtkT = 0;   // 🐴 新冒险没坐骑
   minions = []; turrets = [];   // ☠️🧲 小弟炮塔解散
   bearCd = 0; freezeAllT = 0; chronoT = 20; clericT = 2; turretT = 6;   // 🌟 职业被动计时器归零
   level = 1; earrows = []; parrows = [];

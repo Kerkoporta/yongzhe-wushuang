@@ -74,7 +74,7 @@ function packSave() {
     mapShops, endlessRound, endlessWave, waveKills,
     chest: chest && { x: chest.x, y: chest.y, taken: chest.taken }, pendingNext,
     portal: portal && { x: portal.x, y: portal.y }, portalDone: portalDone ? 1 : 0,   // 🕳️ 山洞位置+打没打过
-    faintDone: faintDone ? 1 : 0, townMode: (townMode || dungeonMode || skyMode) ? 1 : 0, townUnlocked: townUnlocked ? 1 : 0, ownedHouse: ownedHouse ? 1 : 0, storage, skin: player.skin };   // 💉🏡剧情小镇也跟着存档走（🌲 副本/☁️天空城属于小镇：存档=在小镇）🎨 皮肤也存档
+    faintDone: faintDone ? 1 : 0, townMode: (townMode || dungeonMode || skyMode) ? 1 : 0, townUnlocked: townUnlocked ? 1 : 0, ownedHouse: ownedHouse ? 1 : 0, storage, skin: player.skin, mount: player.mount || null, mountHp: player.mountHp || 0 };   // 🐴 坐骑也跟档走
 }
 function applySave(s) {
   kills = s.kills || 0; player.gold = s.gold || 0; player.owned = s.owned || {};
@@ -105,6 +105,7 @@ function applySave(s) {
   chest = s.chest || null; pendingNext = s.pendingNext || null;   // 🎁 没开的宝箱回来
   faintDone = !!s.faintDone; townMode = !!s.townMode; townUnlocked = !!s.townUnlocked; ownedHouse = !!s.ownedHouse; storage = s.storage || {}; inRoom = false;   // 💉🏡 剧情进度回来（进门状态不存）
   if (s.skin) player.skin = s.skin;   // 🎨 捏人形象读档回来（老档没有就用默认配色）
+  player.mount = s.mount || null; player.mountHp = s.mountHp || 0; player.mountCd = 0;   // 🐴 坐骑读档回来
   dungeonMode = false; dgnKills = 0; dgnKingSpawned = false; dgnExit = null;   // 🌲 副本不跟档走：读档永远落在副本外
   skyMode = false; fishState = null; bobber = null;   // ☁️ 天空城也不跟档走
   if (level === 8 && (endlessRound > 3 || (endlessRound === 3 && endlessWave > 1))) { townUnlocked = true; faintDone = true; }   // 🏡 过了剧情点的老存档：直接解锁小镇
