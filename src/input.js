@@ -1,7 +1,7 @@
 'use strict';
 /* ================= 输入：键盘 + 触屏摇杆 + 攻击钮 ================= */
 const keys = {};
-addEventListener('keydown', e => { keys[e.key.toLowerCase()] = true; if (e.key === ' ') { doAttack(); e.preventDefault(); } if (e.key.toLowerCase() === 'b') ctxGo(); if (/^[1-9]$/.test(e.key)) castSkillByIndex(+e.key - 1); showTouch(false); });   // B：情境动作（宝箱/进店/坐长椅）
+addEventListener('keydown', e => { keys[e.key.toLowerCase()] = true; if (e.key === ' ') { doAttack(); e.preventDefault(); } if (e.key.toLowerCase() === 'b') ctxGo(); if (e.key.toLowerCase() === 'q') toggleAuto(); if (/^[1-9]$/.test(e.key)) castSkillByIndex(+e.key - 1); showTouch(false); });   // B：情境动作（宝箱/进店/坐长椅）；Q：自动攻击开关（键盘党的 AUTO）
 addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
 const joy = document.getElementById('joy'), knob = document.getElementById('joyKnob'), atkBtn = document.getElementById('atkBtn'), autoBtn = document.getElementById('autoBtn');
 let joyVec = { x: 0, y: 0 }, joyId = null, joyC = { x: 0, y: 0 };
@@ -21,7 +21,8 @@ joy.addEventListener('pointerup', joyEnd); joy.addEventListener('pointercancel',
 atkBtn.addEventListener('pointerdown', e => { e.preventDefault(); holdAtk = true; doAttack(); });
 function atkEnd() { holdAtk = false; }
 atkBtn.addEventListener('pointerup', atkEnd); atkBtn.addEventListener('pointercancel', atkEnd); atkBtn.addEventListener('pointerleave', atkEnd);
-autoBtn.addEventListener('pointerdown', e => { e.preventDefault(); autoOn = !autoOn; autoBtn.classList.toggle('on', autoOn); if (autoOn) autoT = 0; });
+function toggleAuto() { autoOn = !autoOn; autoBtn.classList.toggle('on', autoOn); if (autoOn) autoT = 0; setBanner(autoOn ? '⚔️ 自动攻击：开' : '⚔️ 自动攻击：关'); }   // ⚔️ 触屏 AUTO 钮和键盘 Q 共用
+autoBtn.addEventListener('pointerdown', e => { e.preventDefault(); toggleAuto(); });
 document.getElementById('again').onclick = reset;
 document.getElementById('overHome').onclick = () => { reset(); document.getElementById('over').style.display = 'none'; showHome(); };   // 💀 死亡回主页：人已重置到第一关——这时（自动/手动）存的档只能是第一关，死亡不再白嫖进度
 
