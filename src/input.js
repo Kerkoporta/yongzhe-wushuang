@@ -28,6 +28,7 @@ document.getElementById('overHome').onclick = () => { reset(); document.getEleme
 /* 💀 击杀结算（打死的/烧死的/雷劈的/反伤死的都算你的，每只只结一次）：得分+掉金币+吸血 */
 function killZombie(z) {
   dailyOnKill();   // 📅 每日挑战计数
+  resOnKill(z);   // ✨ 灵魂共鸣·爆裂：击杀概率引发元素爆炸
   if (z.counted) return; z.counted = true; z.dead = true; kills++;
   shakeT = Math.max(shakeT, z.boss ? 0.4 : 0.16);   // 💥 击杀震屏：BOSS 倒地震得更狠
   if (z.fake) {   // 💎 水晶魔王假身：碎掉不给钱、不进图鉴
@@ -143,6 +144,7 @@ function doAttack(fromAuto) {
   if (challengeMode === 'crit') dmg *= 3;   // 📅 每日挑战·勇者暴击日：刀刀×3
   if (typeof sandboxMode !== 'undefined' && sandboxMode && sandboxRule.dmg3) dmg *= 3;   // 🔮 旁观规则：伤害×3
   if (altarMods && altarMods.dmgMul) dmg *= altarMods.dmgMul;   // 🔮 玻璃大炮：伤害×2
+  dmg *= resDmgMul();   // ✨ 灵魂共鸣：同系武器+15%
   if (player.powerT > 0) dmg *= 1.5;   // 💪 力量药水
   if (player.job === 'warrior' && fx.staff) dmg *= 0.9;   // ⚔️ 战士拿法杖只能发挥九成
   if (assassinStrike) dmg *= 2;   // 🥷 刺客落地一刀：×2

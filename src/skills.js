@@ -40,26 +40,27 @@ const ULT_INFO = {
   ult_wind: ['🌀 风暴之眼', '风系满级觉醒：化身风暴中心席卷八方'],
   ult_brave: ['⚔️ 勇者怒吼', '凡铁满级觉醒：无畏者的一击定乾坤'],
 };
-/* ⭐ 武器/装备 → 奥义映射：先看特效，再猜名字关键词，最后凡铁兜底 */
-function ultOfItem(key) {
+/* 🌈 物品 → 十元素系（灵魂共鸣和满级奥义共用）：先看特效，再猜名字关键词，最后凡铁兜底 */
+function elemOf(key) {
   const fx = WEAPON_FX[key] || {}, n = (ALLITEMS[key] ? ALLITEMS[key].name : '') + key;
-  if (fx.burn) return 'ult_fire';
-  if (fx.freezePct || fx.freezeDur) return 'ult_ice';
-  if (fx.zap || fx.zapPct) return 'ult_thunder';
-  if (fx.holy) return 'ult_holy';
-  if (fx.poison) return 'ult_poison';
-  if (fx.vampire) return 'ult_blood';
-  if (/火|焰|熔|炎|fire|lava|magma|inferno|flame/.test(n)) return 'ult_fire';
-  if (/冰|雪|霜|寒|ice|frost|snow|freeze|cold|winter/.test(n)) return 'ult_ice';
-  if (/雷|电|霆|thunder|storm|volt|zap|lightning/.test(n)) return 'ult_thunder';
-  if (/圣|光|星|日|晶|holy|light|star|sun|prism|crystal|diamond/.test(n)) return 'ult_holy';
-  if (/毒|瘴|slime|poison|venom|toxic/.test(n)) return 'ult_poison';
-  if (/灵|魂|虚|暗|影|冥|soul|ghost|void|dark|shadow|oblivion|ender|pearl/.test(n)) return 'ult_void';
-  if (/骨|髅|凋|bone|skull|wither|nether/.test(n)) return 'ult_bone';
-  if (/血|牙|吸血|blood|vampire|fang/.test(n)) return 'ult_blood';
-  if (/风|云|羽|翼|wind|cloud|feather|wing|sky/.test(n)) return 'ult_wind';
-  return 'ult_brave';
+  if (fx.burn) return 'fire';
+  if (fx.freezePct || fx.freezeDur) return 'ice';
+  if (fx.zap || fx.zapPct) return 'thunder';
+  if (fx.holy) return 'holy';
+  if (fx.poison) return 'poison';
+  if (fx.vampire) return 'blood';
+  if (/火|焰|熔|炎|fire|lava|magma|inferno|flame/.test(n)) return 'fire';
+  if (/冰|雪|霜|寒|ice|frost|snow|freeze|cold|winter/.test(n)) return 'ice';
+  if (/雷|电|霆|thunder|storm|volt|zap|lightning/.test(n)) return 'thunder';
+  if (/圣|光|星|日|晶|holy|light|star|sun|prism|crystal|diamond/.test(n)) return 'holy';
+  if (/毒|瘴|slime|poison|venom|toxic/.test(n)) return 'poison';
+  if (/灵|魂|虚|暗|影|冥|soul|ghost|void|dark|shadow|oblivion|ender|pearl/.test(n)) return 'void';
+  if (/骨|髅|凋|bone|skull|wither|nether/.test(n)) return 'bone';
+  if (/血|牙|吸血|blood|vampire|fang/.test(n)) return 'blood';
+  if (/风|云|羽|翼|wind|cloud|feather|wing|sky/.test(n)) return 'wind';
+  return 'brave';
 }
+function ultOfItem(key) { return 'ult_' + elemOf(key); }
 function grantUlt(key) {   // ⭐ 满级觉醒：发奥义技能书（进技能库，背包里上阵）
   const uk = ultOfItem(key);
   if (player.bought[uk]) { setBanner('⭐ 这件也满级了！奥义「' + ULT_INFO[uk][0] + '」早已在你手中'); return; }

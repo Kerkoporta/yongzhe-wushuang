@@ -113,3 +113,6 @@ body.lefty #joy{left:auto;right:26px}
 body.lefty #atkBtn{right:auto;left:20px}
 body.lefty #autoBtn{right:auto;left:28px}
 body.lefty #skills{right:auto;left:118px}
+
+/* ✨ 灵魂共鸣 HUD：状态栏下的共鸣图标行（点开图鉴） */
+#resBar{position:fixed;left:12px;top:96px;z-index:15;font-size:16px;cursor:pointer;letter-spacing:2px;text-shadow:0 0 6px #000}

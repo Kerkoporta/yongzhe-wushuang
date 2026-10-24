@@ -317,8 +317,8 @@ function petsTick(dt) {
       pt.face = dx < -0.5 ? -1 : dx > 0.5 ? 1 : (pt.face || 1);
       if (d > reach) { pt.x += dx / d * 145 * dt; pt.y += dy / d * 145 * dt; if (pt.animT > 0.3) pt.state = 'run'; }
       else if (pt.atkT <= 0) {
-        pt.atkT = pt.cd; pt.state = 'atk'; pt.animT = 0;   // 🗡️ 攻击动画 0.3 秒
-        let dmg = pt.dmg;
+        pt.atkT = pt.cd * resCdMul(pt); pt.state = 'atk'; pt.animT = 0;   // 🗡️ 攻击动画 0.3 秒；🔗 羁绊共鸣加攻速
+        let dmg = pt.dmg * resPetMul(pt);   // ✨ 同系共鸣：宠物伤害+40%
         if (pt.spec === 'crit' && Math.random() < 0.25) dmg *= 2;
         tgt.hp -= dmg; tgt.flash = 0.12;
         burst(tgt.x, tgt.y - 6, '#ffd24a', 3);

@@ -45,6 +45,7 @@ function update(dt) {
   if (blockCd > 0) blockCd = Math.max(0, blockCd - dt);
   if (player.bearT > 0) player.bearT = Math.max(0, player.bearT - dt);   // 🐻 熊形态倒计时
   mountTick(dt);   // 🐴 坐骑：自动攻击+阵亡检测+复活冷却
+  resTick(dt);   // ✨ 灵魂共鸣：系别碰撞重算+宠物发锁定弹
   if (player.burnT > 0) { player.burnT -= dt; player.burnAcc = (player.burnAcc || 0) + dt; if (player.burnAcc >= 1) { player.burnAcc -= 1; player.hearts -= 0.5; player.sinceHurt = 0; burst(player.x, player.y, '#ff9a3d', 4); } }   // 🔥 灼烧词缀打的：着火每秒半心
   if ((player.slowT || 0) > 0) player.slowT -= dt;   // ❄️ 霜冻减速倒计时
   if (dragonHookT > 0) {   // 🐉 开场钩子：第一关 4 秒后龙影掠顶
@@ -106,9 +107,14 @@ function update(dt) {
       const t = c > 0 ? String(Math.ceil(c)) : '';
       if (r.cd.textContent !== t) r.cd.textContent = t;
     }
-    /* ✨ 技能弹道（大火球等） */
+    /* ✨ 技能弹道（大火球/共鸣锁定弹等） */
     for (const s of skillShots) {
-      s.t -= dt; s.x += s.vx * dt; s.y += s.vy * dt;
+      s.t -= dt;
+      if (s.track) {   // 🔒 共鸣锁定弹：空中转向追最近怪
+        const tz = nearestZ(9999);
+        if (tz) { const ta = Math.atan2(tz.y - s.y, tz.x - s.x), sp = Math.hypot(s.vx, s.vy); s.vx += (Math.cos(ta) * sp - s.vx) * 6 * dt; s.vy += (Math.sin(ta) * sp - s.vy) * 6 * dt; }
+      }
+      s.x += s.vx * dt; s.y += s.vy * dt;
       if (Math.random() < 0.5) burst(s.x, s.y, s.color, 1);
       for (const z of zombies) {
         if (z.dead) continue;
@@ -117,6 +123,7 @@ function update(dt) {
           if (s.burn) { z.burnT = 2; z.burnAcc = 0; }
           if (s.freeze) z.freezeT = s.freeze;
           if (s.zapx) z.hp -= 2;
+          if (s.poi && !z.dead) { z.poiT = s.poi; z.poiAcc = 0; z.poiColor = null; }   // 💚 毒弹挂毒
           s.t = 0; break;
         }
       }

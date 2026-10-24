@@ -74,10 +74,11 @@ function packSave() {
     mapShops, endlessRound, endlessWave, waveKills,
     chest: chest && { x: chest.x, y: chest.y, taken: chest.taken }, pendingNext,
     portal: portal && { x: portal.x, y: portal.y }, portalDone: portalDone ? 1 : 0,   // 🕳️ 山洞位置+打没打过
-    faintDone: faintDone ? 1 : 0, townMode: (townMode || dungeonMode || skyMode) ? 1 : 0, townUnlocked: townUnlocked ? 1 : 0, ownedHouse: ownedHouse ? 1 : 0, storage, skin: player.skin, mount: player.mount || null, mountHp: player.mountHp || 0 };   // 🐴 坐骑也跟档走
+    faintDone: faintDone ? 1 : 0, townMode: (townMode || dungeonMode || skyMode) ? 1 : 0, townUnlocked: townUnlocked ? 1 : 0, ownedHouse: ownedHouse ? 1 : 0, storage, skin: player.skin, mount: player.mount || null, mountHp: player.mountHp || 0, resFound: player.resFound || {} };   // 🐴 坐骑跟档走；✨ 共鸣图鉴也存
 }
 function applySave(s) {
   kills = s.kills || 0; player.gold = s.gold || 0; player.owned = s.owned || {};
+  player.resFound = s.resFound || {};   // ✨ 共鸣图鉴回来
   player.job = s.job || null;   // 🥷 职业回来
   player.job2 = s.job2 || null;   // 🌟 副职业也回来
   towerMode = s.towerMode != null ? !!s.towerMode : s.level === 8;   // 🗼 老存档没这字段：level 8 一律算在塔里（旧无尽）
