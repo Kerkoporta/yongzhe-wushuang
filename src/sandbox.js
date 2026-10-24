@@ -13,10 +13,10 @@ function enterSandbox() {   // 🔮 进来：正常档先存好+备份，然后�
   player.gold = 999999; player.diamonds = 9999; player.maxHearts = 20; player.hearts = 20;
   for (const t of [SHOP, SHOP2, SHOP3, SHOP4, SHOP5, SHOP6, SHOP7, SHOP8, SHOP9, SHOP10])   // 🎁 全商店表扫一遍：武器装备全进包
     for (const k in t) { const kd = t[k].kind; if (kd === 'weapon' || kd === 'gear') addToInv(k, 0); }
-  for (const t of [SHOP, SHOP2, SHOP3, SHOP4, SHOP5, SHOP6, SHOP7, SHOP8, SHOP9, SHOP10])   // ✨ 技能全上阵 + 🐾 宠物全出战
+  for (const t of [SHOP, SHOP2, SHOP3, SHOP4, SHOP5, SHOP6, SHOP7, SHOP8, SHOP9, SHOP10])   // ✨ 技能全拥有（背包里自己挑上阵，别全挤在屏幕上）+ 🐾 宠物全拥有（出战名额跟平时一样）
     for (const k in t) {
-      if (t[k].kind === 'skill') { player.bought[k] = true; if (!skillSlots.includes(k)) skillSlots.push(k); }
-      if (t[k].kind === 'pet' && !pets.some(p => p.key === k)) { player.bought[k] = true; addPet(k); }
+      if (t[k].kind === 'skill') { player.bought[k] = true; if (skillSlots.length < skillMax() && !skillSlots.includes(k)) skillSlots.push(k); }
+      if (t[k].kind === 'pet') { player.bought[k] = true; addPet(k); }
     }
   applyGear(); renderSkills(); updateGold(); updateDia();
   setBanner('🔮 旁观者模式！全部家当都在背包里，随便试！');

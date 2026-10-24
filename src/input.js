@@ -10,12 +10,12 @@ function showTouch(on) { joy.style.display = atkBtn.style.display = autoBtn.styl
 addEventListener('touchstart', () => showTouch(true), { once: true, passive: true });
 joy.addEventListener('pointerdown', e => { joyId = e.pointerId; const r = joy.getBoundingClientRect(); joyC = { x: r.left + r.width / 2, y: r.top + r.height / 2 }; try { joy.setPointerCapture(e.pointerId); } catch (_) {} });
 joy.addEventListener('pointermove', e => { if (e.pointerId !== joyId) return;
-  let dx = (e.clientX - joyC.x) / 46, dy = (e.clientY - joyC.y) / 46;
+  let dx = (e.clientX - joyC.x) / 34, dy = (e.clientY - joyC.y) / 34;   // 📱 摇杆小了，灵敏度半径跟着缩
   const d = Math.hypot(dx, dy); if (d > 1) { dx /= d; dy /= d; }
   joyVec = { x: dx, y: dy };
   let kx = dx, ky = dy;
   if (rotated) { const t = kx; kx = ky; ky = -t; }   // 🔄 摇杆球跟着画面反向转，球永远贴在手指下（之前球歪了 90° 害人误判方向）
-  knob.style.transform = `translate(${kx * 34}px,${ky * 34}px)`; });
+  knob.style.transform = `translate(${kx * 25}px,${ky * 25}px)`; });
 function joyEnd(e) { if (e.pointerId === joyId) { joyId = null; joyVec = { x: 0, y: 0 }; knob.style.transform = ''; } }
 joy.addEventListener('pointerup', joyEnd); joy.addEventListener('pointercancel', joyEnd);
 atkBtn.addEventListener('pointerdown', e => { e.preventDefault(); holdAtk = true; doAttack(); });
@@ -119,9 +119,9 @@ function killZombie(z) {
 /* ⚔️ 战士（v56）：双持状态；🛡️ 坦克（v57）：格挡状态 */
 let warriorHand = false, lastSwingKey = null, blockT = 0, blockCd = 0;
 const weapFam = k => { const f = WEAPON_FX[k] || {}; return f.bow ? 'bow' : f.staff ? 'staff' : f.gun ? 'gun' : 'melee'; };   // 武器家族：近战/弓/法杖/枪
-function skillMax() { return sandboxMode ? 99 : (player.job === 'tank' ? 4 : 5) + (player.slots ? player.slots.skill : 0); }   // 🛡️ 坦克代价：技能位 5→4；💎 钻石商店可加格；🔮 旁观者全上阵
-function petMax() { return sandboxMode ? 99 : 3 + (player.slots ? player.slots.pet : 0); }   // 🐾 宠物位：默认 3，钻石商店可加；🔮 旁观者全出战
-function offMax() { return sandboxMode ? 4 : (player.job === 'warrior' ? 1 : 0) + (player.slots ? player.slots.off : 0); }   // ⚔️ 副手位：战士自带 1，钻石商店人人可加；🔮 旁观者四手全開
+function skillMax() { return (player.job === 'tank' ? 4 : 5) + (player.slots ? player.slots.skill : 0); }   // 🛡️ 坦克代价：技能位 5→4；💎 钻石商店可加格
+function petMax() { return 3 + (player.slots ? player.slots.pet : 0); }   // 🐾 宠物位：默认 3，钻石商店可加
+function offMax() { return (player.job === 'warrior' ? 1 : 0) + (player.slots ? player.slots.off : 0); }   // ⚔️ 副手位：战士自带 1，钻石商店人人可加
 function doAttack(fromAuto) {
   if (gameOver || paused || player.tpT > 0 || player.frozenT > 0 || blockT > 0) return;   // 🗡️残影/❄️冻结/🛡️举盾中不能出手
   let handKey = player.weapon;

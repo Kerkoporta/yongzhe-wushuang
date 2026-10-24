@@ -73,16 +73,16 @@
   .shopIt button:disabled{background:#8a8a8a;color:#ddd;cursor:default}
   #shopClose{width:100%;padding:11px;border:0;border-radius:12px;background:#7ec850;color:#14300e;font-weight:bold;font-size:16px;cursor:pointer}
   .btn{position:fixed;z-index:6;border-radius:50%;display:none;align-items:center;justify-content:center;font-weight:bold;color:#fff;text-shadow:0 2px 3px #000;box-shadow:0 4px 10px rgba(0,0,0,.4)}
-  #atkBtn{right:26px;bottom:36px;width:96px;height:96px;background:rgba(220,60,60,.85);border:4px solid #ff9a9a;font-size:38px}
-  #autoBtn{right:38px;bottom:150px;width:72px;height:72px;background:rgba(90,90,110,.85);border:4px solid #b8b8c8;font-size:15px}
+  #atkBtn{right:20px;bottom:28px;width:60px;height:60px;background:rgba(220,60,60,.85);border:3px solid #ff9a9a;font-size:24px}   /* 📱 按钮瘦身：约一个文字的个头（恩泽点的） */
+  #autoBtn{right:28px;bottom:104px;width:52px;height:52px;background:rgba(90,90,110,.85);border:3px solid #b8b8c8;font-size:12px}
   #autoBtn.on{background:rgba(60,180,80,.9);border-color:#9af2a8}
   #skills{position:fixed;right:118px;bottom:150px;z-index:6;display:none;flex-direction:column-reverse;gap:8px}
   #skills.touch{display:flex}
-  .skl{width:48px;height:48px;border-radius:50%;background:rgba(70,40,120,.9);border:3px solid #b48af2;font-size:20px;cursor:pointer;position:relative;padding:0;display:flex;align-items:center;justify-content:center}
+  .skl{width:38px;height:38px;border-radius:50%;background:rgba(70,40,120,.9);border:2px solid #b48af2;font-size:16px;cursor:pointer;position:relative;padding:0;display:flex;align-items:center;justify-content:center}
   .skl .cd{position:absolute;inset:0;border-radius:50%;background:rgba(0,0,0,.62);color:#fff;font-size:15px;font-weight:bold;display:none;align-items:center;justify-content:center;font-family:sans-serif}
   .skl.oncd .cd{display:flex}
-  #joy{left:36px;bottom:46px;width:120px;height:120px;background:rgba(255,255,255,.12);border:3px solid rgba(255,255,255,.35)}
-  #joyKnob{position:absolute;left:50%;top:50%;width:52px;height:52px;margin:-26px;border-radius:50%;background:rgba(255,255,255,.55)}
+  #joy{left:26px;bottom:34px;width:88px;height:88px;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.35)}
+  #joyKnob{position:absolute;left:50%;top:50%;width:38px;height:38px;margin:-19px;border-radius:50%;background:rgba(255,255,255,.55)}
   #over{position:fixed;inset:0;z-index:10;display:none;align-items:center;justify-content:center;background:rgba(10,20,10,.82);flex-direction:column;font-family:sans-serif}
   #overCard{background:#2a4a2a;border:4px solid #7ec850;border-radius:18px;padding:26px 34px;text-align:center;color:#fff}
   #again{margin-top:14px;padding:12px 28px;font-size:20px;font-weight:bold;border:0;border-radius:12px;background:#7ec850;color:#14300e;cursor:pointer}

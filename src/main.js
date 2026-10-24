@@ -96,7 +96,7 @@ function update(dt) {
       if (Math.abs(mx) + Math.abs(my) > 0.1) playerStillT = 0; else playerStillT += dt;   // 🤫 站着不动计时（坚守者瞎，看不见静止的你）
       playerStep(player, mx, my, dt, (player.speedMul || 1) * slow * (player.speedT > 0 ? 1.4 : 1) * (player.job === 'engineer' ? 0.9 : 1) * (player.mount ? mountOf(player.mount).speed : 1));   // 👟 跑鞋皇冠加速+⚡疾跑药水+🧲工程师腿短+🐴坐骑提速
     }
-    if ((autoOn || holdAtk) && !(player.frozenT > 0) && blockT <= 0) { autoT -= dt; if (autoT <= 0) { autoT = 0.2; doAttack(true); } }   // ⚔️ 自动/按住：0.2 秒一刀（举盾时停手）
+    if ((autoOn || holdAtk) && !(player.frozenT > 0) && blockT <= 0) { autoT -= dt; if (autoT <= 0) { autoT = 0.2; doAttack(true); } }   // ⚔️ 自动/按住：0.2 秒一刀（举盾时停手；手柄 Y=自动开关、X=单发攻击）
     /* ✨ 技能冷却递减 + 按钮显示 */
     player.powerT = Math.max(0, (player.powerT || 0) - dt); player.ironT = Math.max(0, (player.ironT || 0) - dt); player.speedT = Math.max(0, (player.speedT || 0) - dt);   // 🍗 药水计时
     if (player.skillCds) for (const k in player.skillCds) player.skillCds[k] = Math.max(0, player.skillCds[k] - dt);
@@ -535,5 +535,5 @@ function loop(now) {
     }
   }
   requestAnimationFrame(loop);   // 🛡️ 先排下一帧：哪怕这一帧出错，游戏也绝不定格（一帧的错不该杀死整个游戏）
-  try { update(dt); draw(); } catch (err) { console.error('[frame] 这一帧出错了，已跳过：', err); }
+  try { padTick(dt); update(dt); draw(); } catch (err) { console.error('[frame] 这一帧出错了，已跳过：', err); }   // 🎮 手柄轮询每帧都跑（面板暂停时也要当鼠标用）
 }
