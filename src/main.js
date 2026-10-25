@@ -21,9 +21,12 @@ function update(dt) {
   bossWatchdogT -= dt;
   if (bossWatchdogT <= 0) {
     bossWatchdogT = 2;
+    const liveBoss = zombies.find(z => z.boss && !z.dead);
+    if (liveBoss) lastBossHp = liveBoss.hp;   // 🩸 BOSS 在场就记账：它还剩多少血我都记得
     if (bossMissing()) {
-      spawnBoss();
-      setBanner('⚠️ BOSS 回来了！刚才它好像溜号了……');
+      spawnBoss(lastBossHp);   // 🛟 抓回来的是"那只"残血 BOSS，不是满血新货
+      setBanner('⚠️ BOSS 回来了！刚才它好像溜号了……（还是刚才那点血，不冤枉你）');
+      lastBossHp = 0;   // 记忆用一次就清，防连吃
     }
   }
   if (sandboxMode && gameOver) {   // 🔮 旁观者死了：不进死亡结算，直接回选关台（装备全在）

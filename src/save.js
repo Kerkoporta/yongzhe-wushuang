@@ -61,6 +61,7 @@ const SLOT_KEY = i => 'zombie_fight_slot_' + i;
 const mySid = 's' + Math.random().toString(36).slice(2, 8);   // 本页面实例 id
 let saveT = 2;
 // 🛟 看门狗和存档共用判定：飞行/俯冲中的龙仍在数组里，算作在场。
+let lastBossHp = 0;   // 🩸 BOSS 血量记忆：它在场时持续记账，万一蒸发被抓回来还是那只残血的
 function bossMissing() {
   return !townMode && !dungeonMode && !skyMode && !pvpMode && !sandboxMode && !homeOpen && !gameOver
     && (bossAt <= kills || (level === 9 && !towerMode))

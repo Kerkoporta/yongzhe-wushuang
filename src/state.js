@@ -79,7 +79,8 @@ function spawnEnemy() {   // 按关卡出怪（试炼塔按波次）
 }
 function setBanner(t) { banner = { txt: t, t: 2.6 }; }
 /* 👹 BOSS 登场：击杀满 100（之后每 100 一只） */
-function spawnBoss() {
+function spawnBoss(restoreHp) {   // 🩸 restoreHp>0=看门狗补召继承残血；无参=新战斗满血（顺手清掉残血记忆，防下一只被上一只拖累）
+  if (!(restoreHp > 0)) lastBossHp = 0;
   for (const z of zombies) if (!z.boss) z.dead = true;   // 👑 BOSS 登场清场
   summonT = 10;   // 10 秒后开始召唤小怪
   const pos = pickSpawn(player, Math.random);
@@ -90,6 +91,7 @@ function spawnBoss() {
     b.hp = b.maxHp = Math.round((b.mirrorKing ? b.hp : (BOSS.hp + (w - 1) * 15)) * (1 + 0.02 * R));
     b.spdMul = 1 + 0.02 * R; b.atkMul = 1 + 0.01 * R;
     b.kind = 'boss' + w;
+    if (restoreHp > 0) b.hp = Math.max(1, Math.min(b.maxHp, restoreHp));   // 🩸 塔内补召也继承残血
     zombies.push(b);
     setBanner('⚠️ 第' + w + '波 BOSS：' + LEVELS[w].bossName + '（第' + R + '遍加成！）');
     beep(90, 45, 0.7, 'sawtooth', 0.25); saveGame();
@@ -110,6 +112,7 @@ function spawnBoss() {
   if (!b.mirrorKing) b.hp = b.maxHp = BOSS.hp + (level - 1) * 15;   // 🌡️ 难度爬坡：每关 BOSS 血更厚（40→55→70→85→100→115）
   if (b.ender) b.hp = b.maxHp = 10000;   // 🐉 末影龙一万血（恩泽定的）
   if (b.warden) b.hp = b.maxHp = 500000;   // 👿 坚守者五十万血（恩泽定的，慢慢磨！）
+  if (restoreHp > 0) b.hp = Math.max(1, Math.min(b.maxHp, restoreHp));   // 🩸 看门狗补召：继承蒸发前的残血（不超上限、至少 1 血）
   zombies.push(b);
   setBanner(b.mirrorKing ? '🪞 镜面魔王：它就是你自己！' : '⚠️ ' + LEVELS[level].bossName + '出现了！');
   beep(90, 45, 0.6, 'sawtooth', 0.3); setTimeout(() => beep(60, 30, 0.8, 'sawtooth', 0.35), 200);
