@@ -216,3 +216,100 @@ test('a recovered coop connection must cancel its pending forced exit', () => {
 
   assert.equal(vm.runInContext('coopMode', context), 'client');
 });
+
+test('every networked monster factory must assign a unique id', () => {
+  const context = makeBrowserContext();
+  load(context, 'logic.js');
+  const enemies = vm.runInContext(`[
+    makeBoss(0, 0),
+    makeSkeleton(0, 0, () => 0.5),
+    makeGhost(0, 0, () => 0.5),
+    makeLava(0, 0, () => 0.5),
+    makeStorm(0, 0, () => 0.5),
+    makeVoid(0, 0, () => 0.5),
+    makeCrystal(0, 0, () => 0.5),
+    makeMirror(0, 0, {}, () => 0.5)
+  ]`, context);
+  const ids = enemies.map(enemy => enemy.id);
+  assert.ok(ids.every(id => id !== undefined && id !== null), `missing ids: ${JSON.stringify(ids)}`);
+  assert.equal(new Set(ids).size, ids.length);
+});
+
+test('coop snapshots must backfill unique ids for inline monsters and clones', () => {
+  const context = makeBrowserContext();
+  Object.assign(context, { setBanner() {}, beep() {}, updateScore() {}, kills: 0 });
+  load(context, 'src/net.js');
+  context.__snaps = [];
+  vm.runInContext(`
+    coopMode = 'host'; coopWave = 7; _id = 1000;
+    zombies = [
+      { x: 100, y: 100, hp: 1, maxHp: 1, boss: true, crystalBoss: true, fake: true, dead: false },
+      { x: 160, y: 100, hp: 1, maxHp: 1, boss: true, crystalBoss: true, fake: true, dead: false }
+    ];
+    netSendCoop = o => __snaps.push(o); coopSendSnap();
+  `, context);
+  const ids = context.__snaps[0].zs.map(z => z.i);
+  assert.ok(ids.every(id => id !== undefined && id !== null));
+  assert.equal(new Set(ids).size, 2);
+});
+
+test('boss snapshots must preserve current hp max hp and boss type on the client', () => {
+  const context = makeBrowserContext();
+  Object.assign(context, { setBanner() {}, beep() {}, updateScore() {}, kills: 0 });
+  load(context, 'src/net.js');
+  context.__snaps = [];
+  vm.runInContext(`
+    coopMode = 'host'; coopWave = 9;
+    zombies = [{ id: 77, x: 500, y: 600, hp: 95, maxHp: 10000, boss: true, ender: true, kind: 'boss9', dead: false, flash: 0 }];
+    netSendCoop = o => __snaps.push(o);
+    coopSendSnap();
+  `, context);
+  vm.runInContext(`
+    coopMode = 'client'; zombies = [];
+    coopClientHandleSnap(__snaps[0]);
+    __snaps[0].zs[0].hp = 73;
+    coopClientHandleSnap(__snaps[0]);
+  `, context);
+
+  const boss = vm.runInContext('zombies[0]', context);
+  assert.deepEqual(
+    { id: boss.id, hp: boss.hp, maxHp: boss.maxHp, ender: boss.ender },
+    { id: 77, hp: 73, maxHp: 10000, ender: true }
+  );
+});
+
+test('coop snapshots must restore every monster visual type instead of defaulting to zombies', () => {
+  const cases = [
+    ['skeleton', 'skel'], ['ghost', 'ghost'], ['lava', 'lava'], ['storm', 'storm'],
+    ['voidw', 'voidw'], ['crystal', 'crystal'], ['wskeleton', 'ws'], ['creeper', 'creep'],
+    ['slime', 'slime'], ['bat', 'bat'], ['mirror', 'mirror'], ['goblin', 'goblin'],
+    ['boss2', 'skelBoss'], ['boss3', 'ghostBoss'], ['boss4', 'lavaBoss'], ['boss5', 'stormBoss'],
+    ['boss6', 'voidBoss'], ['boss7', 'crystalBoss'], ['boss8', 'wither'], ['boss9', 'ender'],
+    ['boss10', 'titan'], ['boss11', 'ghast'], ['boss12', 'warden'], ['boss13', 'mirrorKing']
+  ];
+  const hostZombies = cases.map(([kind, flag], index) => ({
+    id: index + 1, x: 100 + index * 20, y: 200, hp: 10, maxHp: 10,
+    boss: kind.startsWith('boss'), kind, [flag]: true, dead: false, flash: 0,
+    ...(kind === 'slime' ? { size: 2, r: 14 } : {}),
+    ...(kind === 'skeleton' ? { elite: true, affix: 'king' } : {})
+  }));
+  const context = makeBrowserContext();
+  Object.assign(context, { setBanner() {}, beep() {}, updateScore() {}, kills: 0 });
+  load(context, 'src/net.js');
+  context.__snaps = [];
+  context.__hostZombies = hostZombies;
+  vm.runInContext(`
+    coopMode = 'host'; coopWave = 1; zombies = __hostZombies;
+    netSendCoop = o => __snaps.push(o); coopSendSnap();
+    coopMode = 'client'; zombies = []; coopClientHandleSnap(__snaps[0]);
+  `, context);
+
+  for (const [kind, flag] of cases) {
+    const id = cases.findIndex(entry => entry[0] === kind) + 1;
+    assert.equal(vm.runInContext(`zombies[${id - 1}].${flag}`, context), true, `${kind} must keep ${flag}`);
+  }
+  const slime = vm.runInContext(`zombies[${cases.findIndex(entry => entry[0] === 'slime')}]`, context);
+  assert.deepEqual({ size: slime.size, r: slime.r }, { size: 2, r: 14 });
+  const elite = vm.runInContext('zombies[0]', context);
+  assert.deepEqual({ elite: elite.elite, affix: elite.affix }, { elite: true, affix: 'king' });
+});

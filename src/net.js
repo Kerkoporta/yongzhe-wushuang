@@ -265,18 +265,25 @@ function coopRead() {
     } catch (e) {}
   }
 }
+const COOP_SNAP_FLAGS = ['skel', 'ghost', 'lava', 'storm', 'voidw', 'crystal', 'ws', 'creep', 'slime', 'bat', 'mirror', 'goblin', 'skelBoss', 'ghostBoss', 'lavaBoss', 'stormBoss', 'voidBoss', 'crystalBoss', 'wither', 'ender', 'titan', 'ghast', 'warden', 'mirrorKing', 'elite', 'fake'];
 function coopSendSnap(force) {
   if (coopMode !== 'host') return;
   const zs = [];
   for (const z of zombies) {
     if (z.dead) continue;
+    if (z.id == null) z.id = _id++;   // 🛟 分身/内联怪也必须有自己的 ID，不能全挤在 undefined 上
     zs.push({
       i: z.id,
       x: Math.round(z.x),
       y: Math.round(z.y),
       hp: Math.round((z.hp || 0) * 10) / 10,
+      mhp: z.maxHp || z.hp,
       kind: z.kind || (z.boss ? 'boss' : 'zombie'),
       boss: !!z.boss,
+      f: COOP_SNAP_FLAGS.filter(k => z[k]),
+      r: z.r || 10,
+      size: z.size == null ? null : z.size,
+      affix: z.affix || null,
       flash: z.flash > 0 ? 1 : 0
     });
   }
@@ -286,6 +293,16 @@ function coopSendSnap(force) {
     kills: kills,
     zs: zs
   });
+}
+function coopApplyLook(z, s) {   // 🎨 外观以房主快照为准：kind 是图鉴名，画画还要看这些实际标记
+  for (const k of COOP_SNAP_FLAGS) {
+    const on = (s.f || []).includes(k);
+    if (on) z[k] = true;
+    else if (s.f) delete z[k];
+  }
+  if (s.r != null) z.r = s.r;
+  if (s.size !== undefined) z.size = s.size;
+  if (s.affix !== undefined) z.affix = s.affix;
 }
 function coopClientHandleSnap(o) {
   if (coopMode !== 'client') return;
@@ -305,10 +322,12 @@ function coopClientHandleSnap(o) {
       z.targetX = s.x;
       z.targetY = s.y;
       z.hp = s.hp;
+      z.maxHp = s.mhp || z.maxHp || s.hp;
       z.dead = false;
       if (s.flash) z.flash = 0.12;
       z.kind = s.kind;
       z.boss = s.boss;
+      coopApplyLook(z, s);
     } else {
       z = {
         id: s.i,
@@ -317,7 +336,7 @@ function coopClientHandleSnap(o) {
         targetX: s.x,
         targetY: s.y,
         hp: s.hp,
-        maxHp: s.boss ? 100 : 4,
+        maxHp: s.mhp || s.hp || (s.boss ? 100 : 4),
         kind: s.kind,
         boss: s.boss,
         dead: false,
@@ -325,11 +344,12 @@ function coopClientHandleSnap(o) {
         walkT: 0,
         r: s.boss ? 28 : 10
       };
-      if (s.boss) {
+      if (!s.f && s.boss) {   // 老版本房主没有外观数组时，仍按波次兜底
         const w = ((coopWave - 1) % 13) + 1;
         z.skelBoss = w === 2; z.ghostBoss = w === 3; z.lavaBoss = w === 4; z.stormBoss = w === 5; z.voidBoss = w === 6; z.crystalBoss = w === 7;
         z.wither = w === 8; z.ender = w === 9; z.titan = w === 10; z.ghast = w === 11; z.warden = w === 12;
       }
+      coopApplyLook(z, s);
       zombies.push(z);
     }
   }

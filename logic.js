@@ -266,7 +266,7 @@ function difficulty(kills) {
    技能②陀螺追击：持续 5 秒、冷却 30 秒，被碰到每秒掉半颗心 */
 const BOSS = { hp: 40, r: 60, slamR: 150, slamCd: 20, slamWind: 0.8, spinCd: 30, spinDur: 5, spinMul: 2.2, firstSlam: 6, firstSpin: 12 };
 function makeBoss(x, y) {
-  return { x, y, hp: BOSS.hp, r: BOSS.r, boss: true, dead: false, flash: 0, walkT: Math.random() * 9,
+  return { id: _id++, x, y, hp: BOSS.hp, r: BOSS.r, boss: true, dead: false, flash: 0, walkT: Math.random() * 9,
     state: 'chase', stateT: 0, slamT: BOSS.firstSlam, spinT: BOSS.firstSpin, spinA: 0, kb: null };
 }
 /* BOSS 每帧行为（纯逻辑）；zspeed=当前僵尸速度。返回事件 {slam/giantArrow/freeze/soulFire/drain} 由界面层做伤害和特效 */
@@ -390,7 +390,7 @@ function bossTick(b, p, dt, zspeed) {
 const SKELETON = { hp: 3, r: 12, speed: ZOMBIE.speed * 0.85, keepMin: 150, keepMax: 230, fireCd: 2.5, range: 420 };
 function makeSkeleton(x, y, rnd) {
   const r = rnd || Math.random;
-  return { x, y, hp: SKELETON.hp, r: SKELETON.r, skel: true, dead: false, flash: 0, walkT: r() * 9, fireT: 1.2 + r() * 1.5,
+  return { id: _id++, x, y, hp: SKELETON.hp, r: SKELETON.r, skel: true, dead: false, flash: 0, walkT: r() * 9, fireT: 1.2 + r() * 1.5,
     keepMin: 130 + r() * 60, keepMax: 200 + r() * 90 };   // 每只站位不同，不挤一堆
 }
 /* 骷髅每帧：远了靠近、近了拉开；冷却到就朝玩家当前位置射一箭（锁定瞬间方向，直线飞） */
@@ -504,7 +504,7 @@ const SHOP4 = {
 const LAVA = { hp: 6, r: 13, speed: 100 };
 function makeLava(x, y, rnd) {
   const r = rnd || Math.random;
-  return { x, y, hp: LAVA.hp, r: LAVA.r, lava: true, dead: false, flash: 0, walkT: r() * 9, driftA: r() * 6.3 };
+  return { id: _id++, x, y, hp: LAVA.hp, r: LAVA.r, lava: true, dead: false, flash: 0, walkT: r() * 9, driftA: r() * 6.3 };
 }
 function lavaTick(g, p, dt, speedMul) {
   g.flash = Math.max(0, g.flash - dt); g.walkT += dt;
@@ -520,7 +520,7 @@ function lavaTick(g, p, dt, speedMul) {
 const GHOST = { hp: 5, r: 13, speed: 78 };
 function makeGhost(x, y, rnd) {
   const r = rnd || Math.random;
-  return { x, y, hp: GHOST.hp, r: GHOST.r, ghost: true, dead: false, flash: 0, walkT: r() * 9, driftA: r() * 6.3 };
+  return { id: _id++, x, y, hp: GHOST.hp, r: GHOST.r, ghost: true, dead: false, flash: 0, walkT: r() * 9, driftA: r() * 6.3 };
 }
 function ghostTick(g, p, dt, speedMul) {
   g.flash = Math.max(0, g.flash - dt); g.walkT += dt;
@@ -926,7 +926,7 @@ const PETS = {
 const STORM = { hp: 7, r: 12, speed: 115, keepMin: 150, keepMax: 230, fireCd: 2, range: 460 };
 function makeStorm(x, y, rnd) {
   const r = rnd || Math.random;
-  return { x, y, hp: STORM.hp, r: STORM.r, storm: true, dead: false, flash: 0, walkT: r() * 9, fireT: 0.8 + r() * 1.2,
+  return { id: _id++, x, y, hp: STORM.hp, r: STORM.r, storm: true, dead: false, flash: 0, walkT: r() * 9, fireT: 0.8 + r() * 1.2,
     keepMin: 140 + r() * 50, keepMax: 190 + r() * 80, orbitD: r() < 0.5 ? 1 : -1 };
 }
 function stormTick(s, p, dt, speedMul, rnd) {
@@ -950,7 +950,7 @@ function stormTick(s, p, dt, speedMul, rnd) {
 const VOIDW = { hp: 9, r: 13, speed: 70, blinkCd: 3 };
 function makeVoid(x, y, rnd) {
   const r = rnd || Math.random;
-  return { x, y, hp: VOIDW.hp, r: VOIDW.r, voidw: true, dead: false, flash: 0, walkT: r() * 9, blinkT: 1.5 + r() * 1.5 };
+  return { id: _id++, x, y, hp: VOIDW.hp, r: VOIDW.r, voidw: true, dead: false, flash: 0, walkT: r() * 9, blinkT: 1.5 + r() * 1.5 };
 }
 function voidTick(v, p, dt, speedMul, rnd) {
   const ev = { blink: false };
@@ -974,7 +974,7 @@ function voidTick(v, p, dt, speedMul, rnd) {
 const CRYSTAL = { hp: 12, r: 13, speed: 95, keepMin: 200, keepMax: 300, fireCd: 2.4, range: 560 };
 function makeCrystal(x, y, rnd) {
   const r = rnd || Math.random;
-  return { x, y, hp: CRYSTAL.hp, r: CRYSTAL.r, crystal: true, dead: false, flash: 0, walkT: r() * 9, fireT: 1 + r() * 1.4,
+  return { id: _id++, x, y, hp: CRYSTAL.hp, r: CRYSTAL.r, crystal: true, dead: false, flash: 0, walkT: r() * 9, fireT: 1 + r() * 1.4,
     keepMin: 190 + r() * 50, keepMax: 260 + r() * 80, orbitD: r() < 0.5 ? 1 : -1 };
 }
 function crystalTick(c, p, dt, speedMul, rnd) {
