@@ -1,13 +1,14 @@
 'use strict';
 /* ================= 输入：键盘 + 触屏摇杆 + 攻击钮 ================= */
 const keys = {};
-addEventListener('keydown', e => { keys[e.key.toLowerCase()] = true; if (e.key === ' ') { doAttack(); e.preventDefault(); } if (e.key.toLowerCase() === 'b') ctxGo(); if (e.key.toLowerCase() === 'q') toggleAuto(); if (/^[1-9]$/.test(e.key)) castSkillByIndex(+e.key - 1); showTouch(false); });   // B：情境动作（宝箱/进店/坐长椅）；Q：自动攻击开关（键盘党的 AUTO）
+function typingInField(t) { return !!t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable); }
+addEventListener('keydown', e => { if (typingInField(e.target)) return; keys[e.key.toLowerCase()] = true; if (e.key === ' ') { doAttack(); e.preventDefault(); } if (e.key.toLowerCase() === 'b') ctxGo(); if (e.key.toLowerCase() === 'q') toggleAuto(); if (/^[1-9]$/.test(e.key)) castSkillByIndex(+e.key - 1); showTouch(false); });   // B：情境动作；Q：自动攻击；输入框打字不碰游戏输入
 addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
 const joy = document.getElementById('joy'), knob = document.getElementById('joyKnob'), atkBtn = document.getElementById('atkBtn'), autoBtn = document.getElementById('autoBtn');
 let joyVec = { x: 0, y: 0 }, joyId = null, joyC = { x: 0, y: 0 };
 let autoOn = false, holdAtk = false, autoT = 0;   // ⚔️ 自动攻击开关 / 按住连打（都是 0.2 秒一刀）
 function showTouch(on) { joy.style.display = atkBtn.style.display = autoBtn.style.display = on ? 'flex' : 'none'; document.getElementById('tip').style.display = on ? 'none' : 'block'; }
-addEventListener('touchstart', () => showTouch(true), { once: true, passive: true });
+addEventListener('touchstart', () => showTouch(true), { passive: true });   // 键盘切回触屏时，随时都能把摇杆叫回来
 joy.addEventListener('pointerdown', e => { joyId = e.pointerId; const r = joy.getBoundingClientRect(); joyC = { x: r.left + r.width / 2, y: r.top + r.height / 2 }; try { joy.setPointerCapture(e.pointerId); } catch (_) {} });
 joy.addEventListener('pointermove', e => { if (e.pointerId !== joyId) return;
   let dx = (e.clientX - joyC.x) / (34 * settings.sens / 100), dy = (e.clientY - joyC.y) / (34 * settings.sens / 100);   // 🕹️ 灵敏度可调

@@ -3,7 +3,8 @@
 let padOn = false, padPrev = {}, padIntroT = 0;
 /* 🎮 系统级连接事件：手柄一插/一按就知道（比每帧轮询更灵敏） */
 addEventListener('gamepadconnected', e => { if (!padOn) { padOn = true; padPrev = {}; showPadIntro(); } });
-addEventListener('gamepaddisconnected', () => { padOn = false; padCursorEl.style.display = 'none'; setBanner('🎮 手柄断开了，重插会再教你一次键位'); });
+addEventListener('gamepaddisconnected', () => { padOn = false; padCursorEl.style.display = 'none'; if (padIntroT > 0) dismissPadIntro(); setBanner('🎮 手柄断开了，重插会再教你一次键位'); });
+function dismissPadIntro() { padIntroT = 0; document.getElementById('padHelp').style.display = 'none'; if (!anyPanelOpen()) paused = false; }
 function showPadIntro() {   // 🎮 连接/重连介绍卡：全场暂停 5 秒看键位
   padIntroT = 5;
   document.getElementById('padHelp').style.display = 'flex';
@@ -27,15 +28,15 @@ function anyPanelOpen() {   // 有 DOM 面板开着=鼠标模式
   return false;
 }
 function padTick(dt) {
+  if (padIntroT > 0) {   // ⏳ 介绍卡倒计时独立走：浏览器一时读不到手柄，也不许永久卡暂停
+    padIntroT -= dt;
+    if (padIntroT <= 0) dismissPadIntro();
+    return;
+  }
   const gps = navigator.getGamepads ? navigator.getGamepads() : [];
   let gp = null; for (const g of gps) if (g && g.connected) { gp = g; break; }
   if (!gp) { if (padOn) { padOn = false; padCursorEl.style.display = 'none'; setBanner('🎮 手柄断开了，重插会再教你一次键位'); } return; }
   if (!padOn) { padOn = true; showPadIntro(); }   // 首次连接 or 断后重连：都播 5 秒键位卡
-  if (padIntroT > 0) {   // ⏳ 介绍卡倒计时：到点自动开打（别的面板开着就不抢暂停）
-    padIntroT -= dt;
-    if (padIntroT <= 0) { document.getElementById('padHelp').style.display = 'none'; if (!anyPanelOpen()) paused = false; }
-    return;
-  }
   const ax = gp.axes[0] || 0, ay = gp.axes[1] || 0, dead = 0.18;
   const sens = settings.sens / 100;
   const mx = Math.abs(ax) > dead ? ax * sens : 0, my = Math.abs(ay) > dead ? ay * sens : 0;   // 🕹️ 手柄也吃灵敏度

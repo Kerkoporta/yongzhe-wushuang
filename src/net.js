@@ -425,6 +425,10 @@ pvpRead = function () {
   if (netReady) { if (pvpFoe && Date.now() - (pvpFoe.when || 0) > 3000) pvpFoe.stale = true; return; }   // 联网版消息驱动，这里只管掉线检测
   _pvpReadRaw();
 };
+function netTick(dt) {   // 💓 联机心跳独立于暂停/顿帧：画面停下时，队友也不该被误报掉线
+  if (pvpMode) { pvpT -= dt; if (pvpT <= 0) { pvpT = 0.1; pvpWrite(); } pvpRead(); }
+  if (coopMode) { coopT -= dt; if (coopT <= 0) { coopT = 0.1; coopWrite(); } coopRead(); }
+}
 const _leavePvpRaw = leavePvp;
 leavePvp = function () { if (pvpMode && netReady) { netSend({ type: 'leave' }); netReady = false; } _leavePvpRaw(); };
 const pCreateBtn = document.getElementById('pvpNetCreate');

@@ -160,11 +160,7 @@ function update(dt) {
     for (const f of fxLines) f.t -= dt;
     fxLines = fxLines.filter(f => f.t > 0);
     if (!document.hidden) { saveT -= dt; if (saveT <= 0) { saveT = 2; saveGame(); } }   // 💾 每 2 秒自动存档（只有前台页面才写，后台旧页面不许盖）
-    if (pvpMode) { pvpT -= dt; if (pvpT <= 0) { pvpT = 0.1; pvpWrite(); } pvpRead(); }   // 📡 PVP：0.1 秒一存+每帧读对面（恩泽设计：存档直通当网络用）
     if (typeof coopMode !== 'undefined' && coopMode) {
-      coopT -= dt;
-      if (coopT <= 0) { coopT = 0.1; coopWrite(); }
-      coopRead();
       if (coopMode === 'host') {
         coopSnapT -= dt;
         if (coopSnapT <= 0) {
@@ -642,5 +638,5 @@ function loop(now) {
     }
   }
   requestAnimationFrame(loop);   // 🛡️ 先排下一帧：哪怕这一帧出错，游戏也绝不定格（一帧的错不该杀死整个游戏）
-  try { padTick(dt); update(dt); draw(); } catch (err) { console.error('[frame] 这一帧出错了，已跳过：', err); }   // 🎮 手柄轮询每帧都跑（面板暂停时也要当鼠标用）
+  try { padTick(dt); netTick(dt); update(dt); draw(); } catch (err) { console.error('[frame] 这一帧出错了，已跳过：', err); }   // 🎮 手柄与 💓 联机心跳每帧都跑，暂停也不能断
 }
