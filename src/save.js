@@ -60,6 +60,12 @@ const SAVE_KEY = 'zombie_fight_save_v1';
 const SLOT_KEY = i => 'zombie_fight_slot_' + i;
 const mySid = 's' + Math.random().toString(36).slice(2, 8);   // 本页面实例 id
 let saveT = 2;
+// 🛟 看门狗和存档共用判定：飞行/俯冲中的龙仍在数组里，算作在场。
+function bossMissing() {
+  return !townMode && !dungeonMode && !skyMode && !pvpMode && !sandboxMode && !homeOpen && !gameOver
+    && (bossAt <= kills || (level === 9 && !towerMode))
+    && !zombies.some(z => z.boss && !z.dead) && !chest && !pendingNext;
+}
 function packSave() {
   const boss = zombies.find(z => z.boss && !z.dead && !z.fake);
   return { kills, gold: player.gold, weapon: player.weapon, owned: player.owned, hearts: player.hearts, bossAt, level, music: musicOn ? 1 : 0, rot: rotated ? 1 : 0, when: Date.now(), sid: mySid,
@@ -69,7 +75,7 @@ function packSave() {
     mana: Math.round(player.mana != null ? player.mana : 100),   // 🔵 蓝条也进存档
     towerMode: towerMode ? 1 : 0,   // 🗼 在不在试炼塔里
     campaignLv,   // 🧭 主线进度跟着存档走
-    bossAlive: boss ? 1 : 0, bossHp: boss ? boss.hp : 0,
+    bossAlive: (boss || bossMissing()) ? 1 : 0, bossHp: boss ? boss.hp : 0,
     pets: pets.map(p => p.key), dex: dexCounts, bought: player.bought, skillSlots,
     mapShops, endlessRound, endlessWave, waveKills,
     chest: chest && { x: chest.x, y: chest.y, taken: chest.taken }, pendingNext,
@@ -148,7 +154,10 @@ function saveGame() {
     saveGen = 1 - saveGen;
     localStorage.setItem(SAVE_KEY + '_g' + saveGen, data);   // 🧬 双代轮换：先写新一代
     localStorage.setItem(SAVE_KEY, data);                    // 再写主档（写坏主档也有上一代兜底）
-  } catch (e) {}
+  } catch (e) {
+    console.error('💾 存档失败：', e);
+    setBanner('⚠️ 存档失败，别切走！');
+  }
 }
 function loadGame() {
   const s = readSave((townMode || dungeonMode || skyMode) ? SAVE_KEY_TOWN : SAVE_KEY);   // 🐛 修"回前台掉回第一关"：在哪个世界读哪个档

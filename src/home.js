@@ -2,7 +2,7 @@
 /* ================= 🏠 主页（开机先进主页选存档；游戏里点 🏠=暂停+自动存好，怪物干瞪眼） ================= */
 const homeEl = document.getElementById('home'), homeSlots = document.getElementById('homeSlots');
 let homeOpen = false;
-function slotInfo(s) { return `第${s.level || 1}关 · ⚔️${s.kills || 0} · 💰${s.gold || 0}`; }
+function slotInfo(s) { return `第${s.level || 1}关·${(LEVELS[s.level || 1] || LEVELS[1]).name} · ⚔️${s.kills || 0} · 💰${s.gold || 0}`; }
 function fmtWhen(w) { const d = new Date(w); return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; }
 function showHome() {
   saveGame();   // 进主页先存好

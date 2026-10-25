@@ -14,8 +14,18 @@ function drawDragonFly(ctx) {   // 屏幕坐标：黑影+紫光眼睛，从右�
   ctx.fillStyle = '#b48af2'; ctx.fillRect(38, -6, 4, 3); ctx.fillRect(38, 3, 4, 3);   // 💜 紫眼睛
   ctx.restore(); ctx.globalAlpha = 1;
 }
+// 🛟 每两秒检查一次，避免每帧扫描怪物。
+let bossWatchdogT = 2;
 function update(dt) {
   if (paused) return;   // 🏪 逛商店时僵尸等你
+  bossWatchdogT -= dt;
+  if (bossWatchdogT <= 0) {
+    bossWatchdogT = 2;
+    if (bossMissing()) {
+      spawnBoss();
+      setBanner('⚠️ BOSS 回来了！刚才它好像溜号了……');
+    }
+  }
   if (sandboxMode && gameOver) {   // 🔮 旁观者死了：不进死亡结算，直接回选关台（装备全在）
     gameOver = false; deathT = 0; player.hearts = player.maxHearts; player.x = WORLD.w / 2; player.y = WORLD.h / 2;
     document.getElementById('over').style.display = 'none'; openSandboxPicker(); return;
