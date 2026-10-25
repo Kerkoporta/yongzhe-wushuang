@@ -304,8 +304,8 @@ function draw() {
   for (const p of puddles) {
     ctx.globalAlpha = Math.min(0.85, p.t);
     if (p.dragon) {   // 🐉 龙息紫雾
-      ctx.fillStyle = '#8a5ac8'; ctx.beginPath(); ctx.ellipse(p.x, p.y, 18, 11, 0, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = '#d0a8ff'; ctx.beginPath(); ctx.ellipse(p.x, p.y, 10, 6, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#8a5ac8'; ctx.beginPath(); ctx.ellipse(p.x, p.y, 80, 80, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#d0a8ff'; ctx.beginPath(); ctx.ellipse(p.x, p.y, 48, 48, 0, 0, Math.PI * 2); ctx.fill();
     } else {
       ctx.fillStyle = '#ff7a2a'; ctx.beginPath(); ctx.ellipse(p.x, p.y, 16, 10, 0, 0, Math.PI * 2); ctx.fill();
       ctx.fillStyle = '#ffd24a'; ctx.beginPath(); ctx.ellipse(p.x, p.y, 9, 5, 0, 0, Math.PI * 2); ctx.fill();
@@ -441,7 +441,7 @@ function draw() {
   for (const mn of minions) {   // ☠️ 死灵骷髅小弟/👥分身：白色小骨架/半透明影子+寿命倒计时
     ctx.globalAlpha = 0.3; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.ellipse(mn.x, mn.y + 2, 8, 3.5, 0, 0, 6.3); ctx.fill(); ctx.globalAlpha = 1;
     if (mn.clone) {   // 👥 分身：我的半透明影子
-      ctx.globalAlpha = 0.55; drawSprite(ctx, MAN_DOWN, mn.x - 12, mn.y - 16, 2, mn.face < 0); ctx.globalAlpha = 1;
+      ctx.globalAlpha = 0.55; drawPlayerSpr(ctx, MAN_DOWN, mn.x - 12, mn.y - 16, 2, mn.face < 0, player.skin); ctx.globalAlpha = 1;
       ctx.fillStyle = '#b8b8ff'; ctx.font = '9px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(Math.ceil(mn.t) + 's', mn.x, mn.y - 26); ctx.textAlign = 'left';
       continue;
     }
@@ -521,19 +521,24 @@ function draw() {
   for (const ga of garrows) { ctx.save(); ctx.translate(ga.x, ga.y); ctx.rotate(ga.ang); ctx.scale(2.4, 2.4); ctx.fillStyle = '#5a3a1a'; ctx.fillRect(-8, -1, 14, 2); ctx.fillStyle = '#e8e8e8'; ctx.fillRect(6, -2, 4, 4); ctx.fillStyle = '#e84a4a'; ctx.fillRect(-10, -3, 4, 2); ctx.fillRect(-10, 1, 4, 2); ctx.restore(); }
   // 玩家（无敌时一闪一闪）
   const blink = player.inv > 0 && Math.floor(player.inv * 12) % 2 === 0;
-  if (pvpFoe) {   // 📡 PVP 幻影对手：红色描边小人+名牌+血条（掉线的半透明）
+  if (pvpFoe) {   // 📡 PVP / 合作幻影队友：绿色队友圈/红色敌对框+名牌+血条
     const f = pvpFoe, fb = f.moving ? Math.abs(Math.sin(f.walkT * 9)) * 2 : 0;
     const fside = Math.abs(Math.cos(f.dir)) > Math.abs(Math.sin(f.dir));
     const fspr = fside ? MAN_SIDE : (Math.sin(f.dir) < 0 ? MAN_UP : MAN_DOWN);
     ctx.globalAlpha = f.stale ? 0.35 : 1;
     drawPlayerSpr(ctx, fspr, f.x - 12, f.y - 16 - fb, 2, fside && Math.cos(f.dir) < 0, f.skin);
-    ctx.strokeStyle = '#ff5a5a'; ctx.lineWidth = 2; ctx.strokeRect(f.x - 12, f.y - 16 - fb, 24, 32);   // 红框标记=对手
+    if (typeof coopMode !== 'undefined' && coopMode) {
+      ctx.strokeStyle = '#7ee85a'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(f.x, f.y + 6, 16, 7, 0, 0, 6.3); ctx.stroke();   // 🤝 绿色队友光圈
+    } else {
+      ctx.strokeStyle = '#ff5a5a'; ctx.lineWidth = 2; ctx.strokeRect(f.x - 12, f.y - 16 - fb, 24, 32);   // 红框标记=对手
+    }
     ctx.globalAlpha = 1;
-    if (f.swing) { ctx.strokeStyle = '#ffb0b0'; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(f.x, f.y - 4, 26, 0, 6.3); ctx.stroke(); }
-    ctx.fillStyle = '#ff8080'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText((pvpSide === 1 ? '挑战者' : '房主') + (f.stale ? '（掉线中…）' : ''), f.x, f.y - 42); ctx.textAlign = 'left';
+    if (f.swing) { ctx.strokeStyle = (typeof coopMode !== 'undefined' && coopMode) ? '#7ee85a' : '#ffb0b0'; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(f.x, f.y - 4, 26, 0, 6.3); ctx.stroke(); }
+    ctx.fillStyle = (typeof coopMode !== 'undefined' && coopMode) ? '#7ee85a' : '#ff8080'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
+    const tag = (typeof coopMode !== 'undefined' && coopMode) ? ('🤝 队友' + (f.down ? '（倒地中…）' : f.stale ? '（掉线中…）' : '')) : ((pvpSide === 1 ? '挑战者' : '房主') + (f.stale ? '（掉线中…）' : ''));
+    ctx.fillText(tag, f.x, f.y - 42); ctx.textAlign = 'left';
     ctx.fillStyle = '#0008'; ctx.fillRect(f.x - 16, f.y - 38, 32, 4);
-    ctx.fillStyle = '#e84a4a'; ctx.fillRect(f.x - 16, f.y - 38, 32 * Math.max(0, f.hearts) / (f.maxHearts || 5), 4);
+    ctx.fillStyle = (typeof coopMode !== 'undefined' && coopMode) ? '#7ee85a' : '#e84a4a'; ctx.fillRect(f.x - 16, f.y - 38, 32 * Math.max(0, f.hearts) / (f.maxHearts || 5), 4);
     if (f.holdFish) Sky.drawHeldFish(f.x, f.y, f.holdFish, f.dir || 0);   // 🐟 对面手里拿着什么鱼，我看得见
   }
   if (!blink) {
@@ -562,7 +567,7 @@ function draw() {
     } else if (hurtT > 0) {   // 💥 受击后仰：往后一仰
       ctx.save(); ctx.translate(Math.round(player.x), Math.round(player.y)); ctx.rotate(-0.38 * (hurtT / 0.28));
       drawPlayerSpr(ctx, spr, -12, -16 - bob, 2, flip, player.skin); ctx.restore();
-    } else if (sittingBench) TownArt.drawSeated(player.x, player.y, sittingBench.face);   // 🪑 真坐姿
+    } else if (sittingBench) TownArt.drawSeated(player.x, player.y, sittingBench.face, player.skin);   // 🪑 真坐姿
     else drawPlayerSpr(ctx, spr, player.x - 12, player.y - 16 - bob - rideUp, 2, flip, player.skin);
     if (player.atkT > 0) {   // ⚔️ 攻击动作（回旋镖=真一圈扩散环；寒冰弓=更大的弧）
       const t = 1 - player.atkT / ATTACK.swing;
@@ -637,6 +642,11 @@ function draw() {
       ctx.fillStyle = '#c8f4ff'; ctx.font = '12px sans-serif'; ctx.fillText('❄️', player.x - 6, player.y - 26);
     }
     /* ❤️ 血条在玩家脑袋上，跟着玩家动（半心也能画） */
+    if (typeof coopMode !== 'undefined' && coopMode === 'client' && coopDownT > 0) {
+      ctx.fillStyle = '#ff5a5a'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(`😵 倒地复活中：${Math.ceil(coopDownT)}s`, player.x, player.y - 36);
+      ctx.textAlign = 'left';
+    }
     const maxH = player.maxHearts || PLAYER.hearts, hw = 13, hx0 = player.x - maxH * hw / 2;
     ctx.font = '12px sans-serif';
     for (let i = 0; i < maxH; i++) {
@@ -667,6 +677,16 @@ function draw() {
   if (player.weapon && TBLH[player.weapon]) { ctx.globalAlpha = 1; ctx.fillText(TBLH[player.weapon].icon, 10 + ei * 26, 58); ei++; }
   for (const k in player.owned) { if (TBLH[k] && TBLH[k].kind === 'gear' && ei < 10) { ctx.globalAlpha = 1; ctx.fillText(TBLH[k].icon, 10 + ei * 26, 58); ei++; } }
   ctx.globalAlpha = 1;
+  if (typeof coopMode !== 'undefined' && coopMode && pvpFoe) {   // 🤝 合作中头顶 HUD 显示队友血量（绿心）
+    const fMaxH = pvpFoe.maxHearts || 5, fH = Math.max(0, pvpFoe.hearts != null ? pvpFoe.hearts : 0);
+    ctx.font = 'bold 13px sans-serif'; ctx.fillStyle = '#7ee85a'; ctx.fillText('🤝 队友：', 10, 84);
+    for (let i = 0; i < fMaxH; i++) {
+      if (fH >= i + 1) { ctx.globalAlpha = 1; ctx.fillText('💚', 64 + i * 16, 84); }
+      else if (fH >= i + 0.5) { ctx.globalAlpha = 0.5; ctx.fillText('💚', 64 + i * 16, 84); }
+      else { ctx.globalAlpha = 0.2; ctx.fillText('🖤', 64 + i * 16, 84); }
+    }
+    ctx.globalAlpha = 1;
+  }
   // 👹 BOSS 血条（顶部居中大红条）
   const bb = zombies.find(z => z.boss && !z.dead && !z.fake);
   if (bb) {
@@ -709,6 +729,7 @@ window.G = { get player() { return player; }, get zombies() { return zombies; },
   enterDungeon: Dgn.enterDungeon, exitDungeon: Dgn.exitDungeon, spawnGoblin: Dgn.spawnGoblin, spawnDgnKing: Dgn.spawnDgnKing, swapJob, applyJob, dgnDie: Dgn.dgnDie,   // 🌲⇄ 副本+双职业测试钩
   get dungeonMode() { return dungeonMode; }, get dgnKills() { return dgnKills; }, get dgnKingSpawned() { return dgnKingSpawned; }, get minions() { return minions; }, get turrets() { return turrets; },
   fishGo: Sky.fishGo, eatFish: Sky.eatFish, openFishShop: Sky.openFishShop, sellAllFish: Sky.sellAllFish, inArena, enterSky: enterPvp,   // ☁️ 天空城测试钩
+  enterCoop, leaveCoop, get coopMode() { return coopMode; }, get coopWave() { return coopWave; }, get coopDownT() { return coopDownT; }, netIn, coopSendSnap, coopHostHandleHit, coopOnMsg,   // 🤝 合作冒险测试钩
   get skyMode() { return skyMode; }, get fishState() { return fishState; }, get bobber() { return bobber; }, setFishT(t) { fishT = t; }, get hitstopT() { return hitstopT; },   // 💥 顿帧测试钩
   castSkill, renderSkills, ownedSkills, openSkin, buyMount, mountOf, spawnStorm: () => { const z = makeStorm(player.x + 150, player.y, Math.random); zombies.push(z); }, spawnVoid: () => { const z = makeVoid(player.x + 150, player.y, Math.random); zombies.push(z); },
   openAltar, acceptPact, get altar() { return altar; }, get altarMods() { return altarMods; }, forceAltar() { altar = { x: player.x + 80, y: player.y, offers: altarRollOffers(), taken: false }; } };

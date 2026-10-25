@@ -207,7 +207,7 @@ function renderSkinRows() {   // 五排色板，当前选中的带金框
     row.appendChild(wrap); rows.appendChild(row);
   }
 }
-function drawSkinPreview() {   // 实时预览：正面小人
+function drawSkinPreview() {   // 🎨 画布留足 16 行×6px+顶部边距，鞋子不裁切
   const cv = document.getElementById('skinCv'), c2 = cv.getContext('2d');
   c2.clearRect(0, 0, cv.width, cv.height);
   drawPlayerSpr(c2, MAN_DOWN, 12, 8, 6, false, player.skin);

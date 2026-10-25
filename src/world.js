@@ -309,17 +309,17 @@ drawBench(x, y, face) {   // 整条长椅（靠背在远离喷泉的一侧）
   ctx.fillStyle = '#a8814f'; ctx.fillRect(bx, y - 30, 5, 4);
 },
 
-drawSeated(x, y, face) {   // 🪑 真·坐姿：屁股贴椅面、大腿平放、小腿垂到地面、背靠椅背
+drawSeated(x, y, face, skin = {}) {   // 🪑 真·坐姿：屁股贴椅面、大腿平放、小腿垂到地面、背靠椅背
   ctx.save(); ctx.translate(Math.round(x), Math.round(y)); if (face < 0) ctx.scale(-1, 1);
-  ctx.fillStyle = '#4a7ad4'; ctx.fillRect(-11, -25, 9, 16);   // 躯干（底部正好落在椅面）
+  ctx.fillStyle = skin.b || PAL.b; ctx.fillRect(-11, -25, 9, 16);   // 躯干（底部正好落在椅面）
   ctx.fillRect(-8, -22, 3, 9);   // 手臂垂放身侧
-  ctx.fillStyle = '#3a3a4a';
+  ctx.fillStyle = skin.p || PAL.p;
   ctx.fillRect(-11, -12, 9, 3);   // 屁股（坐面上）
   ctx.fillRect(-3, -12, 12, 3);   // 大腿向前平伸
   ctx.fillRect(7, -10, 4, 10);   // 小腿垂到地面
-  ctx.fillStyle = '#2a2a2a'; ctx.fillRect(7, -1, 6, 3);   // 鞋踩地
-  ctx.fillStyle = '#f0c8a0'; ctx.fillRect(-10, -33, 8, 8);   // 头
-  ctx.fillStyle = '#5a4632'; ctx.fillRect(-10, -35, 8, 3);   // 头发
+  ctx.fillStyle = skin.a || PAL.a; ctx.fillRect(7, -1, 6, 3);   // 鞋踩地
+  ctx.fillStyle = skin.s || PAL.s; ctx.fillRect(-10, -33, 8, 8);   // 头
+  ctx.fillStyle = skin.h || PAL.h; ctx.fillRect(-10, -35, 8, 3);   // 头发
   ctx.fillStyle = '#1a1a1a'; ctx.fillRect(-5, -30, 2, 2);   // 眼
   ctx.restore();
 },

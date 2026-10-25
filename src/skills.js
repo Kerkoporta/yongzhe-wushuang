@@ -80,6 +80,11 @@ function nearestZ(rng) {   // 最近的活怪
 }
 function hurtZ(z, dmg, color) {   // 技能直伤结算（吃击杀计数）
   if (z.dead || mirrorBlocks(z)) return;   // 🛡️ 镜面格挡技能直伤
+  if (typeof coopMode !== 'undefined' && coopMode === 'client') {
+    burst(z.x, z.y, color, 7);
+    netSendCoop({ type: 'hit', ids: [z.id], dmg });
+    return;
+  }
   z.hp -= dmg; z.flash = 0.12; burst(z.x, z.y, color, 7);
   if (z.hp <= 0) killZombie(z);
 }

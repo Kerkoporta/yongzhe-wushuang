@@ -159,6 +159,7 @@ function attackHit(p, zombies, opts) {
     let diff = Math.abs(ang - p.dir); if (diff > Math.PI) diff = Math.PI * 2 - diff;
     if (diff <= arc / 2) {
       if (mirrorBlocks(z)) continue;   // 🛡️ 镜面格挡整次挥击
+      if (opts && opts.noDmg) { hit.push(z); continue; }   // 🤝 客机攻击命中检测：只判定打中谁，不直接扣血
       z.hp -= dmg; z.flash = 0.12;
       const kb = ATTACK.knock * (z.boss ? 0.15 : 1) * ((opts && opts.kbMul) || 1);   // 👹 BOSS 太重，只退一点；🔨 战锤击退×3
       z.x = Math.max(20, Math.min(WORLD.w - 20, z.x + (dx / (d || 1)) * kb));

@@ -63,7 +63,7 @@ let saveT = 2;
 // 🛟 看门狗和存档共用判定：飞行/俯冲中的龙仍在数组里，算作在场。
 let lastBossHp = 0;   // 🩸 BOSS 血量记忆：它在场时持续记账，万一蒸发被抓回来还是那只残血的
 function bossMissing() {
-  return !townMode && !dungeonMode && !skyMode && !pvpMode && !sandboxMode && !homeOpen && !gameOver
+  return !townMode && !dungeonMode && !skyMode && !pvpMode && !sandboxMode && !homeOpen && !gameOver && !(typeof coopMode !== 'undefined' && coopMode)
     && (bossAt <= kills || (level === 9 && !towerMode))
     && !zombies.some(z => z.boss && !z.dead) && !chest && !pendingNext;
 }
@@ -113,6 +113,7 @@ function applySave(s) {
   chest = s.chest || null; pendingNext = s.pendingNext || null;
   if (level === 12 && pendingNext === 'town' && !s.townUnlocked) pendingNext = 'level';   // 🪞 旧档待开宝箱继续去镜面洞穴   // 🎁 没开的宝箱回来
   faintDone = !!s.faintDone; townMode = !!s.townMode; townUnlocked = !!s.townUnlocked; ownedHouse = !!s.ownedHouse; storage = s.storage || {}; inRoom = false;   // 💉🏡 剧情进度回来（进门状态不存）
+  if ((s.campaignLv >= 12 || s.level >= 12) && !townUnlocked) townUnlocked = true;   // 🏡 十二关时代的老玩家保留小镇资格
   if (s.skin) player.skin = s.skin;   // 🎨 捏人形象读档回来（老档没有就用默认配色）
   player.mount = s.mount || null; player.mountHp = s.mountHp || 0; player.mountCd = 0;   // 🐴 坐骑读档回来
   dungeonMode = false; dgnKills = 0; dgnKingSpawned = false; dgnExit = null;   // 🌲 副本不跟档走：读档永远落在副本外

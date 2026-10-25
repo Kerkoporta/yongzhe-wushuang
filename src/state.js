@@ -65,6 +65,19 @@ function mirrorUpdate(z, dt) {
 }
 function spawnEnemy() {   // 按关卡出怪（试炼塔按波次）
   if (pvpMode) return;   // 📡 PVP 擂台不刷怪，只有对面那个真人
+  if (typeof coopMode !== 'undefined' && coopMode === 'client') return;   // 🤝 合作客机不跑怪生成
+  if (typeof coopMode !== 'undefined' && coopMode === 'host') {
+    const w = ((coopWave - 1) % 13) + 1;
+    const s = pickSpawn(player, Math.random);
+    zombies.push(w === 2 ? makeSkeleton(s.x, s.y, Math.random) : w === 3 ? makeGhost(s.x, s.y, Math.random) : w === 4 ? makeLava(s.x, s.y, Math.random) : w === 5 ? makeStorm(s.x, s.y, Math.random) : w === 6 ? makeVoid(s.x, s.y, Math.random) : w === 7 ? makeCrystal(s.x, s.y, Math.random) : w === 8 ? makeWSkel(s.x, s.y) : w === 10 ? makeCreeper(s.x, s.y) : w === 11 ? makeSlime(s.x, s.y, 2) : w === 12 ? makeBat(s.x, s.y) : w === 13 ? makeMirror(s.x, s.y, mirrorSnapshot(), Math.random) : spawnZombie(player, Math.random));
+    const zz = zombies[zombies.length - 1];
+    zz.kind = ['', 'zombie', 'skeleton', 'ghost', 'lava', 'storm', 'voidw', 'crystal', 'wskeleton', 'none', 'creeper', 'slime', 'bat', 'mirror'][w];
+    const aff = rollAffix(Math.random);
+    zz.maxHp = zz.hp;
+    if (altarMods && altarMods.hpMul) { zz.hp *= altarMods.hpMul; zz.maxHp = zz.hp; }
+    if (aff && !zz.boss) { zz.affix = aff; if (aff === 'king') { zz.hp *= 3; zz.maxHp = zz.hp; zz.r = (zz.r || 10) * 1.35; } }
+    return;
+  }
   if (towerMode) { waveSpawn(); return; }
   if (level === 9) return;   // 🐉 末影之地只有末影龙，一只小怪都没有
   const s = pickSpawn(player, Math.random);
@@ -85,6 +98,19 @@ function spawnBoss(restoreHp) {   // 🩸 restoreHp>0=看门狗补召继承残�
   summonT = 10;   // 10 秒后开始召唤小怪
   const pos = pickSpawn(player, Math.random);
   const b = (towerMode ? endlessWave : level) === 13 ? makeMirror(pos.x, pos.y, mirrorSnapshot(), Math.random, true) : makeBoss(pos.x, pos.y);
+  if (typeof coopMode !== 'undefined' && coopMode) {
+    const w = ((coopWave - 1) % 13) + 1;
+    b.skelBoss = w === 2; b.ghostBoss = w === 3; b.lavaBoss = w === 4; b.stormBoss = w === 5; b.voidBoss = w === 6; b.crystalBoss = w === 7;
+    b.wither = w === 8; b.ender = w === 9; b.titan = w === 10; b.ghast = w === 11; b.warden = w === 12;
+    b.hp = b.maxHp = Math.round(BOSS.hp + (coopWave - 1) * 20);
+    b.kind = 'boss' + w;
+    if (restoreHp > 0) b.hp = Math.max(1, Math.min(b.maxHp, restoreHp));
+    zombies.push(b);
+    setBanner('⚠️ 第' + coopWave + '波 BOSS：' + (LEVELS[w] ? LEVELS[w].bossName : '👹 僵尸王') + ' 降临！');
+    beep(90, 45, 0.7, 'sawtooth', 0.25);
+    return;
+  }
+  b.noSummon = !!b.mirrorKing;   // 🪞 镜面魔王独自作战（含试炼塔）
   if (towerMode) {   // 🗼 试炼塔：BOSS 类型按波次，血/速+2%×遍、攻+1%×遍
     const w = endlessWave, R = endlessRound;
     b.skelBoss = w === 2; b.ghostBoss = w === 3; b.lavaBoss = w === 4; b.stormBoss = w === 5; b.voidBoss = w === 6; b.crystalBoss = w === 7;
@@ -105,6 +131,7 @@ function spawnBoss(restoreHp) {   // 🩸 restoreHp>0=看门狗补召继承残�
   b.crystalBoss = level === 7; // 💎 第七关出水晶魔王（分身+棱光齐射）
   b.wither = level === 8;      // 💀 第八关出凋灵（蓝色骷髅头+直线冲锋）
   b.ender = level === 9;       // 🐉 第九关出末影龙（龙息+俯冲顶飞）
+  b.noSummon = !!(b.ender || b.mirrorKing);   // 🐉🪞 专属战斗不召小弟
   b.titan = level === 10;      // 🧨 第十关出泰坦苦力怕（TNT 雨+撕咬扑击）
   b.ghast = level === 11;      // 👻 第十一关出恶魂（火球可打回去）
   b.warden = level === 12;     // 👿 第十二关出坚守者（50 万血！盲眼听声辨位+音波炮）
@@ -157,10 +184,11 @@ function enderTick(z, dt) {
   z.walkT += dt;
   const dx = player.x - z.x, dy = player.y - z.y, d = Math.hypot(dx, dy) || 1;
   z.flyA = (z.flyA || 0) + dt * 0.55;   // 🐉 绕地图中心盘旋（MC 绕喷泉同款，恩泽点名改的）
-  if (!z.dive) {
+  if (!z.dive && z.diveWarn == null) {
     const tx = WORLD.w / 2 + Math.cos(z.flyA) * 320, ty = WORLD.h / 2 + Math.sin(z.flyA) * 240;
     const ddx = tx - z.x, ddy = ty - z.y, dd = Math.hypot(ddx, ddy) || 1;
-    z.x += ddx / dd * 200 * dt; z.y += ddy / dd * 200 * dt;
+    const step = Math.min(dd, 200 * dt);   // 🐉 不越过盘旋目标，切换后平滑回航
+    z.x += ddx / dd * step; z.y += ddy / dd * step;
   }
   z.breathT = (z.breathT == null ? 3 : z.breathT) - dt;
   if (z.breathT <= 0 && !z.dive) {   // 💜 龙息：紫气弹飞向玩家，落地成雾 4 秒
@@ -176,17 +204,27 @@ function enderTick(z, dt) {
   if (z.breaths) z.breaths = z.breaths.filter(br => !br.landed);
   z.diveCd = (z.diveCd == null ? 6 : z.diveCd) - dt;
   if (z.dive) {   // 🦅 俯冲中：撞上就把玩家顶飞（顶飞不直接掉血，落地才掉）
-    z.x += z.dive.vx * dt; z.y += z.dive.vy * dt;
-    if (!z.dive.hit && playerFlyT <= 0 && Math.hypot(player.x - z.x, player.y - z.y) < 50 && player.inv <= 0) {
+    const sx = z.x, sy = z.y, step = Math.min(z.dive.left, 500 * dt);
+    z.x += z.dive.vx / 500 * step; z.y += z.dive.vy / 500 * step;
+    if (!z.dive.hit && playerFlyT <= 0 && pointSegDist(player.x, player.y, sx, sy, z.x, z.y) <= 50 && player.inv <= 0) {
       z.dive.hit = true; playerFlyT = 0.9; player.inv = 1.6;
       burst(player.x, player.y, '#b48af2', 14); shakeT = 0.5; beep(150, 400, 0.3, 'sawtooth', 0.2); setBanner('🦅 被顶飞了！小心落地！');
     }
-    z.dive.left -= 500 * dt;
+    z.dive.left -= step;
     if (z.dive.left <= 0) { z.dive = null; z.diveCd = 12; }
-  } else if (z.diveCd <= 0 && d < 420) {
-    if (z.diveWarn == null) { z.diveWarn = 0.8; z.warnDx = dx / d; z.warnDy = dy / d; setBanner('🐉 末影龙要俯冲了！'); beep(150, 90, 0.3, 'sawtooth', 0.25); }
+  } else if (z.diveWarn != null || (z.diveCd <= 0 && d < 420)) {
+    if (z.diveWarn == null) {   // 🎯 预警起就定住起点和玩家落点，不追踪走位
+      z.diveWarn = 0.8; z.diveTargetX = player.x; z.diveTargetY = player.y;
+      const ax = z.diveTargetX - z.x, ay = z.diveTargetY - z.y, len = Math.hypot(ax, ay);
+      z.warnDx = len ? ax / len : 1; z.warnDy = len ? ay / len : 0;
+      z.diveLength = len;
+      setBanner('🐉 末影龙要俯冲了！'); beep(150, 90, 0.3, 'sawtooth', 0.25);
+    }
     z.diveWarn -= dt;
-    if (z.diveWarn <= 0) { z.dive = { vx: z.warnDx * 500, vy: z.warnDy * 500, left: Math.max(320, d + 120), hit: false }; z.diveWarn = null; }
+    if (z.diveWarn <= 0) {
+      z.dive = { vx: z.warnDx * 500, vy: z.warnDy * 500, left: z.diveLength, hit: false };
+      z.diveWarn = null;
+    }
   }
 }
 /* 🧨 苦力怕小怪：悄悄靠近→嘶嘶引信 0.8 秒→自爆（跑远 2 格引信熄灭，MC 同款；爆炸还会连环伤别的怪） */
@@ -564,6 +602,6 @@ function reset() {
   placePortal();   // 🕳️ 这关的山洞在哪呢
   placeShops();   // 🏪 地图上摆两个商店
 }
-function updateScore() { document.getElementById('score').textContent = '⚔️ 击败 ' + kills; document.getElementById('levelTag').textContent = pvpMode ? '☁️ 天空城 #' + String(pvpMode).replace('net', '') : dungeonMode ? '🌲 哥布林森林 ' + dgnKills + '/' + DGN_GOAL + (dgnKingSpawned ? ' 👑王来了！' : '') : townMode ? '🏡 宁静小镇' : towerMode ? `🗼试炼塔 第${endlessRound}遍·第${endlessWave}波` : '🗺️ 第' + level + '关·' + LEVELS[level].name; }
+function updateScore() { document.getElementById('score').textContent = '⚔️ 击败 ' + kills; document.getElementById('levelTag').textContent = (typeof coopMode !== 'undefined' && coopMode) ? `🤝 合作冒险·第${coopWave}波` : pvpMode ? '☁️ 天空城 #' + String(pvpMode).replace('net', '') : dungeonMode ? '🌲 哥布林森林 ' + dgnKills + '/' + DGN_GOAL + (dgnKingSpawned ? ' 👑王来了！' : '') : townMode ? '🏡 宁静小镇' : towerMode ? `🗼试炼塔 第${endlessRound}遍·第${endlessWave}波` : '🗺️ 第' + level + '关·' + LEVELS[level].name; }
 function updateGold() { document.getElementById('gold').textContent = '💰 ' + player.gold; updateDia(); }
 function updateDia() { document.getElementById('dia').textContent = '💎 ' + (player.diamonds || 0); }   // 💎 钻石只认试炼塔

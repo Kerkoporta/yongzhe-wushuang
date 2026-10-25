@@ -81,8 +81,8 @@ function drawBoss(z) {
   if (z.ender) {   // 🐉 末影龙：黑龙盘旋（大翅膀扇动+长尾巴+紫眼睛）
     const ex = Math.round(z.x), ey = Math.round(z.y - 46 - Math.sin(z.walkT * 2) * 8);
     if (z.diveWarn != null) {   // 俯冲预警红线
-      ctx.save(); ctx.globalAlpha = 0.3 + 0.25 * Math.sin(z.walkT * 14); ctx.strokeStyle = '#ff4a3a'; ctx.lineWidth = 60;
-      ctx.beginPath(); ctx.moveTo(z.x, z.y - 30); ctx.lineTo(z.x + z.warnDx * Math.max(320, 420), z.y - 30 + z.warnDy * Math.max(320, 420)); ctx.stroke(); ctx.restore(); ctx.globalAlpha = 1;
+      ctx.save(); ctx.globalAlpha = 0.3 + 0.25 * Math.sin(z.walkT * 14); ctx.strokeStyle = '#ff4a3a'; ctx.lineWidth = 100;
+      ctx.beginPath(); ctx.moveTo(z.x, z.y); ctx.lineTo(z.diveTargetX, z.diveTargetY); ctx.stroke(); ctx.restore(); ctx.globalAlpha = 1;
     }
     const eface = z.dive ? Math.sign(z.dive.vx) || 1 : Math.sign(player.x - z.x) || 1;
     ctx.globalAlpha = 0.25; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.ellipse(z.x, z.y + 8, 46, 14, 0, 0, 6.3); ctx.fill(); ctx.globalAlpha = 1;   // 影子

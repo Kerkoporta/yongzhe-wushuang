@@ -50,6 +50,10 @@ function killZombie(z) {
     waveKills++;
     if (waveKills >= 20 && !zombies.some(b2 => b2.boss && !b2.dead && !b2.fake)) { spawnBoss(); updateScore(); }
   }
+  if (typeof coopMode !== 'undefined' && coopMode === 'host' && !z.boss) {   // 🤝 合作冒险：20 只怪出 BOSS
+    coopWaveKills++;
+    if (coopWaveKills >= 20 && !zombies.some(b2 => b2.boss && !b2.dead && !b2.fake)) { spawnBoss(); updateScore(); }
+  }
   /* 🌋 岩浆怪死亡小爆炸：55px 内半心（跑得快就躲得过） */
   if (z.lava && !gameOver && !(player.tpT > 0) && Math.hypot(player.x - z.x, player.y - z.y) < 55) {
     burst(z.x, z.y, '#ff7a2a', 20); beep(150, 60, 0.25, 'sawtooth', 0.18);
@@ -78,6 +82,9 @@ function killZombie(z) {
       endlessBossDown(z);
       chest = { x: z.x, y: z.y, taken: false };
       setBanner('🌀 BOSS 倒下！宝箱掉下来啦，走过去打开！');
+    } else if (typeof coopMode !== 'undefined' && coopMode) {
+      g = 0;
+      coopBossDown(z);
     } else if (level < 13) {   // 🎁 普通关：掉宝箱，开完问要不要进下一关
       pendingNext = 'level'; chest = { x: z.x, y: z.y, taken: false };
       setBanner('👑 BOSS 倒下！宝箱掉下来了，走过去打开！');
@@ -116,9 +123,28 @@ function killZombie(z) {
   if (player.owned.soul_ring && Math.random() < 0.15) player.hearts = Math.min(player.maxHearts, player.hearts + 0.5);   // 💍 摄魂
   if ((WEAPON_FX[player.weapon] || {}).holy) player.hearts = Math.min(player.maxHearts, player.hearts + 0.5);   // ✨🗿 圣剑/图腾回血
   updateScore(); updateGold();
+  if (typeof coopMode !== 'undefined' && coopMode === 'host') {
+    netSendCoop({ type: 'reward', gold: g, dia: (altarMods && altarMods.diaDrop && Math.random() < altarMods.diaDrop ? 1 : 0) });
+  }
   burst(z.x, z.y, '#5aa83c', 18); burst(z.x, z.y - 8, '#ffd24a', 6 + Math.min(10, g * 2));
   beep(320, 60, 0.22, 'sawtooth', 0.12);
   setTimeout(() => beep(700 + Math.min(6, g) * 80, 1100, 0.12, 'sine', 0.1), 100);
+}
+function coopBossDown(z) {
+  const gBonus = 150 * coopWave, diaBonus = 5;
+  player.gold += gBonus; player.diamonds = (player.diamonds || 0) + diaBonus; updateGold(); updateDia();
+  for (const o of zombies) if (o !== z) o.dead = true;
+  earrows = []; parrows = []; garrows = []; meteors = []; puddles = []; skillShots = []; clouds = []; fxLines = []; shocks = [];
+  placeShops();
+  coopWaveKills = 0; coopWave++;
+  player.hearts = player.maxHearts; placePortal(); revivePets();
+  const msg = `🎉 第 ${coopWave - 1} 波通过！全员满血！+${gBonus}金 +${diaBonus}💎！进入第 ${coopWave} 波！`;
+  setBanner(msg);
+  beep(600, 1200, 0.5, 'sine', 0.2);
+  updateScore();
+  if (coopMode === 'host') {
+    netSendCoop({ type: 'wave', wave: coopWave, gold: gBonus, dia: diaBonus, banner: msg });
+  }
 }
 /* ⚔️ 战士（v56）：双持状态；🛡️ 坦克（v57）：格挡状态 */
 let warriorHand = false, lastSwingKey = null, blockT = 0, blockCd = 0;
@@ -128,6 +154,7 @@ function petMax() { return 3 + (player.slots ? player.slots.pet : 0); }   // �
 function offMax() { return (player.job === 'warrior' ? 1 : 0) + (player.slots ? player.slots.off : 0); }   // ⚔️ 副手位：战士自带 1，钻石商店人人可加
 function doAttack(fromAuto) {
   if (gameOver || paused || player.tpT > 0 || player.frozenT > 0 || blockT > 0) return;   // 🗡️残影/❄️冻结/🛡️举盾中不能出手
+  if (typeof coopMode !== 'undefined' && coopMode === 'client' && coopDownT > 0) return;   // 😵 合作客机倒地中不能出手
   let handKey = player.weapon;
   const hands = [player.weapon, player.offhand, ...(player.offhands2 || [])].filter(Boolean);   // ⚔️ 主手+全部副手轮流砍（💎 副手槽人人可开）
   const canCycle = hands.length > 1 && hands.every(k => weapFam(k) !== 'staff');   // 法杖不参与轮转
@@ -210,6 +237,12 @@ function doAttack(fromAuto) {
     if (tgt) {
       const ang = Math.atan2(tgt.y - player.y, tgt.x - player.x); player.dir = ang;
       player.swingColor = fx.color; player.swingRange = 40; player.swingCircle = false;
+      if (typeof coopMode !== 'undefined' && coopMode === 'client') {
+        burst(tgt.x, tgt.y, '#8fd05a', 8); beep(600, 300, 0.08, 'square', 0.1);
+        hitstopT = Math.max(hitstopT, 0.05); shakeT = Math.max(shakeT, 0.12);
+        netSendCoop({ type: 'hit', ids: [tgt.id], dmg: dmg });
+        return;
+      }
       tgt.hp -= dmg; tgt.flash = 0.12;
       const dd = Math.hypot(tgt.x - player.x, tgt.y - player.y) || 1, skb = 26 * (tgt.boss ? 0.15 : 1);
       tgt.x = Math.max(20, Math.min(WORLD.w - 20, tgt.x + (tgt.x - player.x) / dd * skb));
@@ -226,6 +259,7 @@ function doAttack(fromAuto) {
   if (fx.circle) opts.arc = Math.PI * 2;
   if (fx.kbMul) opts.kbMul = (opts.kbMul || 1) * fx.kbMul;
   const preX = player.x, preY = player.y;   // 🗡️ 光影剑：记下原点，0.5 秒后闪回
+  if (typeof coopMode !== 'undefined' && coopMode === 'client') opts.noDmg = true;
   const hits = attackHit(player, zombies, opts);
   if (hits.length) {   // 💥 打击感组合拳：顿帧+震屏+金火花+闪白加长+低沉打击音
     const big = player.critT > 0 || hits.length >= 3;   // 暴击或一扫一片=重击
@@ -233,12 +267,19 @@ function doAttack(fromAuto) {
     shakeT = Math.max(shakeT, big ? 0.22 : 0.14);
     for (const z of hits) { z.flash = big ? 0.2 : 0.16; burst(z.x, z.y - 6, big ? '#ff9a3d' : '#ffd75e', big ? 10 : 6); }
     beep(150, 60, 0.09, 'square', 0.14);   // 🔊 砰！
+    if (typeof coopMode !== 'undefined' && coopMode === 'client') {
+      let finalDmg = dmg;
+      if (player.job === 'cleric') finalDmg *= 1.5;
+      netSendCoop({ type: 'hit', ids: hits.map(z => z.id), dmg: finalDmg });
+    }
   }
   for (const z of hits) z.aggroW = null;   // 🐺 你出手，怪就冲你来（仇恨归位）
-  if (player.job === 'cleric') for (const z of hits) { if (['zombie', 'skeleton', 'ghost', 'wither', 'bat'].includes(z.kind) && !z.dead) { z.hp -= dmg; z.flash = 0.15; if (z.hp <= 0) killZombie(z); } }   // 💚 牧师：对亡灵×2
-  if (player.job === 'rogue') for (const z of hits) { if (z.aggroW && z.aggroW.hp > 0 && !z.dead) { z.hp -= dmg * 1.5; z.flash = 0.15; burst(z.x, z.y, '#ffd24a', 6); if (z.hp <= 0) killZombie(z); } }   // 🃏 盗贼背刺：怪没看你=×2.5
+  if (!(typeof coopMode !== 'undefined' && coopMode === 'client')) {
+    if (player.job === 'cleric') for (const z of hits) { if (['zombie', 'skeleton', 'ghost', 'wither', 'bat'].includes(z.kind) && !z.dead) { z.hp -= dmg; z.flash = 0.15; if (z.hp <= 0) killZombie(z); } }   // 💚 牧师：对亡灵×2
+    if (player.job === 'rogue') for (const z of hits) { if (z.aggroW && z.aggroW.hp > 0 && !z.dead) { z.hp -= dmg * 1.5; z.flash = 0.15; burst(z.x, z.y, '#ffd24a', 6); if (z.hp <= 0) killZombie(z); } }   // 🃏 盗贼背刺：怪没看你=×2.5
+  }
   deflectGhastBalls(player.x, player.y, 50);   // ⚾ 近战也能把恶魂火球抽回去
-  if (pvpFoe && !pvpFoe.stale && (!skyMode || inArena(player.x, player.y)) && Math.hypot(pvpFoe.x - player.x, pvpFoe.y - player.y) < (opts.arc ? 52 : 46)) { pvpHits.push({ s: ++pvpHitSeq, d: dmg }); pvpWrite(); burst(pvpFoe.x, pvpFoe.y, '#ffb0b0', 8); }   // 📡 PVP：砍中对面幻影→写进我的存档（天空城里只有我在 PVP 圈里才砍得到）
+  if (pvpFoe && !(typeof coopMode !== 'undefined' && coopMode) && !pvpFoe.stale && (!skyMode || inArena(player.x, player.y)) && Math.hypot(pvpFoe.x - player.x, pvpFoe.y - player.y) < (opts.arc ? 52 : 46)) { pvpHits.push({ s: ++pvpHitSeq, d: dmg }); pvpWrite(); burst(pvpFoe.x, pvpFoe.y, '#ffb0b0', 8); }   // 📡 PVP：砍中对面幻影→写进我的存档（天空城里只有我在 PVP 圈里才砍得到）
   if (assassinStrike) {   // 🥷 落地一刀已挥出：×2 用完，换回弓
     assassinStrike = false; assassinSwapT = 0;
     if (prevBow) { player.weapon = prevBow; prevBow = null; setBanner('🏹 一击得手，换回弓！'); }
