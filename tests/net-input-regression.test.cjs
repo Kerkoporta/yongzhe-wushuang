@@ -27,6 +27,8 @@ function makeElement(id = '') {
 function makeBrowserContext() {
   const elements = new Map();
   const listeners = new Map();
+  const timeouts = new Map();
+  let nextTimeout = 1;
   const document = {
     body: makeElement('body'),
     getElementById(id) {
@@ -43,6 +45,10 @@ function makeBrowserContext() {
     localStorage: { getItem: () => null, setItem() {}, removeItem() {} },
     performance: { now: () => 0 },
     requestAnimationFrame() {},
+    setTimeout(fn, delay) { const id = nextTimeout++; timeouts.set(id, { fn, delay }); return id; },
+    clearTimeout(id) { timeouts.delete(id); },
+    __runTimeouts() { const pending = [...timeouts.values()]; timeouts.clear(); for (const timer of pending) timer.fn(); },
+    __timeoutCount() { return timeouts.size; },
     innerWidth: 800,
     innerHeight: 600,
     addEventListener(type, fn, options) {
@@ -186,4 +192,27 @@ test('coop heartbeat must continue while gameplay is paused', () => {
   vm.runInContext('loop(50)', context);
 
   assert.equal(sent.filter(message => message.type === 'state').length, 1);
+});
+
+test('a recovered coop connection must cancel its pending forced exit', () => {
+  const context = makeBrowserContext();
+  Object.assign(context, { setBanner() {}, beep() {}, updateScore() {}, saveGame() {} });
+  load(context, 'src/net.js');
+  vm.runInContext(`
+    coopMode = 'client'; coopSide = 2; coopId = 'net1234';
+    netReady = true; netSeen = true; netTopic = 'zfcoop/room1234';
+    netClient = { publish() {} }; pvpFoe = null;
+  `, context);
+  const freshState = `{ type: 'state', side: 1, x: 1160, y: 1200, hearts: 5, maxHearts: 5, when: Date.now() }`;
+
+  vm.runInContext(`coopOnMsg(${freshState})`, context);
+  vm.runInContext('pvpFoe.when = Date.now() - 4000; coopRead()', context);
+  assert.equal(vm.runInContext('pvpFoe.stale', context), true);
+  assert.equal(context.__timeoutCount(), 1);
+
+  vm.runInContext(`coopOnMsg(${freshState})`, context);
+  assert.equal(vm.runInContext('pvpFoe.stale', context), false);
+  context.__runTimeouts();
+
+  assert.equal(vm.runInContext('coopMode', context), 'client');
 });

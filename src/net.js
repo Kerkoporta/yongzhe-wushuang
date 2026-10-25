@@ -3,6 +3,8 @@
 const PVP_ROOMS_KEY = 'zf_pvp_rooms_v1';
 var pvpMode = null, pvpSide = 0, pvpFoe = null, pvpT = 0, pvpHitSeq = 0, pvpHits = [], pvpSeen = 0, pvpPreHearts = 0;
 var coopMode = null, coopSide = 0, coopWave = 1, coopWaveKills = 0, coopDownT = 0, coopSnapT = 0, coopT = 0, coopId = null, coopClientInvT = 0;
+let coopLeaveTimer = null;
+function clearCoopLeaveTimer() { if (coopLeaveTimer) { clearTimeout(coopLeaveTimer); coopLeaveTimer = null; } }
 let dungeonMode = false, dgnKills = 0, dgnKingSpawned = false, dgnExit = null;   // 🌲 副本状态
 /* ☁️ 天空城（联机大厅进来）：南边钓鱼区、北边鱼商人、中间 PVP 区——只有进 PVP 区才开打 */
 let skyMode = false, fishState = null, fishT = 0, bobber = null, foeKo = false;
@@ -64,6 +66,7 @@ function joinPvpRoom(id) { const st = pvpReadRoom(id); if (!st || st.p2) { setBa
 function createCoopRoom() { const id = Date.now() % 100000; const rs = pvpRooms(); rs.push({ id, type: 'coop', created: Date.now() }); pvpSaveRooms(rs); pvpWriteRoom(id, { type: 'coop', p1: true, p2: false, winner: 0 }); enterCoop(id, 1); }
 function joinCoopRoom(id) { const st = pvpReadRoom(id); if (!st || st.p2) { setBanner('😅 这个合作房间满了'); return; } st.p2 = true; pvpWriteRoom(id, st); enterCoop(id, 2); }
 function enterCoop(id, side) {
+  clearCoopLeaveTimer();
   coopId = id; coopSide = side; coopMode = side === 1 ? 'host' : 'client'; pvpSide = side; pvpMode = null;
   skyMode = false; townMode = false; dungeonMode = false; towerMode = false; sandboxMode = false;
   level = 1; coopWave = 1; coopWaveKills = 0; coopDownT = 0; coopSnapT = 0; coopT = 0; coopClientInvT = 0;
@@ -76,6 +79,7 @@ function enterCoop(id, side) {
   beep(600, 1200, 0.3, 'square', 0.18);
 }
 function leaveCoop() {
+  clearCoopLeaveTimer();
   if (!coopMode) return;
   if (coopId) { const st = pvpReadRoom(coopId); if (st && !st.winner) { st.winner = -1; pvpWriteRoom(coopId, st); } }
   if (netReady) { netSendCoop({ type: 'leave' }); netReady = false; }
@@ -234,8 +238,14 @@ function coopRead() {
       pvpFoe.stale = true;
       if (coopMode === 'host') setBanner('📢 队友掉线了，变单人继续打');
       else if (coopMode === 'client') {
-        setBanner('📢 房主跑了');
-        setTimeout(() => { if (coopMode === 'client') { leaveCoop(); if (typeof openLobby === 'function') openLobby(); } }, 1500);
+        setBanner('📢 连接不太稳，正在等房主回来…');
+        if (!coopLeaveTimer) {
+          const roomId = coopId;
+          coopLeaveTimer = setTimeout(() => {
+            coopLeaveTimer = null;
+            if (coopMode === 'client' && coopId === roomId && pvpFoe && pvpFoe.stale) { leaveCoop(); if (typeof openLobby === 'function') openLobby(); }
+          }, 8000);   // 🛟 连续 8 秒真的没恢复才退房；短暂抖动不踢人
+        }
       }
     }
   }
@@ -362,17 +372,23 @@ function coopOnMsg(o) {
   }
   if (coopMode === 'host') {
     if (o.type === 'state') {
+      const wasStale = !!(pvpFoe && pvpFoe.stale);
+      clearCoopLeaveTimer();
       pvpFoe = o;
       pvpFoe.stale = false;
       if (!netSeen) { netSeen = true; setBanner('🤝 队友进场了！并肩冲锋！'); beep(700, 1200, 0.2, 'sine', 0.15); }
+      else if (wasStale) setBanner('✅ 连接恢复啦！队友回来啦！');
     } else if (o.type === 'hit') {
       coopHostHandleHit(o.ids || o.hits, o.dmg);
     }
   } else if (coopMode === 'client') {
     if (o.type === 'state') {
+      const wasStale = !!(pvpFoe && pvpFoe.stale);
+      clearCoopLeaveTimer();
       pvpFoe = o;
       pvpFoe.stale = false;
       if (!netSeen) { netSeen = true; setBanner('🤝 已连接房主！并肩冲锋！'); beep(700, 1200, 0.2, 'sine', 0.15); }
+      else if (wasStale) setBanner('✅ 连接恢复啦！房主回来啦！');
     } else if (o.type === 'snap') {
       coopClientHandleSnap(o);
     } else if (o.type === 'hurtYou') {
