@@ -402,5 +402,6 @@ function drawMirror(z) {
   const icons = { attack: '⚔️', health: '❤️', block: '🛡️', skill: '✨', pet: '🐾' };
   ctx.fillText(z.mirrorKing ? '🪞 镜面魔王' : z.copied.map(k => icons[k]).join(''), z.x, z.y - 13 * px);
   if (z.mirrorKing) { ctx.fillStyle = '#384956'; ctx.fillRect(z.x - 30, z.y - 15 * px, 60, 4); ctx.fillStyle = '#fff'; ctx.fillRect(z.x - 30, z.y - 15 * px, 60 * Math.max(0, z.hp / z.maxHp), 4); }
+  else { ctx.fillStyle = '#384956'; ctx.fillRect(z.x - 12, z.y - 15 * px, 24, 3); ctx.fillStyle = '#fff'; ctx.fillRect(z.x - 12, z.y - 15 * px, 24 * Math.max(0, z.hp / z.maxHp), 3); }   // 🪞 小怪镜面怪也有血条（魔王同款银白）
   ctx.restore();
 }
