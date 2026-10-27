@@ -1,6 +1,8 @@
 'use strict';
-const test=require('node:test'),assert=require('node:assert/strict');
-const L=require('../logic.js'),{gameContext}=require('./helpers/game-context.cjs');
+const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
+const logicModule={exports:{}};
+new Function('module','exports',fs.readFileSync(path.join(__dirname,'../logic.js'),'utf8'))(logicModule,logicModule.exports);
+const L=logicModule.exports,{gameContext}=require('./helpers/game-context.cjs');
 const near={x:0,y:0};
 test('piglin IDs, HP and dedicated appearance/weapon flags',()=>{const a=L.makePiglin(0,0),b=L.makePiglin(0,0,true);assert.notEqual(a.id,b.id);assert.equal(a.hp,16);assert.equal(b.hp,1000);assert.equal(b.maxHp,1000);assert.ok(a.piglin&&!a.piglinKing);assert.ok(b.piglinKing&&b.boss);});
 test('piglin axe waits three seconds then full windup; damage is exactly 3 with 3s cadence',()=>{const z=L.makePiglin(0,0);assert.deepEqual(L.piglinTick(z,near,2.99),[]);L.piglinTick(z,near,.01);assert.equal(z.axeWind,.65);assert.deepEqual(L.piglinTick(z,near,.64),[]);assert.equal(L.piglinTick(z,near,.01)[0].damage,3);L.piglinTick(z,near,2.35);assert.equal(z.axeWind,.65);});
