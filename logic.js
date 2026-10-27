@@ -1012,4 +1012,116 @@ function makeMirror(x, y, snapshot, rnd, king) {
 }
 /* 🛡️ 玩家攻击统一抽取镜面格挡 */
 function mirrorBlocks(z, rnd) { return !!(z.blockChance && (rnd || Math.random)() < z.blockChance); }
-if (typeof module !== 'undefined') module.exports = { makeMirror, mirrorBlocks, WORLD, PLAYER, ZOMBIE, SPAWN, ATTACK, HURT, REGEN, SHOP, SHOP2, SHOP3, SHOP4, SHOP5, SHOP6, SHOP7, SKBOOKS, PETS, BOSS, SKELETON, GHOST, LAVA, STORM, VOIDW, CRYSTAL, makePlayer, pickSpawn, spawnZombie, zombieStep, attackHit, lootGold, lootBounty, buyItem, regenTick, playerStep, touchHurt, difficulty, makeBoss, bossTick, makeSkeleton, skeletonTick, makeGhost, ghostTick, makeLava, lavaTick, makeStorm, stormTick, makeVoid, voidTick, makeCrystal, crystalTick, FISH, MOUNTS };
+
+/* 猪灵堡垒：数据定义与确定性状态机（秒/40px 格）。 */
+const SHOP14 = {}, FORT_WEAPONS = {}, FORT_SKILLS = {};
+const fortWeaponNames = ['金牙短刀','赤金战剑','堡垒长枪','熔金战斧','猪灵双刃','金环回旋刃','铸金战锤','王庭金弓','金焰法杖','鎏金重炮','赤铜弯刀','守门巨剑','金鬃长戟','熔炉短剑','堡垒钩镰','金牙重锤','王庭双斧','金火权杖','铸魂长剑','剑神遗锋'];
+const fortGearNames = ['金鬃头盔','堡垒胸甲','赤金战靴','熔炉护符','金牙指环','王庭王冠','铸金战甲','猪灵轻靴','金火项链','堡垒腰带','守门头盔','金鳞胸甲','熔金长靴','金魂戒指','赤铜护符','剑神金冠','王庭战衣','金羽靴','熔炉之心','堡垒勋章'];
+const fortPetNames = ['金鬃幼猪','堡垒金狼','熔炉火狐','金羽战鹰','赤铜小龟','王庭金猫','金牙猎犬','堡垒灵鹿','金火蜜蜂','熔金蜥蜴','铸魂幼龙','守门金熊','金翅蝙蝠','王庭灵兔','金鳞小蛇','赤金凤凰','金甲刺猬','熔炉松鼠','堡垒灵蛙','剑神金龙'];
+const fortSkillNames = ['金焰弹','堡垒金雷','金环旋斩','熔金锁链','金魂回春','金甲护身','王庭闪步','金火风暴','堡垒引力','赤金巨弹','铸魂雷击','守门旋风','金牙连锁','熔炉治疗','王庭护盾','金羽闪现','剑神剑环','金色陨雨','堡垒黑洞','万金归宗'];
+const fortMods = [{heart:1},{heart:2},{speed:1.18},{block:0.12},{dmgAdd:1}];
+PETS[14] = [];
+for (let i = 0; i < 20; i++) {
+  const w = 'fort_weapon_' + (i+1), g = 'fort_gear_' + (i+1), k = 'fort_skill_' + (i+1), pet = 'fort_pet_' + (i+1);
+  const fx = {dmg: 8 + i * 0.6, color:'#ffd24a'};
+  Object.assign(fx, [{cdMul:0.7},{burn:true},{rangeMul:1.6},{kbMul:2},{doublePct:0.25},{circle:true},{kbMul:3,cdMul:1.3},{bow:'fire',freezeDur:0},{staff:true,burn:true},{gun:true}][i%10]);
+  FORT_WEAPONS[w] = fx;
+  SHOP14[w] = {name:fortWeaponNames[i],icon:['🗡️','⚔️','🔱','🪓','⚔️','🪃','🔨','🏹','🪄','🔫'][i%10],price:240+i*25,kind:'weapon',desc:`金制武器：伤害 ${fx.dmg.toFixed(1)}，${['快攻','点燃','长射程','击退','连击','全周斩','重击','火箭','火弹','重炮'][i%10]}`};
+  const mod = {...fortMods[i%5]}; if (i>=10) { for (const a in mod) mod[a] = a==='speed'?1.25:mod[a]*1.3; }
+  SHOP14[g] = {name:fortGearNames[i],icon:'🛡️',price:180+i*20,kind:'gear',mod,desc:Object.entries(mod).map(([a,b])=>({heart:'最大血量+',speed:'移速×',block:'格挡概率 ',dmgAdd:'攻击+'}[a])+b).join('，')};
+  const type = ['ball','zap','spin','chain','heal','shield','blink','spin','pull','ball','zap','spin','chain','heal','shield','blink','spin','meteors','blackhole','chain'][i];
+  FORT_SKILLS[k] = [type, ['shield','blink'].includes(type)?0:type==='heal'?2+i/10:18+i,6+i%5,'#ffd24a',{r:120+i*3,dur:4,dist:160,n:5,burn:1}];
+  SHOP14[k] = {name:fortSkillNames[i],icon:'✨',price:400+i*30,kind:'skill',desc:`${{ball:'发射金焰弹',zap:'金雷打击',spin:'范围旋斩',chain:'连锁打击',heal:'恢复血量',shield:'减伤护盾',blink:'向前闪现',pull:'牵引敌人',meteors:'金色陨雨',blackhole:'吸引定身'}[type]}：效果强度 ${FORT_SKILLS[k][1]}，冷却 ${FORT_SKILLS[k][2]} 秒`};
+  const spec = ['knock','slow','dot','crit'][i%4], dmg = 8+i*0.4, cd=0.7+i%3*0.1, range=30+i%4*4;
+  PETS[14].push([pet,fortPetNames[i],'🐾',350+i*25,dmg,cd,range,spec]);
+  SHOP14[pet] = {name:fortPetNames[i],icon:'🐾',price:350+i*25,kind:'pet',desc:`攻击 ${dmg.toFixed(1)}/${cd.toFixed(1)} 秒，${{knock:'击退',slow:'减速',dot:'燃烧',crit:'暴击'}[spec]}`,pet:{dmg,cd,range,spec}};
+}
+const MATERIALS = {
+  iron: {name:'铁',icon:'⛓️',price:8,kind:'material',desc:'采矿获得，用于制作'},
+  soul_grass: {name:'灵魂草',icon:'🌿',price:6,kind:'material',desc:'2 个炼成速度药水'},
+  iron_grass: {name:'吞铁草',icon:'🌱',price:9,kind:'material',desc:'5 个炼成铁皮药水'},
+};
+const CRAFT_ITEMS = {iron_axe:{name:'铁斧',icon:'🪓',price:60,kind:'weapon',desc:'伤害 3，击退×1.5'},alchemy_table:{name:'制药台',icon:'⚗️',price:0,kind:'station',desc:'解锁炼药'}};
+const RECIPES = {
+  iron_sword:{cost:{iron:2},kind:'weapon'}, iron_axe:{cost:{iron:3},kind:'weapon'},
+  alchemy_table:{cost:{iron:4},kind:'station'}, use_speed:{cost:{soul_grass:2},kind:'use',station:true}, use_iron:{cost:{iron_grass:5},kind:'use',station:true}
+};
+function craftResult(p,key) {
+  const r=RECIPES[key]; if (!r) return {ok:false,message:'未知配方'};
+  p.items=p.items||{};p.bought=p.bought||{};
+  if(r.station&&!p.bought.alchemy_table) return {ok:false,message:'需要制药台'};
+  if(r.kind==='station'&&p.bought[key]) return {ok:false,message:'已拥有制药台'};
+  if(Object.entries(r.cost).some(([k,n])=>(p.items[k]||0)<n)) return {ok:false,message:'材料不足'};
+  if(r.kind==='weapon'&&p.bought[key]) return {ok:false,message:'已拥有此武器'};
+  for(const [k,n] of Object.entries(r.cost)) p.items[k]-=n;
+  if(r.kind==='use') p.items[key]=(p.items[key]||0)+1;
+  else { p.bought[key]=r.kind==='weapon'?{t:0,w:0}:true; if(r.kind==='weapon')p.weapon=key; }
+  return {ok:true,message:'制作成功'};
+}
+// 原价单独保留：UI 和买单都读取折后 price，不重复打折。
+for (const m of MOUNTS) { m.basePrice=m.price; m.price=Math.round(m.basePrice*0.55); }
+const fishExtra = [['carp','锦鲤',25,'#e8a83a',12],['cod','鳕鱼',35,'#a8b8cc',10],['bass','鲈鱼',45,'#6a9a5a',9],['eel','金鳗',65,'#c8a83a',8],['trout','虹鳟',75,'#e89aaa',7],['sturgeon','鲟鱼',100,'#7a8a9a',6],['moon','月光鱼',140,'#a8e8ff',5],['gold','堡垒金鱼',200,'#ffd24a',3]];
+Object.values(FISH).forEach((f,i)=>f.weight=[16,12,8,4][i]);
+for (const [id,name,price,color,weight] of fishExtra) FISH['fish_'+id]={name,price,color,weight,icon:'🐟',kind:'fish',desc:`鱼商人 ${price} 金收，吃掉回 2 血`};
+function rollFish(rnd) { let r=(rnd||Math.random)()*Object.values(FISH).reduce((n,f)=>n+f.weight,0);for(const k in FISH) {r-=FISH[k].weight;if(r<0)return k;}return 'fish_gold'; }
+const PIGLIN = {hp:16,damage:3,cooldown:3,windup:0.65,range:48};
+function makePiglin(x,y,boss=false) { return {id:_id++,x,y,hp:boss?1000:PIGLIN.hp,maxHp:boss?1000:PIGLIN.hp,r:boss?26:11,piglin:true,piglinKing:boss,boss,kind:boss?'boss14':'piglin',walkT:0,flash:0,dead:false,axeCd:3,greatCd:3,rainCd:10,swordCasts:[]}; }
+function swordCast(z,p,rain) {
+  const size=rain?200:120, count=rain?25:1, warn=rain?3:0.8;
+  return {id:_id++,kind:rain?'swordRain':'greatSword',x:p.x,y:p.y,dir:Math.atan2(p.y-z.y,p.x-z.x),size,damage:rain?5:4,warn,remaining:warn,age:0,landed:false,show:0.6,
+    swords:Array.from({length:count},(_,i)=>({id:_id++,dx:rain?(i%5-2)*40:0,dy:rain?(Math.floor(i/5)-2)*40:0}))};
+}
+function insideSword(c,p) {return Math.abs(p.x-c.x)<=c.size/2&&Math.abs(p.y-c.y)<=c.size/2;}
+function piglinTick(z,p,dt) {
+  const hits=[]; z.walkT+=dt;z.flash=Math.max(0,z.flash-dt);
+  if(z.piglinKing) {
+    z.greatCd-=dt;z.rainCd-=dt;
+    for(const c of z.swordCasts) {
+      c.age+=dt; if(!c.landed){c.remaining-=dt;if(c.remaining<=1e-9){c.landed=true;hits.push({damage:c.damage,cast:c,hit:insideSword(c,p)});}}
+      else c.show-=dt;
+    }
+    z.swordCasts=z.swordCasts.filter(c=>!c.landed||c.show>0);
+    for(const [cd,rain,interval] of [['greatCd',false,3],['rainCd',true,10]]) if(z[cd]<=1e-9){z[cd]+=interval;z.swordCasts.push(swordCast(z,p,rain));}
+  } else {
+    z.axeCd-=dt;
+    if(z.axeWind!=null){z.axeWind-=dt;if(z.axeWind<=1e-9){z.axeWind=null;z.axeFx=0.25;if(Math.hypot(p.x-z.x,p.y-z.y)<=PIGLIN.range)hits.push({damage:3});}}
+    else if(z.axeCd<=1e-9&&Math.hypot(p.x-z.x,p.y-z.y)<=PIGLIN.range){z.axeWind=PIGLIN.windup;z.axeCd=3;}
+    z.axeFx=Math.max(0,(z.axeFx||0)-dt);
+  }
+  if(!z.axeWind) {const d=Math.hypot(p.x-z.x,p.y-z.y)||1,step=Math.min(Math.max(0,d-32),dt*(z.boss?28:55));z.x+=(p.x-z.x)/d*step;z.y+=(p.y-z.y)/d*step;}
+  return hits;
+}
+/* 稳定的逐格抽样。每格一次独立抽签，互斥区间避免资源相叠。 */
+const RESOURCE_RATES={iron:0.001,soul_grass:0.002,iron_grass:0.0009};
+function mapRandom(seed) {let h=2166136261;for(const c of String(seed)){h=Math.imul(h^c.charCodeAt(0),16777619);}return ()=>{h+=0x6D2B79F5;let t=h;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return ((t^t>>>14)>>>0)/4294967296;};}
+function generateResources(mapId,lv,w=2400,h=2400,blocked=[]) {
+  const rnd=mapRandom(mapId+':'+lv),out=[];
+  for(let y=20;y<h;y+=40)for(let x=20;x<w;x+=40){let r=rnd(),kind=r<.001?'iron':r<.003?'soul_grass':r<.0039?'iron_grass':null;
+    if(!kind||x<60||y<60||x>w-60||y>h-60||blocked.some(b=>Math.hypot(x-b.x,y-b.y)<(b.r||90)))continue;
+    out.push({id:`${mapId}:${lv}:${x}:${y}`,x,y,kind,progress:0,hits:0,done:false,anim:0});}
+  return out;
+}
+function gatherResource(r,p,seconds=0,hit=false,rnd=Math.random) {
+  if(!r||r.done)return 0;
+  r.anim=0.3;
+  if(r.kind==='iron')r.progress=Math.min(4,r.progress+Math.max(0,seconds));else if(hit)r.hits++;
+  if(r.kind==='iron'?r.progress+1e-9<4:r.hits<(r.kind==='soul_grass'?1:3))return 0;
+  r.done=true;const n=r.kind==='iron'?1+Math.min(2,Math.floor(rnd()*3)):1;
+  p.items=p.items||{};p.items[r.kind]=(p.items[r.kind]||0)+n;return n;
+}
+const FURNITURE = {};
+const furnitureNames=['摇椅','金色台灯','八音盒','小书架','壁炉','盆栽','鱼缸','落地钟','茶桌','软沙发','彩色地毯','风铃','画架','小鼓','留声机','水晶球','小喷泉','木马','星空灯','金猪雕像'];
+for(let i=0;i<20;i++) FURNITURE['furniture_'+(i+1)]={name:furnitureNames[i],price:80+i*35,icon:['🪑','💡','🎵','📚','🔥','🪴','🐟','🕰️','🍵','🛋️','🧶','🔔','🎨','🥁','📻','🔮','⛲','🐴','🌟','🐷'][i],color:['#d8a84a','#6ab8e8','#e88a9a','#7ac85a'][i%4],interact(f){f.clicks=(f.clicks||0)+1;f.active=1.5+i*0.03;f.phase=(f.phase||0)+1;return `${furnitureNames[i]}：${['轻轻摇摆','亮起暖光','奏出旋律','翻动书页','火花升腾','叶片轻舞','鱼儿游动','钟摆报时','茶香四溢','弹起软垫','花纹流转','叮铃作响','画笔舞动','鼓点响起','唱片旋转','水晶闪耀','水花跃动','木马摇摆','星光闪烁','金猪点头'][i]}`;}};
+function purchaseFurniture(p,key) {
+  const d=FURNITURE[key];if(!d)return {ok:false,message:'未知家具'};
+  p.furniture=p.furniture||{};
+  if(p.furniture[key])return {ok:false,message:'已拥有，可重新摆放'};
+  if(p.gold<d.price)return {ok:false,message:'金币不足，还差 '+(d.price-p.gold)};
+  p.gold-=d.price;p.furniture[key]={x:1100,y:1300,clicks:0,active:0};return {ok:true,message:'购买成功，点击房内空地摆放'};
+}
+function placeFurniture(p,key,x,y) {
+  if(!p.furniture||!p.furniture[key]||x<985||x>1435||y<1225||y>1450)return false;
+  if(Object.entries(p.furniture).some(([k,f])=>k!==key&&Math.hypot(f.x-x,f.y-y)<32))return false;
+  p.furniture[key].x=Math.round(x/10)*10;p.furniture[key].y=Math.round(y/10)*10;return true;
+}
+if (typeof module !== 'undefined') module.exports = { SHOP14, FORT_WEAPONS, FORT_SKILLS, MATERIALS, CRAFT_ITEMS, RECIPES, craftResult, rollFish, PIGLIN, makePiglin, swordCast, insideSword, piglinTick, RESOURCE_RATES, mapRandom, generateResources, gatherResource, FURNITURE, purchaseFurniture, placeFurniture, makeMirror, mirrorBlocks, WORLD, PLAYER, ZOMBIE, SPAWN, ATTACK, HURT, REGEN, SHOP, SHOP2, SHOP3, SHOP4, SHOP5, SHOP6, SHOP7, SKBOOKS, PETS, BOSS, SKELETON, GHOST, LAVA, STORM, VOIDW, CRYSTAL, makePlayer, pickSpawn, spawnZombie, zombieStep, attackHit, lootGold, lootBounty, buyItem, regenTick, playerStep, touchHurt, difficulty, makeBoss, bossTick, makeSkeleton, skeletonTick, makeGhost, ghostTick, makeLava, lavaTick, makeStorm, stormTick, makeVoid, voidTick, makeCrystal, crystalTick, FISH, MOUNTS };

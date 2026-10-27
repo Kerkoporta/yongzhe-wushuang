@@ -227,7 +227,7 @@ fishGo() {   // 🎣 抛杆/收杆一体钮
     beep(500, 900, 0.15, 'sine', 0.1);
   } else if (fishState === 'bite') {   // ❗咬钩了！收杆中鱼
     const r = Math.random();
-    const key = r < 0.4 ? 'fish_tropical' : r < 0.7 ? 'fish_salmon' : r < 0.9 ? 'fish_tuna' : 'fish_puffer';   // 热带鱼40/三文鱼30/金枪鱼20/河豚10
+    const key = rollFish(() => r);   // 热带鱼40/三文鱼30/金枪鱼20/河豚10
     player.items[key] = (player.items[key] || 0) + 1;
     setBanner(FISH[key].icon + ' 钓到「' + FISH[key].name + '」啦！北边鱼商人 ' + FISH[key].price + ' 金收，或者拿着吃掉回 2 血');
     burst(bobber.x, bobber.y, '#7ec8ff', 14); beep(700, 1400, 0.2, 'sine', 0.16);
@@ -294,6 +294,7 @@ drawHeldFish(x, y, key, dir) {   // 🐟 手里的鱼：四种鱼四种样子（
     ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(-3, -2, 2.2, 0, 6.3); ctx.fill();
     ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(-3, -2, 1, 0, 6.3); ctx.fill();
   }
+  if (FISH[key] && FISH[key].color) { ctx.fillStyle=FISH[key].color;ctx.fillRect(-10,-4,19,8);ctx.fillRect(9,-6,5,12);ctx.fillStyle='#fff';ctx.fillRect(-7,-3,3,3);ctx.fillStyle='#222';ctx.fillRect(-7,-2,2,2); }
   ctx.restore();
 },
 

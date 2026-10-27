@@ -1,0 +1,62 @@
+{
+  "scope": "Node isolated full game VM clients, real timers, 50 piglins; in-memory queued StorageEvent adapter, codec/handler RTT only; no browser disk or MQTT measured",
+  "selectedIntervalMs": 16,
+  "rows": [
+    {
+      "intervalMs": 100,
+      "durationMs": 2503.4,
+      "snapshotHz": 9.99,
+      "totalMessageHz": 29.96,
+      "rttMedianMs": 1.14,
+      "rttP95Ms": 1.335,
+      "cpuPercent": 4.58,
+      "sent": 75,
+      "received": 75,
+      "acks": 25,
+      "lossPercent": 0,
+      "frames": 148
+    },
+    {
+      "intervalMs": 50,
+      "durationMs": 2512.1,
+      "snapshotHz": 19.11,
+      "totalMessageHz": 57.32,
+      "rttMedianMs": 1.009,
+      "rttP95Ms": 1.194,
+      "cpuPercent": 6.4,
+      "sent": 144,
+      "received": 144,
+      "acks": 48,
+      "lossPercent": 0,
+      "frames": 148
+    },
+    {
+      "intervalMs": 25,
+      "durationMs": 2507.7,
+      "snapshotHz": 29.51,
+      "totalMessageHz": 88.53,
+      "rttMedianMs": 0.978,
+      "rttP95Ms": 1.109,
+      "cpuPercent": 8.16,
+      "sent": 222,
+      "received": 222,
+      "acks": 74,
+      "lossPercent": 0,
+      "frames": 148
+    },
+    {
+      "intervalMs": 16,
+      "durationMs": 2517.9,
+      "snapshotHz": 58.38,
+      "totalMessageHz": 175.15,
+      "rttMedianMs": 0.852,
+      "rttP95Ms": 1.166,
+      "cpuPercent": 11.17,
+      "sent": 441,
+      "received": 441,
+      "acks": 147,
+      "lossPercent": 0,
+      "frames": 148
+    }
+  ]
+}

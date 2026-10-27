@@ -212,7 +212,8 @@ const WEAPON_FX = {
   cavern_lord: { dmg: 25, burn: true, zapPct: 0.25, holy: true, color: '#eaf8ff' },
   glow_pick: { dmg: 8.5, color: '#a8f2ff' },
 };
-function shopNow() { return level === 13 ? SHOP10 : level === 2 ? SHOP2 : level === 3 ? SHOP3 : level === 4 ? SHOP4 : level === 5 ? SHOP5 : level === 6 ? SHOP6 : level === 7 ? SHOP7 : SHOP; }   // 每关商店完全不同
+Object.assign(WEAPON_FX, FORT_WEAPONS, {iron_axe:{dmg:3,kbMul:1.5,color:"#b8c8d8"}});
+function shopNow() { return level === 14 ? SHOP14 : level === 13 ? SHOP10 : level === 2 ? SHOP2 : level === 3 ? SHOP3 : level === 4 ? SHOP4 : level === 5 ? SHOP5 : level === 6 ? SHOP6 : level === 7 ? SHOP7 : SHOP; }   // 每关商店完全不同
 const ULT_ITEMS = {   // ⭐ 满级奥义 10 式：不进商店，武器/装备练到橙·传说自动觉醒
   ult_fire: { name: '烈焰风暴', icon: '🔥', price: 0, kind: 'skill', desc: '火系满级觉醒：焚尽一切的烈焰环' },
   ult_ice: { name: '绝对零度', icon: '❄️', price: 0, kind: 'skill', desc: '冰系满级觉醒：大范围冻结 4 秒' },
@@ -225,7 +226,7 @@ const ULT_ITEMS = {   // ⭐ 满级奥义 10 式：不进商店，武器/装备�
   ult_wind: { name: '风暴之眼', icon: '🌀', price: 0, kind: 'skill', desc: '风系满级觉醒：化身风暴席卷八方' },
   ult_brave: { name: '勇者怒吼', icon: '🦁', price: 0, kind: 'skill', desc: '凡铁满级觉醒：无畏者的一击定乾坤' },
 };
-const ALLKIND = {}; for (const t of [SHOP, SHOP2, SHOP3, SHOP4, SHOP5, SHOP6, SHOP7, SHOP8, SHOP9, SHOP10, USE_ITEMS, ULT_ITEMS]) for (const k in t) ALLKIND[k] = t[k].kind;   // 全商品类型表（过关保留技能/宠物用）
+const ALLKIND = {}; for (const t of [SHOP, SHOP2, SHOP3, SHOP4, SHOP5, SHOP6, SHOP7, SHOP8, SHOP9, SHOP10, SHOP14, CRAFT_ITEMS, MATERIALS, USE_ITEMS, ULT_ITEMS]) for (const k in t) ALLKIND[k] = t[k].kind;   // 全商品类型表（过关保留技能/宠物用）
 function toggleShop(force) {
   paused = force == null ? !paused : force;
   shopEl.style.display = paused ? 'flex' : 'none';
@@ -234,7 +235,6 @@ function toggleShop(force) {
 document.getElementById('shopClose').onclick = () => { curShop = -1; diaPicking = false; toggleShop(false); };
 
 /* 🏠 主页动态封面：怪物剪影从右往左飘过（进游戏就停） */
-let homeMobT = null;
 function homeMobsStart() {
   homeMobsStop();
   const card = document.getElementById('homeCard'); if (!card) return;
@@ -248,4 +248,3 @@ function homeMobsStart() {
   }
 }
 function homeMobsStop() { const w = document.getElementById('homeMobs'); if (w) w.remove(); }
-const _closeHome2 = closeHome;

@@ -1,6 +1,17 @@
 'use strict';
 /* ================= 🌐 联机大厅 PVP（恩泽设计：存档直通，0.1 秒一存——同一台设备开两个窗口就能对战，不用网络！） ================= */
 const PVP_ROOMS_KEY = 'zf_pvp_rooms_v1';
+// 公网实测约 10 包/秒/客户端：房主状态搭快照同包，避免双倍挤占；绝不开 1MHz 定时器。
+const NET_INTERVAL = 0.1;
+function currentMapId() {
+  if (typeof skyMode !== 'undefined' && skyMode) return 'sky';
+  if (typeof dungeonMode !== 'undefined' && dungeonMode) return 'dungeon:goblin';
+  if (typeof townMode !== 'undefined' && townMode) return typeof inRoom !== 'undefined' && inRoom ? 'town:house' : 'town';
+  if (typeof towerMode !== 'undefined' && towerMode) return 'tower:' + endlessRound + ':' + endlessWave;
+  if (typeof coopMode !== 'undefined' && coopMode) return 'coop:' + coopId + ':' + coopWave;
+  return 'campaign:' + (typeof level !== 'undefined' ? level : 1);
+}
+function sameMap(f) { return !!f && (!f.mapId || f.mapId === currentMapId()); }
 var pvpMode = null, pvpSide = 0, pvpFoe = null, pvpT = 0, pvpHitSeq = 0, pvpHits = [], pvpSeen = 0, pvpPreHearts = 0;
 var coopMode = null, coopSide = 0, coopWave = 1, coopWaveKills = 0, coopDownT = 0, coopSnapT = 0, coopT = 0, coopId = null, coopClientInvT = 0;
 let coopLeaveTimer = null;
@@ -107,7 +118,7 @@ function leavePvp() {
 
 function pvpWrite() {   // 📡 0.1 秒一存：我的状态直接写进"游戏代码"（对面窗口读它看到我）
   if (!pvpMode) return;
-  try { localStorage.setItem(pvpRoomKey(pvpMode) + '_p' + pvpSide, JSON.stringify({ x: Math.round(player.x), y: Math.round(player.y), hearts: player.hearts, maxHearts: player.maxHearts, weapon: player.weapon, dir: player.dir, moving: player.moving, walkT: player.walkT, swing: player.atkT > 0, holdFish: player.holdFish || null, skin: player.skin, hits: pvpHits.slice(-5), when: Date.now() })); } catch (e) {}
+  try { localStorage.setItem(pvpRoomKey(pvpMode) + '_p' + pvpSide, JSON.stringify({ mapId: currentMapId(), x: Math.round(player.x), y: Math.round(player.y), hearts: player.hearts, maxHearts: player.maxHearts, weapon: player.weapon, skin: player.skin, dir: player.dir, moving: player.moving, walkT: player.walkT, swing: player.atkT > 0, holdFish: player.holdFish || null, hits: pvpHits.slice(-5), when: Date.now() })); } catch (e) {}
 }
 function pvpRead() {   // 📡 读对面的存档 → 幻影对手出现在我的战场
   if (!pvpMode) { pvpFoe = null; return; }
@@ -118,10 +129,10 @@ function pvpRead() {   // 📡 读对面的存档 → 幻影对手出现在我�
   pvpFoe = f;
   for (const hit of (f.hits || [])) {   // 对面挥中我的记录：扣我的血（☁️天空城：只有两人都在 PVP 圈里才算）
     if (hit.s > pvpSeen) { pvpSeen = hit.s;
-      const okZone = !skyMode || (inArena(player.x, player.y) && inArena(f.x, f.y));
+      const okZone = sameMap(f) && (!skyMode || (inArena(player.x, player.y) && inArena(f.x, f.y)));
       if (okZone && player.inv <= 0) { player.hearts -= hit.d; player.inv = 0.5; player.sinceHurt = 0; player.regenT = 0; burst(player.x, player.y, '#ff5a5a', 10); beep(300, 120, 0.15, 'sawtooth', 0.15); } }
   }
-  if (f.hearts <= 0 && !foeKo) { foeKo = true; playReward(200, 10); setBanner('🏆 擂台胜利！+200 金 +10💎——对手回城门口复活了，还能再战'); beep(700, 1400, 0.3, 'square', 0.16); }   // ⚔️ 对面倒了=这局我赢
+  if (sameMap(f) && f.hearts <= 0 && !foeKo) { foeKo = true; playReward(200, 10); setBanner('🏆 擂台胜利！+200 金 +10💎——对手回城门口复活了，还能再战'); beep(700, 1400, 0.3, 'square', 0.16); }   // ⚔️ 对面倒了=这局我赢
   if (f.hearts > 0) foeKo = false;   // 对面复活了，下一局重新算
   const st = pvpReadRoom(pvpMode);
   if (st && st.winner === -1) { st.winner = 0; pvpWriteRoom(pvpMode, st); setBanner('😴 对面离开了天空城，城里就剩你啦'); }   // 对面走了：消费掉信号继续逛
@@ -190,15 +201,16 @@ function netOnMsg(o) {   // 📡 PVP 对面消息进游戏
   if (!netSeen) { netSeen = true; setBanner('👀 看到对手了！一起逛天空城吧'); beep(700, 1200, 0.2, 'sine', 0.15); }   // 👀 第一条对手消息：人出现了
   for (const hit of (o.hits || [])) {   // 对面挥中我：扣血（☁️只有两人都在 PVP 圈里才算）
     if (hit.s > pvpSeen) { pvpSeen = hit.s;
-      const okZone = !skyMode || (inArena(player.x, player.y) && inArena(o.x, o.y));
+      const okZone = sameMap(o) && (!skyMode || (inArena(player.x, player.y) && inArena(o.x, o.y)));
       if (okZone && player.inv <= 0) { player.hearts -= hit.d; player.inv = 0.5; player.sinceHurt = 0; player.regenT = 0; burst(player.x, player.y, '#ff5a5a', 10); beep(300, 120, 0.15, 'sawtooth', 0.15); } }
   }
-  if (o.hearts <= 0 && !foeKo) { foeKo = true; playReward(200, 10); setBanner('🏆 擂台胜利！+200 金币 +10💎——对手回城门口复活了'); beep(700, 1400, 0.3, 'square', 0.16); }
+  if (sameMap(o) && o.hearts <= 0 && !foeKo) { foeKo = true; playReward(200, 10); setBanner('🏆 擂台胜利！+200 金币 +10💎——对手回城门口复活了'); beep(700, 1400, 0.3, 'square', 0.16); }
   if (o.hearts > 0) foeKo = false;
 }
 
 /* ================= 🤝 合作冒险网络协议与状态同步 ================= */
 function netSendCoop(o) {
+  if (!o.mapId) o.mapId = currentMapId();
   o.side = coopSide || (coopMode === 'host' ? 1 : 2);
   if (netReady && netClient) {
     try { netClient.publish(netTopic, JSON.stringify(o), { qos: 0 }); } catch (e) {}
@@ -207,14 +219,19 @@ function netSendCoop(o) {
   if (coopId) {
     try {
       const targetSide = o.side === 1 ? 2 : 1;
-      localStorage.setItem('zf_coop_' + coopId + '_msg_to_' + targetSide, JSON.stringify({ ...o, _ts: Date.now() + Math.random() }));
+      localStorage.setItem('zf_coop_' + coopId + '_msg_to_' + targetSide + '_' + o.type, JSON.stringify({ ...o, _ts: Date.now() + Math.random() }));
     } catch (e) {}
   }
 }
-function coopWrite() {
-  if (!coopMode) return;
-  const st = {
-    type: 'state',
+addEventListener('storage', e => {
+  if (!coopMode || !coopId || !e.newValue || !e.key) return;
+  if (e.key.startsWith('zf_coop_' + coopId + '_msg_to_' + coopSide + '_')) {
+    try { const o=JSON.parse(e.newValue); coopOnMsg(o); } catch (_) {}
+  }
+});
+function coopStatePacket() {
+  return {
+    type: 'state', mapId: currentMapId(),
     x: Math.round(player.x),
     y: Math.round(player.y),
     hearts: player.hearts,
@@ -228,7 +245,14 @@ function coopWrite() {
     down: coopDownT > 0,
     when: Date.now()
   };
-  netSendCoop(st);
+}
+function coopWrite(fromTick) {
+  if (!coopMode) return;
+  if (coopMode === 'host') {
+    if (!fromTick) coopSendSnap();
+    return;   // 周期只发合包；主动调用立即补发，不重复占额度
+  }
+  netSendCoop(coopStatePacket());
 }
 let _lastLocalCoopTs = 0;
 function coopRead() {
@@ -254,7 +278,7 @@ function coopRead() {
   }
   if (coopId) {
     try {
-      const raw = localStorage.getItem('zf_coop_' + coopId + '_msg_to_' + (coopMode === 'host' ? 1 : 2));
+      const raw = localStorage.getItem('zf_coop_' + coopId + '_msg_to_' + (coopMode === 'host' ? 1 : 2) + '_state');
       if (raw) {
         const msg = JSON.parse(raw);
         if (msg._ts !== _lastLocalCoopTs) {
@@ -265,7 +289,7 @@ function coopRead() {
     } catch (e) {}
   }
 }
-const COOP_SNAP_FLAGS = ['skel', 'ghost', 'lava', 'storm', 'voidw', 'crystal', 'ws', 'creep', 'slime', 'bat', 'mirror', 'goblin', 'skelBoss', 'ghostBoss', 'lavaBoss', 'stormBoss', 'voidBoss', 'crystalBoss', 'wither', 'ender', 'titan', 'ghast', 'warden', 'mirrorKing', 'elite', 'fake'];
+const COOP_SNAP_FLAGS = ['piglin', 'piglinKing', 'skel', 'ghost', 'lava', 'storm', 'voidw', 'crystal', 'ws', 'creep', 'slime', 'bat', 'mirror', 'goblin', 'skelBoss', 'ghostBoss', 'lavaBoss', 'stormBoss', 'voidBoss', 'crystalBoss', 'wither', 'ender', 'titan', 'ghast', 'warden', 'mirrorKing', 'elite', 'fake'];
 function coopSendSnap(force) {
   if (coopMode !== 'host') return;
   const zs = [];
@@ -273,7 +297,7 @@ function coopSendSnap(force) {
     if (z.dead) continue;
     if (z.id == null) z.id = _id++;   // 🛟 分身/内联怪也必须有自己的 ID，不能全挤在 undefined 上
     zs.push({
-      i: z.id,
+      i: z.id, swordCasts: z.swordCasts || [], axeWind: z.axeWind, axeFx: z.axeFx,
       x: Math.round(z.x),
       y: Math.round(z.y),
       hp: Math.round((z.hp || 0) * 10) / 10,
@@ -288,7 +312,8 @@ function coopSendSnap(force) {
     });
   }
   netSendCoop({
-    type: 'snap',
+    type: 'snap', mapId: currentMapId(), level: typeof level !== 'undefined' ? level : 1, resources: typeof currentResources === 'function' ? currentResources() : [],
+    me: coopStatePacket(),
     wave: coopWave,
     kills: kills,
     zs: zs
@@ -300,12 +325,20 @@ function coopApplyLook(z, s) {   // 🎨 外观以房主快照为准：kind 是�
     if (on) z[k] = true;
     else if (s.f) delete z[k];
   }
+  z.swordCasts = s.swordCasts || []; z.axeWind = s.axeWind; z.axeFx = s.axeFx;
   if (s.r != null) z.r = s.r;
   if (s.size !== undefined) z.size = s.size;
   if (s.affix !== undefined) z.affix = s.affix;
 }
 function coopClientHandleSnap(o) {
   if (coopMode !== 'client') return;
+  if (o.mapId && o.mapId !== currentMapId()) {
+    const campaignMap = 'coop:' + coopId + ':';
+    if (!townMode && !skyMode && !dungeonMode && o.mapId.startsWith(campaignMap) && o.wave) coopWave=o.wave;
+    else return;
+  }
+  if (o.resources && typeof receiveResources === 'function') receiveResources(o.resources);
+  if (o.level && typeof level !== 'undefined') level=o.level;
   if (o.wave && o.wave !== coopWave) {
     coopWave = o.wave;
     updateScore();
@@ -345,7 +378,7 @@ function coopClientHandleSnap(o) {
         r: s.boss ? 28 : 10
       };
       if (!s.f && s.boss) {   // 老版本房主没有外观数组时，仍按波次兜底
-        const w = ((coopWave - 1) % 13) + 1;
+        const w = ((coopWave - 1) % 14) + 1;
         z.skelBoss = w === 2; z.ghostBoss = w === 3; z.lavaBoss = w === 4; z.stormBoss = w === 5; z.voidBoss = w === 6; z.crystalBoss = w === 7;
         z.wither = w === 8; z.ender = w === 9; z.titan = w === 10; z.ghast = w === 11; z.warden = w === 12;
       }
@@ -375,6 +408,7 @@ function coopHostHandleHit(ids, dmg) {
 }
 function coopOnMsg(o) {
   if (!coopMode) return;
+  if (o.type === 'snap' && o.me) coopOnMsg(o.me);   // 房主玩家状态与怪物快照同包到达
   if (o.type === 'leave') {
     if (coopMode === 'host') {
       pvpFoe = null;
@@ -398,7 +432,8 @@ function coopOnMsg(o) {
       pvpFoe.stale = false;
       if (!netSeen) { netSeen = true; setBanner('🤝 队友进场了！并肩冲锋！'); beep(700, 1200, 0.2, 'sine', 0.15); }
       else if (wasStale) setBanner('✅ 连接恢复啦！队友回来啦！');
-    } else if (o.type === 'hit') {
+    } else if (o.type === 'gather' && typeof hostGather === 'function') { hostGather(o);
+    } else if (o.type === 'hit' && sameMap(o)) {
       coopHostHandleHit(o.ids || o.hits, o.dmg);
     }
   } else if (coopMode === 'client') {
@@ -412,7 +447,7 @@ function coopOnMsg(o) {
     } else if (o.type === 'snap') {
       coopClientHandleSnap(o);
     } else if (o.type === 'hurtYou') {
-      if (player.inv <= 0 && coopDownT <= 0) {
+      if (sameMap(o) && player.inv <= 0 && coopDownT <= 0) {
         player.hearts = Math.max(0, player.hearts - (o.dmg || 1));
         player.inv = 0.6; player.sinceHurt = 0; player.regenT = 0;
         burst(player.x, player.y, '#e84a4a', 10);
@@ -423,12 +458,13 @@ function coopOnMsg(o) {
           coopWrite();
         }
       }
-    } else if (o.type === 'reward') {
+    } else if (o.type === 'resourceReward' && typeof receiveResourceReward === 'function') { receiveResourceReward(o);
+    } else if (o.type === 'reward' && sameMap(o)) {
       player.gold += (o.gold || 0);
       if (o.dia) player.diamonds = (player.diamonds || 0) + o.dia;
       updateGold(); updateDia();
       burst(player.x, player.y - 8, '#ffd24a', 6);
-    } else if (o.type === 'wave') {
+    } else if (o.type === 'wave' && !townMode && !skyMode && !dungeonMode) {
       coopWave = o.wave;
       player.hearts = player.maxHearts;
       player.gold += (o.gold || 0);
@@ -450,7 +486,7 @@ const _pvpWriteRaw = pvpWrite;
 pvpWrite = function () {
   if (!pvpMode) return;
   if (netReady) {
-    netSend({ type: 'state', x: Math.round(player.x), y: Math.round(player.y), hearts: player.hearts, maxHearts: player.maxHearts, weapon: player.weapon, dir: player.dir, moving: player.moving, walkT: player.walkT, swing: player.atkT > 0, holdFish: player.holdFish || null, hits: pvpHits.slice(-5), when: Date.now() });
+    netSend({ type: 'state', mapId: currentMapId(), x: Math.round(player.x), y: Math.round(player.y), hearts: player.hearts, maxHearts: player.maxHearts, weapon: player.weapon, skin: player.skin, dir: player.dir, moving: player.moving, walkT: player.walkT, swing: player.atkT > 0, holdFish: player.holdFish || null, hits: pvpHits.slice(-5), when: Date.now() });
     return;
   }
   _pvpWriteRaw();
@@ -462,8 +498,8 @@ pvpRead = function () {
   _pvpReadRaw();
 };
 function netTick(dt) {   // 💓 联机心跳独立于暂停/顿帧：画面停下时，队友也不该被误报掉线
-  if (pvpMode) { pvpT -= dt; if (pvpT <= 0) { pvpT = 0.1; pvpWrite(); } pvpRead(); }
-  if (coopMode) { coopT -= dt; if (coopT <= 0) { coopT = 0.1; coopWrite(); } coopRead(); }
+  if (pvpMode) { pvpT -= dt; if (pvpT <= 0) { pvpT = NET_INTERVAL; pvpWrite(); } pvpRead(); }
+  if (coopMode) { coopT -= dt; if (coopT <= 0) { coopT = NET_INTERVAL; coopWrite(true); } coopRead(); }
 }
 const _leavePvpRaw = leavePvp;
 leavePvp = function () { if (pvpMode && netReady) { netSend({ type: 'leave' }); netReady = false; } _leavePvpRaw(); };

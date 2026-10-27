@@ -1,7 +1,7 @@
 'use strict';
 /* ================= 🐾 宠物伙伴（继承！过关不收回；最多 3 只出战） ================= */
 const ALLPETS = {};
-for (const lv of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) for (const [k, n, i, p, dmg, cd, range, spec] of PETS[lv]) ALLPETS[k] = { name: n, icon: i, price: p, dmg, cd, range, spec };
+for (const lv of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 14]) for (const [k, n, i, p, dmg, cd, range, spec] of PETS[lv]) ALLPETS[k] = { name: n, icon: i, price: p, dmg, cd, range, spec };
 /* 🐾 宠物血量（v58 恩泽定的）：按价格定血 3~5；会被怪咬（咬一口=怪咬人的伤害）；过关/无尽过波复活 */
 function petMaxHp(key) { const pr = (ALLPETS[key] && ALLPETS[key].price) || 0; return pr >= 300 ? 5 : pr >= 100 ? 4 : 3; }
 function revivePets() {
@@ -297,6 +297,7 @@ const PET_PAL = {
   pet7_crystaldragon: { sp: 'dragon', b: '#8ce0e8', d: '#48a4b4', l: '#e0fcff', a: '#ffb8f2' },
   pet7_prismphoenix: { sp: 'phoenix', b: '#a8f0f8', d: '#68bcd0', l: '#ffffff', a: '#ffb8e8' },
 };
+for (let i=0;i<20;i++) PET_PAL['fort_pet_'+(i+1)]={sp:['dog','wolf','fox','bird','turtle','cat','dog','deer','bee','lizard','dragon','bear','bat','rabbit','snake','phoenix','hedgehog','squirrel','frog','dragon'][i],b:'#d8a83a',d:'#8a5a2a',l:'#ffe8a8',a:'#f0b8a8'};
 const PET_FRAME_CACHE = {};
 function petArt(key) {
   if (PET_FRAME_CACHE[key]) return PET_FRAME_CACHE[key];
@@ -320,6 +321,7 @@ function petsTick(dt) {
         pt.atkT = pt.cd * resCdMul(pt); pt.state = 'atk'; pt.animT = 0;   // 🗡️ 攻击动画 0.3 秒；🔗 羁绊共鸣加攻速
         let dmg = pt.dmg * resPetMul(pt);   // ✨ 同系共鸣：宠物伤害+40%
         if (pt.spec === 'crit' && Math.random() < 0.25) dmg *= 2;
+        if (coopMode === 'client') { netSendCoop({type:'hit',ids:[tgt.id],dmg}); continue; }
         tgt.hp -= dmg; tgt.flash = 0.12;
         burst(tgt.x, tgt.y - 6, '#ffd24a', 3);
         if (pt.spec === 'knock') { const kd = Math.hypot(tgt.x - player.x, tgt.y - player.y) || 1; tgt.x = Math.max(16, Math.min(WORLD.w - 16, tgt.x + (tgt.x - player.x) / kd * 40)); tgt.y = Math.max(16, Math.min(WORLD.h - 16, tgt.y + (tgt.y - player.y) / kd * 40)); }

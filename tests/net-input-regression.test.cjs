@@ -43,6 +43,7 @@ function makeBrowserContext() {
     document,
     navigator: { getGamepads: () => [] },
     localStorage: { getItem: () => null, setItem() {}, removeItem() {} },
+    player: { x: 1200, y: 1200, hearts: 5, maxHearts: 5, weapon: null, dir: 0, moving: false, walkT: 0, atkT: 0, skin: {} },
     performance: { now: () => 0 },
     requestAnimationFrame() {},
     setTimeout(fn, delay) { const id = nextTimeout++; timeouts.set(id, { fn, delay }); return id; },
@@ -312,4 +313,32 @@ test('coop snapshots must restore every monster visual type instead of defaultin
   assert.deepEqual({ size: slime.size, r: slime.r }, { size: 2, r: 14 });
   const elite = vm.runInContext('zombies[0]', context);
   assert.deepEqual({ elite: elite.elite, affix: elite.affix }, { elite: true, affix: 'king' });
+});
+
+test('coop host sends player state and monsters in one packet and client applies both', () => {
+  const context = makeBrowserContext();
+  Object.assign(context, {
+    setBanner() {}, beep() {}, updateScore() {}, kills: 0,
+    player: { x: 1240, y: 1200, hearts: 5, maxHearts: 5, weapon: null, dir: 0, moving: false, walkT: 0, atkT: 0, skin: {} }
+  });
+  load(context, 'src/net.js');
+  context.__sent = [];
+  vm.runInContext(`
+    coopMode = 'host'; coopSide = 1; coopId = 'net1234'; coopWave = 1; coopDownT = 0;
+    netReady = true; netTopic = 'zfcoop/room1234';
+    netClient = { publish(topic, payload) { __sent.push(JSON.parse(payload)); } };
+    zombies = [{ id: 88, x: 500, y: 600, hp: 1000, maxHp: 1000, boss: true, piglinKing: true, kind: 'boss14', dead: false, flash: 0 }];
+    coopWrite(true); coopSendSnap();
+  `, context);
+
+  assert.equal(context.__sent.length, 1);
+  const packet = context.__sent[0];
+  assert.equal(packet.type, 'snap');
+  assert.equal(packet.me.type, 'state');
+  vm.runInContext(`coopMode = 'client'; coopSide = 2; netSeen = false; pvpFoe = null; coopOnMsg(__sent[0])`, context);
+  const applied = vm.runInContext(`({ x: pvpFoe.x, stale: pvpFoe.stale, bossHp: zombies[0].hp, bossMax: zombies[0].maxHp })`, context);
+  assert.deepEqual(
+    { ...applied },
+    { x: 1240, stale: false, bossHp: 1000, bossMax: 1000 }
+  );
 });

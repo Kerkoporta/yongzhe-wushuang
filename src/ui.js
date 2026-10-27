@@ -7,7 +7,9 @@ function toggleGear(force) {
     renderSettings();   // 🔧 打开设置面板先渲染开关滑条
     document.getElementById('gearNext').style.display = pendingNext ? 'block' : 'none';   // 🗺️ 有下一关可去就亮出来
     document.getElementById('gearFight').style.display = townMode ? 'block' : 'none';   // ⚔️ 小镇里能回去刷怪
-    document.getElementById('gearTown').style.display = (townUnlocked && !townMode) ? 'block' : 'none';   // 🏡 刷怪时能回小镇
+    document.getElementById('gearTown').style.display = 'block';   // 🏡 任意存档都能去小镇
+    const ret = document.getElementById('gearReturn');
+    if (ret) ret.style.display = (travelReturn || skyMode || townMode) ? 'block' : 'none';   // 只在旅行途中显示返回冒险，避免误清当前关卡
   }
   document.getElementById('gear').style.display = gearOpen ? 'flex' : 'none';
 }
@@ -40,7 +42,7 @@ document.getElementById('gearNext').onclick = () => { toggleGear(false); goNextL
 /* 🔷 升级选择模式：点了升级石后，背包里点武器/装备就升它 */
 let bagPickMode = null;
 function renderBag() {
-  const sec = (t, n) => `<div class="shopSec">${t}</div>`;
+  const sec = (t, n) => `<div class="shopSec" ${n ? `id="bag-${n}"` : ""}>${t}</div>`;
   const tierOf = k => { const b = invB(k); return b ? `<span style="color:${TIERS[b.t].c}">·${TIERS[b.t].n}</span>` : ''; };
   const upMode = bagPickMode === 'upgrade';   // 🔷 升级选择模式：武器装备都亮"点我升级"
   const btn = (k, it, state, on) => { const b2 = invB(k); return `<button class="bagIt ${on ? 'on' : 'off'}" data-bag="${k}"><span class="bi">${it.icon}</span><span class="bn">${it.name}${tierOf(k)}</span><span class="bs">${state}</span>${b2 ? `<span class="bs" data-sell="${k}" style="background:#8a6a3a;border-radius:8px;padding:2px 6px">💰卖${Math.round(ALLITEMS[k].price * (b2.t + 1) * 0.5)}</span>` : ''}</button>`; };   // 🔧 合成按钮已随系统退役（v52）
@@ -55,7 +57,7 @@ function renderBag() {
     : '<div class="htxt">还没觉醒职业——打 BOSS 开宝箱，找 🌟 觉醒石！</div>';
   const ws = Object.keys(player.bought).filter(k => ALLKIND[k] === 'weapon');
   const offN = offMax();
-  h += sec(upMode ? '🔷 升级模式：点想升级的武器！' : (offN >= 1 ? `⚔️ 武器（主手+副手${offN} 个槽，多把轮流砍；法杖不能进副手）` : '🗡️ 武器（点一下拿手上，只能拿一把）'));
+  h += sec(upMode ? '🔷 升级模式：点想升级的武器！' : (offN >= 1 ? `⚔️ 武器（主手+副手${offN} 个槽，多把轮流砍；法杖不能进副手）` : '🗡️ 武器（点一下拿手上，只能拿一把）'), 'weapon');
   h += ws.length ? grid(ws.map(k => {
     const offIdx = [player.offhand, ...(player.offhands2 || [])].indexOf(k);
     const label = upMode ? '🔷 点我升级' : player.weapon === k ? '✅ 主手拿着' : offIdx >= 0 ? '🤚 副手' + (offIdx + 1) + '拿着' : '点我装备';
@@ -64,17 +66,17 @@ function renderBag() {
   const gs = Object.keys(player.bought).filter(k => ALLKIND[k] === 'gear');
   const gCnt = { helm: 0, chest: 0, boots: 0, trinket: 0 };
   for (const g of gs) if (player.owned[g]) gCnt[gearSlot(g)]++;
-  h += sec(upMode ? '🔷 升级模式：点想升级的装备！' : `🛡️ 装备（⛑️头盔 ${gCnt.helm}/1 · 🛡️胸甲 ${gCnt.chest}/2 · 👢靴子 ${gCnt.boots}/1 · 💍小件 ${gCnt.trinket}/5，满了自动换）`);
+  h += sec(upMode ? '🔷 升级模式：点想升级的装备！' : `🛡️ 装备（⛑️头盔 ${gCnt.helm}/1 · 🛡️胸甲 ${gCnt.chest}/2 · 👢靴子 ${gCnt.boots}/1 · 💍小件 ${gCnt.trinket}/5，满了自动换）`, 'gear');
   h += gs.length ? grid(gs.map(k => btn(k, ALLITEMS[k], upMode ? '🔷 点我升级' : player.owned[k] ? '✅ 装着' : '💤 卸下了', upMode || !!player.owned[k]))) : '<div class="htxt">还没买过装备</div>';
   const ss = Object.keys(player.bought).filter(k => ALLKIND[k] === 'skill');
-  h += sec(`✨ 技能（最多上阵 ${skillMax()} 个：现在 ${skillSlots.length}/${skillMax()}）`);
+  h += sec(`✨ 技能（最多上阵 ${skillMax()} 个：现在 ${skillSlots.length}/${skillMax()}）`, 'skill');
   h += ss.length ? grid(ss.map(k => btn(k, ALLITEMS[k], skillSlots.includes(k) ? '⚡ 上阵中' : '💤 休息中', skillSlots.includes(k)))) : '<div class="htxt">还没买过技能书</div>';
   const ps = Object.keys(player.bought).filter(k => ALLKIND[k] === 'pet');
-  h += sec(`🐾 宠物（最多出战 ${petMax()} 只：现在 ${pets.length}/${petMax()}）`);
+  h += sec(`🐾 宠物（最多出战 ${petMax()} 只：现在 ${pets.length}/${petMax()}）`, 'pet');
   h += ps.length ? grid(ps.map(k => { const act = pets.some(p => p.key === k); return btn(k, ALLPETS[k], act ? '🐾 出战中' : '💤 休息中', act); })) : '<div class="htxt">还没买过宠物</div>';
   const us = Object.keys(player.items || {}).filter(k => player.items[k] > 0);   // 🍗 一次性道具+🐟鱼
-  h += sec('🍗 道具（点一下就用；🐟 鱼点一下拿在手里，摇杆边出「吃掉」）');
-  h += us.length ? grid(us.map(k => btn(k, ALLITEMS[k], ALLKIND[k] === 'fish' ? ('×' + player.items[k] + (player.holdFish === k ? ' 🖐️拿着呢' : ' 点我拿手里')) : ('×' + player.items[k] + ' 点我用'), true))) : '<div class="htxt">商店有一次性道具卖：烤鸡/药水/手雷/图腾；天空城能钓鱼</div>';
+  h += sec('🍗 道具（点一下就用；🐟 鱼点一下拿在手里，摇杆边出「吃掉」）', 'items');
+  h += us.length ? grid(us.map(k => btn(k, ALLITEMS[k], ALLKIND[k] === 'fish' ? ('×' + player.items[k] + (player.holdFish === k ? ' 🖐️拿着呢' : ' 点我拿手里')) : ('×' + player.items[k] + (ALLKIND[k]==='material'?' 制作材料':' 点我用')), true))) : '<div class="htxt">商店有一次性道具卖：烤鸡/药水/手雷/图腾；天空城能钓鱼</div>';
   bagList.innerHTML = h;
   bagList.onclick = e => {   // 💰卖钱优先，最后换装（事件委托）；🔧合成已退役（v52）
     const se = e.target.closest('[data-sell]');
@@ -120,6 +122,7 @@ function useItem(k) {
 }
 function bagTap(k) {
   const kind = ALLKIND[k];
+  if (kind === 'material') { setBanner(ALLITEMS[k].desc+'，打开设置→制作'); return; }
   if (bagPickMode === 'upgrade') {   // 🔷 升级选择模式：点武器/装备就升它
     if (k === 'use_stone') { bagPickMode = null; setBanner('🔷 收好石头，下次再升'); renderBag(); return; }   // 再点石头=取消
     if (kind === 'weapon' || kind === 'gear') {

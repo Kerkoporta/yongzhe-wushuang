@@ -1,0 +1,7 @@
+Branch: feat/v96-piglin-bastion
+Command: git add TASK_V96.md REPORT_V96.md logic.js index.html css src tests reports
+Result: exit 128
+fatal: Unable to create '/Users/clawopen/.tmp_rope/yongzhe-wushuang-pages/.git/worktrees/yongzhe-wushuang-v96/index.lock': Operation not permitted
+
+No commit was created: worktree Git metadata is outside the permitted writable roots.
+No push or publication was attempted.

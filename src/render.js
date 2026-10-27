@@ -119,7 +119,7 @@ function draw() {
     }
     ctx.restore();
   }
-  if (!townMode && !dungeonMode) {   // 冒险模式才画边缘+装饰（🌲 副本自己画林子）
+  if (!skyMode && !townMode && !dungeonMode) {   // 冒险模式才画边缘+装饰（🌲 副本自己画林子）
   ctx.strokeStyle = LV.edge; ctx.lineWidth = 12; ctx.strokeRect(0, 0, WORLD.w, WORLD.h);
   for (const d of deco) { if (d.x < camX - 60 || d.x > camX + VW + 60 || d.y < camY - 60 || d.y > camY + VH + 60) continue;
     if (d.t === 'tree') { ctx.fillStyle = LV.trunk; ctx.fillRect(d.x - 4, d.y - 6, 8, 18); ctx.fillStyle = LV.leaf; ctx.beginPath(); ctx.arc(d.x, d.y - 14, 16, 0, 6.3); ctx.fill(); ctx.fillStyle = LV.leafHi; ctx.beginPath(); ctx.arc(d.x - 4, d.y - 18, 9, 0, 6.3); ctx.fill(); }
@@ -159,8 +159,10 @@ function draw() {
     ctx.fillStyle = cg; ctx.fillRect(-8, -8, 16, 16); ctx.strokeStyle = '#e8d8ff'; ctx.lineWidth = 1.5; ctx.strokeRect(-8, -8, 16, 16);
     ctx.restore();
   }
+  drawAdventureWorld();
   // 僵尸
   for (const z of zombies) {
+    if (z.piglin) { drawPiglin(z); continue; }
     if (z.mirror) { drawMirror(z); continue; }   // 🪞 镜面怪与魔王共用银甲像素
     if (z.boss) { drawBoss(z); continue; }   // 👹 BOSS 专属画法
     if (z.elite) {   // ✨ 精英怪：脚下金色光环
@@ -521,7 +523,7 @@ function draw() {
   for (const ga of garrows) { ctx.save(); ctx.translate(ga.x, ga.y); ctx.rotate(ga.ang); ctx.scale(2.4, 2.4); ctx.fillStyle = '#5a3a1a'; ctx.fillRect(-8, -1, 14, 2); ctx.fillStyle = '#e8e8e8'; ctx.fillRect(6, -2, 4, 4); ctx.fillStyle = '#e84a4a'; ctx.fillRect(-10, -3, 4, 2); ctx.fillRect(-10, 1, 4, 2); ctx.restore(); }
   // 玩家（无敌时一闪一闪）
   const blink = player.inv > 0 && Math.floor(player.inv * 12) % 2 === 0;
-  if (pvpFoe) {   // 📡 PVP / 合作幻影队友：绿色队友圈/红色敌对框+名牌+血条
+  if (pvpFoe && sameMap(pvpFoe)) {   // 📡 PVP / 合作幻影队友：绿色队友圈/红色敌对框+名牌+血条
     const f = pvpFoe, fb = f.moving ? Math.abs(Math.sin(f.walkT * 9)) * 2 : 0;
     const fside = Math.abs(Math.cos(f.dir)) > Math.abs(Math.sin(f.dir));
     const fspr = fside ? MAN_SIDE : (Math.sin(f.dir) < 0 ? MAN_UP : MAN_DOWN);
@@ -677,7 +679,7 @@ function draw() {
   if (player.weapon && TBLH[player.weapon]) { ctx.globalAlpha = 1; ctx.fillText(TBLH[player.weapon].icon, 10 + ei * 26, 58); ei++; }
   for (const k in player.owned) { if (TBLH[k] && TBLH[k].kind === 'gear' && ei < 10) { ctx.globalAlpha = 1; ctx.fillText(TBLH[k].icon, 10 + ei * 26, 58); ei++; } }
   ctx.globalAlpha = 1;
-  if (typeof coopMode !== 'undefined' && coopMode && pvpFoe) {   // 🤝 合作中头顶 HUD 显示队友血量（绿心）
+  if (typeof coopMode !== 'undefined' && coopMode && pvpFoe && sameMap(pvpFoe)) {   // 🤝 合作中头顶 HUD 显示队友血量（绿心）
     const fMaxH = pvpFoe.maxHearts || 5, fH = Math.max(0, pvpFoe.hearts != null ? pvpFoe.hearts : 0);
     ctx.font = 'bold 13px sans-serif'; ctx.fillStyle = '#7ee85a'; ctx.fillText('🤝 队友：', 10, 84);
     for (let i = 0; i < fMaxH; i++) {
@@ -714,6 +716,7 @@ function draw() {
   for (const s of mapShops) { mm.fillStyle = '#ffd24a'; mm.fillRect(s.x * msc - 2, s.y * msc - 2, 4, 4); }   // 商店金方块
   if (portal) { mm.fillStyle = '#b48af2'; mm.beginPath(); mm.arc(portal.x * msc, portal.y * msc, 2.5, 0, 6.3); mm.fill(); }   // 山洞紫点
   for (const z of zombies) { if (z.dead) continue; if (z.boss) { mm.fillStyle = '#ff2a2a'; mm.fillRect(z.x * msc - 2, z.y * msc - 2, 4, 4); } else { mm.fillStyle = '#e88a8a'; mm.fillRect(z.x * msc - 0.75, z.y * msc - 0.75, 1.5, 1.5); } }
+  for(const r of currentResources()) if(!r.done){ mm.fillStyle=r.kind==='iron'?'#b8c8d8':'#7ae8a8';mm.fillRect(r.x*msc-1,r.y*msc-1,2,2); }
   mm.fillStyle = '#ffd24a'; for (const pt of pets) mm.fillRect(pt.x * msc - 0.75, pt.y * msc - 0.75, 1.5, 1.5);   // 宠物黄点
   mm.fillStyle = '#7ec850'; mm.beginPath(); mm.arc(player.x * msc, player.y * msc, 2.6, 0, 6.3); mm.fill();   // 我=绿点
   mm.strokeStyle = '#fff'; mm.lineWidth = 1; mm.beginPath(); mm.moveTo(player.x * msc, player.y * msc); mm.lineTo(player.x * msc + Math.cos(player.dir) * 6, player.y * msc + Math.sin(player.dir) * 6); mm.stroke();   // 朝向小尾巴

@@ -86,7 +86,7 @@ function killZombie(z) {
     } else if (typeof coopMode !== 'undefined' && coopMode) {
       g = 0;
       coopBossDown(z);
-    } else if (level < 13) {   // 🎁 普通关：掉宝箱，开完问要不要进下一关
+    } else if (level < 14) {   // 🎁 普通关：掉宝箱，开完问要不要进下一关
       pendingNext = 'level'; chest = { x: z.x, y: z.y, taken: false };
       setBanner('👑 BOSS 倒下！宝箱掉下来了，走过去打开！');
       saveGame();
@@ -94,7 +94,7 @@ function killZombie(z) {
       player.gold += 800; updateGold();
       for (let i = 0; i < 40; i++) burst(player.x + (Math.random() - 0.5) * 300, player.y + (Math.random() - 0.5) * 300, ['#ffd24a', '#4a6aff', '#a8f2ff', '#7ec850'][i % 4]);
       pendingNext = 'town'; chest = { x: z.x, y: z.y, taken: false };
-      setBanner('🪞 镜面魔王倒下了！主线通关！宝箱掉下来了，走过去打开！');
+      setBanner('⚔️ 猪灵剑神倒下了！主线通关！宝箱掉下来了，走过去打开！');
       beep(600, 1200, 0.6, 'sine', 0.2); setTimeout(() => beep(800, 1600, 0.6, 'sine', 0.2), 250);
       saveGame();
     }
@@ -167,6 +167,7 @@ function doAttack(fromAuto) {
     if (player.cd > 0) return;
     player.cd = ATTACK.cd * (fx.cdMul || 1) * (player.cdMulGear || 1) * (dualOk ? 0.5 : 1);   // 🔨🧤 攻速加成；⚔️ 双持轮流=攻速翻倍
   }
+  gatherAttack();
   player.atkCount = (player.atkCount || 0) + 1;
   player.atkT = ATTACK.swing; swingDir = -swingDir;   // ↔️ 左右交替挥剑（恩泽点的：先左到右，再右到左）
   let dmg = (fx.dmg != null ? fx.dmg : 1) * T(handKey) + (player.dmgAdd || 0);   // 🌈 按出手的那只手算伤害；🐛 修：dmg=0 是合法值（整蛊武器/挑战模式），|| 会把它抬成 1
@@ -280,7 +281,7 @@ function doAttack(fromAuto) {
     if (player.job === 'rogue') for (const z of hits) { if (z.aggroW && z.aggroW.hp > 0 && !z.dead) { z.hp -= dmg * 1.5; z.flash = 0.15; burst(z.x, z.y, '#ffd24a', 6); if (z.hp <= 0) killZombie(z); } }   // 🃏 盗贼背刺：怪没看你=×2.5
   }
   deflectGhastBalls(player.x, player.y, 50);   // ⚾ 近战也能把恶魂火球抽回去
-  if (pvpFoe && !(typeof coopMode !== 'undefined' && coopMode) && !pvpFoe.stale && (!skyMode || inArena(player.x, player.y)) && Math.hypot(pvpFoe.x - player.x, pvpFoe.y - player.y) < (opts.arc ? 52 : 46)) { pvpHits.push({ s: ++pvpHitSeq, d: dmg }); pvpWrite(); burst(pvpFoe.x, pvpFoe.y, '#ffb0b0', 8); }   // 📡 PVP：砍中对面幻影→写进我的存档（天空城里只有我在 PVP 圈里才砍得到）
+  if (pvpFoe && sameMap(pvpFoe) && !(typeof coopMode !== 'undefined' && coopMode) && !pvpFoe.stale && (!skyMode || inArena(player.x, player.y)) && Math.hypot(pvpFoe.x - player.x, pvpFoe.y - player.y) < (opts.arc ? 52 : 46)) { pvpHits.push({ s: ++pvpHitSeq, d: dmg }); pvpWrite(); burst(pvpFoe.x, pvpFoe.y, '#ffb0b0', 8); }   // 📡 PVP：砍中对面幻影→写进我的存档（天空城里只有我在 PVP 圈里才砍得到）
   if (assassinStrike) {   // 🥷 落地一刀已挥出：×2 用完，换回弓
     assassinStrike = false; assassinSwapT = 0;
     if (prevBow) { player.weapon = prevBow; prevBow = null; setBanner('🏹 一击得手，换回弓！'); }

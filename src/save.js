@@ -69,10 +69,10 @@ function bossMissing() {
 }
 function packSave() {
   const boss = zombies.find(z => z.boss && !z.dead && !z.fake);
-  return { kills, gold: player.gold, weapon: player.weapon, owned: player.owned, hearts: player.hearts, bossAt, level, music: musicOn ? 1 : 0, rot: rotated ? 1 : 0, when: Date.now(), sid: mySid,
+  return { mapId:worldState.mapId, kills, gold: player.gold, weapon: player.weapon, owned: player.owned, hearts: player.hearts, bossAt, level, music: musicOn ? 1 : 0, rot: rotated ? 1 : 0, when: Date.now(), sid: mySid,
     job: player.job || null, job2: player.job2 || null, offhand: player.offhand || null,   // 🥷⚔️ 主副职业和副手跟着存档走
     dia: player.diamonds || 0, slots: player.slots, off2: player.offhands2 || [],   // 💎 钻石+扩展槽跟着存档走
-    items: player.items || {},   // 🍗 道具袋跟着存档走
+    items: player.items || {}, furniture: player.furniture || {}, resourceMaps, travelReturn, resourceReceipts:player.resourceReceipts || {},   // 🍗 道具袋跟着存档走
     mana: Math.round(player.mana != null ? player.mana : 100),   // 🔵 蓝条也进存档
     towerMode: towerMode ? 1 : 0,   // 🗼 在不在试炼塔里
     campaignLv,   // 🧭 主线进度跟着存档走
@@ -93,7 +93,7 @@ function applySave(s) {
   player.offhand = (s.offhand && ALLITEMS[s.offhand]) ? s.offhand : null;   // ⚔️ 副手回来（只认全物品表里的）
   player.diamonds = s.dia || 0; updateDia();   // 💎 钻石回来
   player.slots = s.slots || { off: 0, pet: 0, skill: 0 };   // 🧩 扩展槽回来
-  player.items = s.items || {};   // 🍗 道具袋回来
+  player.items = s.items || {}; player.furniture = s.furniture || {}; player.resourceReceipts=s.resourceReceipts||{}; resourceMaps = s.resourceMaps || {}; travelReturn = s.travelReturn || null;   // 🍗 道具袋回来
   player.mana = s.mana != null ? Math.min(100, Math.max(0, s.mana)) : 100; updateMana();   // 🔵 蓝条回来
   player.offhands2 = (s.off2 || []).filter(k => ALLITEMS[k]);   // ⚔️ 额外副手回来
   player.bought = s.bought || Object.assign({}, player.owned);   // 🎒 老存档没有 bought：拿 owned 顶上
@@ -107,11 +107,11 @@ function applySave(s) {
   }
   if (s.music != null) { musicOn = !!s.music; document.getElementById('gearMusic').textContent = musicOn ? '🎵 音乐：开' : '🔇 音乐：关'; }
   if (!!s.rot !== rotated) toggleRotate();   // 🔄 转屏状态跟着存档走
-  bossAt = s.bossAt || 100; level = (s.level >= 1 && s.level <= 13) ? s.level : 1;   // 🐛 关卡钳制跟着主线走（🪞 13 关时代）
+  bossAt = s.bossAt || 100; level = (s.level >= 1 && s.level <= 14) ? s.level : 1;   // 🐛 关卡钳制跟着主线走（🪞 13 关时代）
   fixOldBought();   // 🌈 老存档的武器/装备升级成正式品质条目
   endlessRound = s.endlessRound || 1; endlessWave = s.endlessWave || 1; waveKills = s.waveKills || 0;   // 🌀 无尽进度回来
   chest = s.chest || null; pendingNext = s.pendingNext || null;
-  if (level === 12 && pendingNext === 'town' && !s.townUnlocked) pendingNext = 'level';   // 🪞 旧档待开宝箱继续去镜面洞穴   // 🎁 没开的宝箱回来
+  if (level < 14 && pendingNext === 'town' && !s.townUnlocked) pendingNext = 'level';   // 🪞 旧档待开宝箱继续去镜面洞穴   // 🎁 没开的宝箱回来
   faintDone = !!s.faintDone; townMode = !!s.townMode; townUnlocked = !!s.townUnlocked; ownedHouse = !!s.ownedHouse; storage = s.storage || {}; inRoom = false;   // 💉🏡 剧情进度回来（进门状态不存）
   if ((s.campaignLv >= 12 || s.level >= 12) && !townUnlocked) townUnlocked = true;   // 🏡 十二关时代的老玩家保留小镇资格
   if (s.skin) player.skin = s.skin;   // 🎨 捏人形象读档回来（老档没有就用默认配色）
@@ -177,4 +177,4 @@ function writeSlot(i, data) {
   try { localStorage.setItem(SLOT_KEY(i) + '_bak', data); localStorage.setItem(SLOT_KEY(i), data); } catch (e) {}
 }
 /* 切到后台：立刻存一次；切回前台：同步最新存档（防止后台旧页面把新进度盖掉） */
-addEventListener('visibilitychange', () => { if (document.hidden) saveGame(); else loadGame(); });
+addEventListener('visibilitychange', () => { if (document.hidden) saveGame(); else if (!coopMode && !pvpMode && !travelReturn) loadGame(); });

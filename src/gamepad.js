@@ -22,7 +22,7 @@ const padCursorEl = document.createElement('div');
 padCursorEl.style.cssText = 'position:fixed;z-index:999;pointer-events:none;width:30px;height:30px;display:none;background:url(' + METAL_CURSOR + ') no-repeat center/contain;filter:drop-shadow(0 2px 3px rgba(0,0,0,.6))';
 document.body.appendChild(padCursorEl);
 function anyPanelOpen() {   // 有 DOM 面板开着=鼠标模式
-  for (const id of ['home', 'bag', 'gear', 'shop', 'skin', 'sandbox', 'over', 'store', 'faint', 'pvpLob', 'chest', 'help', 'fishShop']) {
+  for (const id of ['craft', 'decorate', 'home', 'bag', 'gear', 'shop', 'skin', 'sandbox', 'over', 'store', 'faint', 'pvpLob', 'chest', 'help', 'fishShop']) {
     const el = document.getElementById(id); if (el && el.style.display === 'flex') return true;
   }
   return false;
@@ -51,7 +51,9 @@ function padTick(dt) {
     if (aHit) { const el = document.elementFromPoint(vMouse.x, vMouse.y); if (el) { el.click(); beep(700, 1000, 0.05, 'sine', 0.08); } }
     if (bHit) {   // B=关当前面板（设置/背包/商店通吃）
       const gear = document.getElementById('gear'), bag = document.getElementById('bag');
-      if (bag && bag.style.display === 'flex') { bagPickMode = null; toggleBag(false); }
+      const extra = ['craft','decorate'].map(id=>document.getElementById(id)).find(el=>el&&el.style.display==='flex');
+      if (extra) { extra.style.display='none'; paused=false; }
+      else if (bag && bag.style.display === 'flex') { bagPickMode = null; toggleBag(false); }
       else if (gear && gear.style.display === 'flex') toggleGear(false);
     }
     holdAtk = false;

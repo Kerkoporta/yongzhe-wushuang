@@ -18,7 +18,7 @@ function drawDragonFly(ctx) {   // 屏幕坐标：黑影+紫光眼睛，从右�
 let bossWatchdogT = 2;
 function coopTarget(z) {
   if (z && z.aggroW && z.aggroW.hp > 0) return z.aggroW;
-  if (typeof coopMode !== 'undefined' && coopMode === 'host' && pvpFoe && !pvpFoe.stale && !pvpFoe.down && pvpFoe.hearts > 0) {
+  if (typeof coopMode !== 'undefined' && coopMode === 'host' && pvpFoe && sameMap(pvpFoe) && !pvpFoe.stale && !pvpFoe.down && pvpFoe.hearts > 0) {
     const dH = Math.hypot(player.x - z.x, player.y - z.y);
     const dC = Math.hypot(pvpFoe.x - z.x, pvpFoe.y - z.y);
     return dC < dH ? pvpFoe : player;
@@ -26,7 +26,8 @@ function coopTarget(z) {
   return player;
 }
 function update(dt) {
-  if (paused) return;   // 🏪 逛商店时僵尸等你
+  if (paused) return;
+  adventureTick(dt);   // 🏪 逛商店时僵尸等你
   bossWatchdogT -= dt;
   if (bossWatchdogT <= 0) {
     bossWatchdogT = 2;
@@ -164,14 +165,14 @@ function update(dt) {
       if (coopMode === 'host') {
         coopSnapT -= dt;
         if (coopSnapT <= 0) {
-          coopSnapT = 0.1;
+          coopSnapT = NET_INTERVAL;
           coopSendSnap();
         }
         // 🤝 主机端检测怪物咬客机幻影
         if (coopClientInvT > 0) coopClientInvT -= dt;
-        if (pvpFoe && !pvpFoe.stale && !pvpFoe.down && (pvpFoe.hearts > 0) && coopClientInvT <= 0) {
+        if (pvpFoe && sameMap(pvpFoe) && !pvpFoe.stale && !pvpFoe.down && (pvpFoe.hearts > 0) && coopClientInvT <= 0) {
           for (const z of zombies) {
-            if (z.dead) continue;
+            if (z.dead || z.piglin) continue;
             const dist = Math.hypot(z.x - pvpFoe.x, z.y - pvpFoe.y);
             if (dist < (z.r || ZOMBIE.r) + PLAYER.r) {
               const dmg = z.boss ? 2 : (z.bat || z.skel || z.slime) ? 0.5 : 1;
@@ -309,8 +310,8 @@ function update(dt) {
         for (let i = 0; i < n; i++) spawnEnemy();
         if (n > 0) { const bb = zombies.find(z => z.boss && !z.dead); if (bb) burst(bb.x, bb.y, '#b48af2', 12); setBanner('👹 BOSS 召唤了小怪！'); beep(180, 320, 0.25, 'sawtooth', 0.15); }
       }
-    } else if (!townMode && !dungeonMode && !pvpMode && !(typeof coopMode !== 'undefined' && coopMode === 'client') && spawnT <= 0 && zombies.filter(z => !z.dead).length < cap) { spawnT = SPAWN.interval * (SPAWN_MUL[level] || 1); spawnEnemy(); }
-    if (!townMode && !dungeonMode && !pvpMode && !(typeof coopMode !== 'undefined' && coopMode) && kills >= bossAt) { bossAt += 100; spawnBoss(); }   // 👹 每满 100 杀出一只 BOSS（天空城/合作不出）
+    } else if (!skyMode && !townMode && !dungeonMode && !pvpMode && !(typeof coopMode !== 'undefined' && coopMode === 'client') && spawnT <= 0 && zombies.filter(z => !z.dead).length < cap) { spawnT = SPAWN.interval * (SPAWN_MUL[level] || 1); spawnEnemy(); }
+    if (!skyMode && !townMode && !dungeonMode && !pvpMode && !(typeof coopMode !== 'undefined' && coopMode) && kills >= bossAt) { bossAt += 100; spawnBoss(); }   // 👹 每满 100 杀出一只 BOSS（天空城/合作不出）
     if (dungeonMode && !gameOver && !pvpMode) {   // 🌲 副本里 BOSS 也算波次
       spawnT -= dt;
       if (!dgnKingSpawned && spawnT <= 0 && zombies.filter(z => !z.dead).length < 9) { spawnT = 1.4; Dgn.spawnGoblin(); }
@@ -334,6 +335,7 @@ function update(dt) {
     for (const z of zombies) { if (z.dead) continue;
       if (typeof coopMode !== 'undefined' && coopMode === 'client') continue;   // 🤝 客机跳过怪物 AI
       if (freezeAllT > 0) { z.flash = Math.max(0, z.flash - dt); continue; }   // ⏳ 时空冻结：全场罚站（时间真的停了）
+      if (z.piglin) { if (dotTick(z,dt)) continue; if(z.freezeT>0){z.freezeT-=dt;continue;} updatePiglin(z,dt); continue; }
       if (z.boss) { if (dotTick(z, dt)) continue; bossUpdate(z, dt); continue; }   // 👹 BOSS 有自己的大脑（🔥 但燃烧/中毒照掉血——恩泽点名末影龙要吃燃烧）
       z.flash = Math.max(0, z.flash - dt); z.walkT += dt; z.zapT = Math.max(0, (z.zapT || 0) - dt);
       if (z.affix === 'regen' && !z.dead) z.hp = Math.min(z.maxHp || z.hp, z.hp + 0.6 * dt);   // ♻️ 再生词缀：慢慢回血
@@ -553,7 +555,7 @@ function update(dt) {
           }
         }
       }
-      if (a.t > 0 && typeof coopMode !== 'undefined' && coopMode === 'host' && pvpFoe && !pvpFoe.stale && !pvpFoe.down && pvpFoe.hearts > 0 && Math.hypot(a.x - pvpFoe.x, a.y - pvpFoe.y) < 14) {
+      if (a.t > 0 && typeof coopMode !== 'undefined' && coopMode === 'host' && pvpFoe && sameMap(pvpFoe) && !pvpFoe.stale && !pvpFoe.down && pvpFoe.hearts > 0 && Math.hypot(a.x - pvpFoe.x, a.y - pvpFoe.y) < 14) {
         a.t = 0;
         burst(pvpFoe.x, pvpFoe.y, '#ff5a5a', 6);
         netSendCoop({ type: 'hurtYou', dmg: rollDmg(a.dmg != null ? a.dmg : 0.5) });
@@ -571,7 +573,7 @@ function update(dt) {
     /* 🏹 玩家的箭（寒冰弓）：自动瞄准射出后直线飞 */
     for (const a of parrows) {
       deflectGhastBalls(a.x, a.y, 16);   // ⚾ 飞行中的箭也能抽回火球
-      if (pvpFoe && !(typeof coopMode !== 'undefined' && coopMode) && !pvpFoe.stale && (!skyMode || inArena(player.x, player.y)) && a.t > 0 && Math.hypot(a.x - pvpFoe.x, a.y - pvpFoe.y) < 14) { a.t = 0; pvpHits.push({ s: ++pvpHitSeq, d: a.dmg != null ? a.dmg : 1 }); pvpWrite(); burst(pvpFoe.x, pvpFoe.y, '#ffb0b0', 8); }   // 📡 PVP：箭中幻影也算；🐛 0 伤箭合法
+      if (pvpFoe && sameMap(pvpFoe) && !(typeof coopMode !== 'undefined' && coopMode) && !pvpFoe.stale && (!skyMode || inArena(player.x, player.y)) && a.t > 0 && Math.hypot(a.x - pvpFoe.x, a.y - pvpFoe.y) < 14) { a.t = 0; pvpHits.push({ s: ++pvpHitSeq, d: a.dmg != null ? a.dmg : 1 }); pvpWrite(); burst(pvpFoe.x, pvpFoe.y, '#ffb0b0', 8); }   // 📡 PVP：箭中幻影也算；🐛 0 伤箭合法
       a.t -= dt; a.x += a.vx * dt; a.y += a.vy * dt;
       if (a.t <= 0) continue;
       for (const z of zombies) {
@@ -638,5 +640,5 @@ function loop(now) {
     }
   }
   requestAnimationFrame(loop);   // 🛡️ 先排下一帧：哪怕这一帧出错，游戏也绝不定格（一帧的错不该杀死整个游戏）
-  try { padTick(dt); netTick(dt); update(dt); draw(); } catch (err) { console.error('[frame] 这一帧出错了，已跳过：', err); }   // 🎮 手柄与 💓 联机心跳每帧都跑，暂停也不能断
+  try { padTick(dt); netTick(dt); update(dt); if(typeof flushCombat === 'function') flushCombat(); draw(); } catch (err) { console.error('[frame] 这一帧出错了，已跳过：', err); }   // 🎮 手柄与 💓 联机心跳每帧都跑，暂停也不能断
 }

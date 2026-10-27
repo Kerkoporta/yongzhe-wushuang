@@ -116,3 +116,11 @@ body.lefty #skills{right:auto;left:118px}
 
 /* ✨ 灵魂共鸣 HUD：状态栏下的共鸣图标行（点开图鉴） */
 #resBar{position:fixed;left:12px;top:96px;z-index:15;font-size:16px;cursor:pointer;letter-spacing:2px;text-shadow:0 0 6px #000}
+/* 背包五栏导航只存在于背包弹层；卡片内部滚动不影响导航。 */
+#bagNav{position:sticky;top:0;z-index:2;display:flex;gap:4px;flex-shrink:0;background:#2e2414;padding:8px 0;touch-action:manipulation}
+#bagNav button{flex:1;min-width:0;padding:8px 3px;background:#87632d;color:#fff;border:1px solid #ffd24a;border-radius:6px;cursor:pointer}
+#bagList{overflow-y:auto;min-height:0;overscroll-behavior:contain;touch-action:pan-y}
+#bagList .shopSec{scroll-margin-top:4px}
+.adventurePanel{position:fixed;inset:0;z-index:18;display:none;align-items:center;justify-content:center;background:#100b07bb;font-family:sans-serif;color:#fff}
+.adventureCard{width:min(450px,88vw);max-height:82vh;display:flex;flex-direction:column;border:3px solid #d8b87a;border-radius:16px;padding:16px;background:#2e2414}
+.adventureCard h2{margin:0 0 8px;font-size:21px}.adventureList{overflow-y:auto;min-height:0;touch-action:pan-y}.adventureCard button{padding:9px;border-radius:8px;border:1px solid #ffd24a;background:#88642a;color:#fff;cursor:pointer}.adventureCard button:disabled{opacity:.45}

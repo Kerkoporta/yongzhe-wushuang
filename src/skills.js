@@ -22,6 +22,7 @@ const SKILL_FX = {
   ult_fire: ['spin', 26, 20, '#ff6a2a', { r: 150 }], ult_ice: ['freeze', 0, 18, '#7ac8ff', { r: 260, dur: 4 }], ult_thunder: ['chain', 14, 18, '#fff29a', { n: 12 }], ult_holy: ['spin', 30, 22, '#fff2b0', { r: 160 }], ult_poison: ['cloud', 3, 16, '#7ee85a', { dur: 7, r: 110 }],
   ult_void: ['blackhole', 4, 24, '#8a5ac8', { r: 260 }], ult_bone: ['chain', 10, 18, '#e8e8f0', { n: 10 }], ult_blood: ['heal', 4, 26, '#ff5a5a'], ult_wind: ['spin', 18, 14, '#a8f2d8', { r: 130 }], ult_brave: ['spin', 22, 16, '#ffd24a', { r: 140 }],
 };
+Object.assign(SKILL_FX, FORT_SKILLS);
 const MANA_COST = {   // 🔵 新法术耗蓝表（老技能按伤害自动估 5~25）
   sk11_meteor: 30, sk11_frostfield: 25, sk11_blackhole: 35, sk11_thunder: 20, sk11_dragonbreath: 30,
   sk11_bladestorm: 25, sk11_heal: 40, sk11_shield: 30, sk11_blink: 15, sk11_clone: 45,
@@ -87,6 +88,7 @@ function hurtZ(z, dmg, color) {   // 技能直伤结算（吃击杀计数）
   }
   z.hp -= dmg; z.flash = 0.12; burst(z.x, z.y, color, 7);
   if (z.hp <= 0) killZombie(z);
+  if (coopMode === 'host') coopSendSnap(true);
 }
 /* ⚡ 闪电溅射：主目标周围极小范围内的密怪一起挨劈（群攻里最小的圈） */
 function splashZap(cx, cy, r, dmg, color, exclude) {
@@ -192,7 +194,7 @@ function castSkill(key) {
 }
 const skillsEl = document.getElementById('skills');
 let skillRefs = [];
-const ALLITEMS = {}; for (const t of [SHOP, SHOP2, SHOP3, SHOP4, SHOP5, SHOP6, SHOP7, SHOP8, SHOP9, SHOP10, USE_ITEMS, ULT_ITEMS]) for (const k in t) ALLITEMS[k] = t[k];   // 全关卡物品表（继承的技能跨关也能用）
+const ALLITEMS = {}; for (const t of [SHOP, SHOP2, SHOP3, SHOP4, SHOP5, SHOP6, SHOP7, SHOP8, SHOP9, SHOP10, SHOP14, CRAFT_ITEMS, MATERIALS, USE_ITEMS, ULT_ITEMS]) for (const k in t) ALLITEMS[k] = t[k];   // 全关卡物品表（继承的技能跨关也能用）
 /* 🥷 职业物品（v54）：不进商店货架、不进宝箱抽奖池，只能靠剧情获得 */
 const CLASS_ITEMS = {
   awaken_stone: { name: '觉醒石', icon: '🌟', price: 0, kind: 'awaken', desc: '随机觉醒职业（共 15 个）：第一颗主职业、第二颗副职业，左上角 ⇄ 一键切换！' },

@@ -1,0 +1,34 @@
+'use strict';
+/* Real Chromium acceptance. Uses an already installed Playwright module; installs nothing.
+   PLAYWRIGHT_MODULE=/path/to/playwright-core CHROME_PATH=/path/to/chrome node tests/browser-v96.cjs */
+const fs=require('node:fs'),path=require('node:path'),http=require('node:http'),assert=require('node:assert/strict');
+const root=path.resolve(__dirname,'..');
+let chromium;try{({chromium}=require(process.env.PLAYWRIGHT_MODULE||'/opt/homebrew/lib/node_modules/agent-browser/node_modules/playwright-core'));}catch(e){console.error('Set PLAYWRIGHT_MODULE to an existing playwright-core install.');process.exit(1);}
+(async()=>{
+ let browser,server;const checks=[],errors=[];
+ try {
+  browser=await chromium.launch({headless:true,executablePath:process.env.CHROME_PATH||'/Users/clawopen/Library/Caches/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-mac-arm64/chrome-headless-shell'});
+  server=http.createServer((req,res)=>{const file=path.resolve(root,'.'+decodeURIComponent(req.url.split('?')[0]==='/'?'/index.html':req.url.split('?')[0]));if(!file.startsWith(root+path.sep)){res.writeHead(403).end();return;}fs.readFile(file,(err,data)=>{if(err){res.writeHead(404).end();return;}res.setHeader('Content-Type',file.endsWith('.js')?'text/javascript':file.endsWith('.css')?'text/css':'text/html');res.end(data);});});
+  await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',resolve);});const url='http://127.0.0.1:'+server.address().port;
+  const context=await browser.newContext({viewport:{width:1000,height:800}}),a=await context.newPage(),b=await context.newPage();
+  for(const page of [a,b]){page.on('pageerror',e=>errors.push(e.message));page.on('console',e=>{if(e.type()==='error')errors.push(e.text());});await page.goto(url);await page.waitForFunction(()=>window.G);await page.evaluate(()=>{closeHome();zombies=[];});}
+  await a.evaluate(()=>{level=14;campaignLv=14;player.hearts=player.maxHearts=100;zombies=[];spawnBoss();zombies[0].x=player.x+150;zombies[0].y=player.y;zombies[0].greatCd=0;zombies[0].rainCd=99;});
+  await a.waitForFunction(()=>zombies[0]?.swordCasts.some(c=>c.kind==='greatSword'));await a.waitForFunction(()=>player.hearts===96,null,{timeout:2500});checks.push('大剑独立预警与4点伤害');
+  await a.evaluate(()=>{player.hearts=100;player.inv=0;zombies[0].swordCasts=[];zombies[0].greatCd=99;zombies[0].rainCd=0;});
+  await a.waitForFunction(()=>zombies[0]?.swordCasts.some(c=>c.kind==='swordRain'&&c.swords.length===25));await a.screenshot({path:path.join(root,'reports/boss-warning.png')});
+  await a.waitForFunction(()=>player.hearts===95,null,{timeout:5000});checks.push('万剑归宗独立25剑、3秒预警与5点伤害');
+  await a.evaluate(()=>{zombies=[];player.bought=Object.fromEntries(Object.keys(SHOP14).map(k=>[k,ALLKIND[k]==='weapon'||ALLKIND[k]==='gear'?{t:0,w:0}:true]));toggleBag(true);});
+  const navBefore=await a.locator('#bagNav').boundingBox();await a.locator('#bagList').evaluate(el=>el.scrollTop=el.scrollHeight);await a.locator('[data-anchor="weapon"]').click();assert.equal(await a.locator('#bagNav button').count(),5);const navAfter=await a.locator('#bagNav').boundingBox();assert.ok(Math.abs(navBefore.y-navAfter.y)<2);for(const k of ['gear','skill','pet','items'])await a.locator(`[data-anchor="${k}"]`).click();checks.push('背包五钮 sticky 与五锚点');
+  await a.evaluate(()=>{toggleBag(false);enterTown();ownedHouse=true;player.gold=100000;openDecorate();});assert.equal(await a.locator('[data-furniture]').count(),20);await a.locator('[data-furniture="furniture_1"]').click();
+  const point=await a.evaluate(()=>{const Z=ZOOMS[zoomLv];return {x:(1300-Math.max(0,Math.min(WORLD.w-VW/Z,player.x-VW/Z/2)))*Z,y:(1300-Math.max(0,Math.min(WORLD.h-VH/Z,player.y-VH/Z/2)))*Z};});await a.mouse.click(point.x,point.y);assert.equal(await a.evaluate(()=>player.furniture.furniture_1.x),1300);await a.mouse.click(point.x,point.y);assert.ok(await a.evaluate(()=>player.furniture.furniture_1.clicks>0));await a.screenshot({path:path.join(root,'reports/furniture-pointer.png')});
+  await a.evaluate(()=>openDecorate());await a.locator('[data-furniture="furniture_2"]').click();
+  const forbidden=await a.evaluate(()=>{const old={x:player.furniture.furniture_2.x,y:player.furniture.furniture_2.y},Z=ZOOMS[zoomLv];return {old,x:(1200-Math.max(0,Math.min(WORLD.w-VW/Z,player.x-VW/Z/2)))*Z,y:(1480-Math.max(0,Math.min(WORLD.h-VH/Z,player.y-VH/Z/2)))*Z};});
+  await a.mouse.click(forbidden.x,forbidden.y);assert.deepEqual(await a.evaluate(()=>({x:player.furniture.furniture_2.x,y:player.furniture.furniture_2.y})),forbidden.old);assert.ok(await a.evaluate(()=>banner.txt.includes('空地')||banner.txt.includes('门')));checks.push('真实鼠标点击门垫禁区，拒绝摆放并提示');
+  await a.evaluate(()=>{for(const k in FURNITURE){if(!player.furniture[k])purchaseFurniture(player,k);FURNITURE[k].interact(player.furniture[k]);}saveGame();});checks.push('20家具购买/交互；真实鼠标摆放、点击、禁区与存档');
+  await a.evaluate(()=>{returnTravel();townMode=false;skyMode=false;inRoom=false;zombies=[];player.items={};player.bought={};player.x=1200;player.y=1200;player.dir=0;resourceMaps[currentMapId()]=[{id:'browser-ore',x:1230,y:1200,kind:'iron',progress:0,done:false}];holdAtk=true;});await a.waitForFunction(()=>(player.items.iron||0)>0,null,{timeout:10000});await a.evaluate(()=>{holdAtk=false;player.items.iron=9;player.items.soul_grass=2;player.items.iron_grass=5;openCraft();});for(const k of ['iron_sword','iron_axe','alchemy_table','use_speed','use_iron'])await a.locator(`[data-craft="${k}"]`).click();assert.equal(await a.evaluate(()=>player.items.use_speed),1);await a.locator('#craftClose').click();checks.push('持续采矿4秒与真实制作按钮');
+  await a.evaluate(()=>enterCoop('browser-dual',1));await b.evaluate(()=>enterCoop('browser-dual',2));await a.waitForFunction(()=>pvpFoe&&!pvpFoe.stale);await b.waitForFunction(()=>pvpFoe&&!pvpFoe.stale);await a.evaluate(()=>{level=14;zombies=[makePiglin(1230,1200,true)];coopSendSnap();});await b.waitForFunction(()=>zombies.some(z=>z.piglinKing&&z.maxHp===1000));
+  await b.evaluate(()=>netSendCoop({type:'hit',ids:[zombies[0].id],dmg:7}));await a.waitForFunction(()=>zombies[0].hp===993);await a.evaluate(()=>beginTravel('town'));await b.waitForFunction(()=>pvpFoe&&!sameMap(pvpFoe));await a.evaluate(()=>returnTravel());await b.waitForFunction(()=>pvpFoe&&sameMap(pvpFoe));checks.push('双页面本地合作：状态/1000血/攻击立即同步/跨图隐藏与恢复');
+  assert.deepEqual(errors,[]);fs.writeFileSync(path.join(root,'reports/browser-result.json'),JSON.stringify({status:'passed',checks,errors},null,2)+'\n');console.log(checks.join('\n'));
+ }catch(e){const status=browser?'failed':'blocked';fs.writeFileSync(path.join(root,'reports/browser-result.json'),JSON.stringify({status,checks,errors,error:e.message},null,2)+'\n');console.error(status+': '+e.message);process.exitCode=1;}
+ finally{if(browser)await browser.close();if(server)await new Promise(r=>server.close(r));}
+})();

@@ -72,7 +72,7 @@ function goNextLevel() {   // 🗺️ 真正过关（旧自动过渡搬到这里
   const what = pendingNext; pendingNext = null; chest = null;
   if (what === 'level') {
     level++; campaignLv = level;   // 🧭 主线进度推进
-    setBanner((level === 2 ? '❄️ 第二关：骷髅雪原！' : level === 3 ? '👻 第三关：鬼魂地狱！' : level === 4 ? '🌋 第四关：熔岩火山！' : level === 5 ? '⛈️ 第五关：天空雷域！' : level === 6 ? '🕳️ 第六关：虚空之境！' : level === 8 ? '💀 第八关：凋零之地！凋灵骷髅大举入侵！' : level === 9 ? '🐉 第九关：末影之地！没有小怪，只有末影龙！' : level === 10 ? '🧨 第十关：苦力怕矿洞！听脚步声，嘶嘶响就跑！' : level === 11 ? '🟢 第十一关：史莱姆沼泽！打死还会分裂！' : level === 13 ? '🪞 第十三关：镜面洞穴！当心复制你的镜面怪！' : level === 12 ? '👿 第十二关：深邃古城！别乱动——坚守者瞎但听得见！' : '💎 第七关：水晶洞窟！') + '全部家当都继承，商店已刷新！');
+    setBanner((level === 2 ? '❄️ 第二关：骷髅雪原！' : level === 3 ? '👻 第三关：鬼魂地狱！' : level === 4 ? '🌋 第四关：熔岩火山！' : level === 5 ? '⛈️ 第五关：天空雷域！' : level === 6 ? '🕳️ 第六关：虚空之境！' : level === 8 ? '💀 第八关：凋零之地！凋灵骷髅大举入侵！' : level === 9 ? '🐉 第九关：末影之地！没有小怪，只有末影龙！' : level === 10 ? '🧨 第十关：苦力怕矿洞！听脚步声，嘶嘶响就跑！' : level === 11 ? '🟢 第十一关：史莱姆沼泽！打死还会分裂！' : level === 14 ? '🐷 第十四关：猪灵堡垒！金斧前摇与剑雨预警！' : level === 13 ? '🪞 第十三关：镜面洞穴！当心复制你的镜面怪！' : level === 12 ? '👿 第十二关：深邃古城！别乱动——坚守者瞎但听得见！' : '💎 第七关：水晶洞窟！') + '全部家当都继承，商店已刷新！');
   } else {   // what === 'town'：主线通关→剧情→进小镇（🗼 试炼塔在小镇广场南边）
     townUnlocked = true; setBanner('🏆 主线通关！宁静小镇开启，试炼塔在等你！');
     for (const o of zombies) o.dead = true;
@@ -132,7 +132,7 @@ document.getElementById('faintStay').onclick = () => {   // 同上
 };
 /* ================= 🏡 宁静小镇（马路+商店街+小家） ================= */
 function enterTown() {
-  townMode = true; townUnlocked = true; inRoom = false; paused = false; towerMode = false;   // 🗼 出塔回镇
+  skyMode = false; townMode = true; townUnlocked = true; inRoom = false; paused = false; towerMode = false;   // 🗼 出塔回镇
   dungeonMode = false; dgnExit = null;   // 🌲 保险：从副本回来也算回镇
   for (const z of zombies) z.dead = true;
   earrows = []; parrows = []; garrows = []; meteors = []; puddles = []; skillShots = []; clouds = []; fxLines = []; netOrbs = null; shocks = []; chest = null;
@@ -142,7 +142,7 @@ function enterTown() {
   setBanner('🏡 宁静小镇：随便逛！马路两边全是商店（小镇里装备会休息哦）'); saveGame();
 }
 function exitTown() {   // ⚔️ 继续刷怪=永远回主线（试炼塔只能走到塔门口进）
-  townMode = false; inRoom = false; paused = false; sittingBench = null;   // 🪑 回战场不能坐着
+  skyMode = false; townMode = false; inRoom = false; paused = false; sittingBench = null;   // 🪑 回战场不能坐着
   dungeonMode = false; dgnExit = null;   // 🌲 保险
   towerMode = false; level = campaignLv;   // 🧭 回主线：恢复到第几关
   for (const z of zombies) z.dead = true;
@@ -184,7 +184,7 @@ spawnDgnKing() {   // 👑 哥布林王登场
 },
 
 enterDungeon() {   // 🌲 进副本
-  dungeonMode = true; townMode = false; inRoom = false; paused = false; sittingBench = null;
+  dungeonMode = true; skyMode = false; townMode = false; inRoom = false; paused = false; sittingBench = null;
   dgnKills = 0; dgnKingSpawned = false; dgnExit = null; spawnT = 1;
   for (const z of zombies) z.dead = true;
   earrows = []; parrows = []; garrows = []; meteors = []; puddles = []; skillShots = []; clouds = []; fxLines = []; netOrbs = null; shocks = []; chest = null;
@@ -392,8 +392,8 @@ function placeTownShops() {   // 🛣️ 马路两边排排坐：8 家店 + 房�
     const [kind, label] = specs[i];
     mapShops.push({ x: 480 + i * 205, y: 1200 + (i % 2 ? -110 : 110), kind, label, items: rollShopItems(kind) });
   }
-  mapShops.push({ x: 2150, y: 1200 - 110, kind: 'house', label: '🏠 房产中介', items: [] });
-  mapShops.push({ x: 250, y: 1200 + 110, kind: 'mount', label: '🐴 马厩', items: [] });   // 🐴 马厩：20 匹坐骑（买/骑/换）
+  mapShops.push({ x: 2150, y: 1200 - 110, kind: 'house', label: '🏠 房产中介·安居', items: [] });
+  mapShops.push({ x: 250, y: 1200 + 110, kind: 'mount', label: '🐴 马厩老板·老马', items: [] });   // 🐴 马厩：20 匹坐骑（买/骑/换）
 }
 function buyHouse() {
   if (ownedHouse || player.gold < 10000) { beep(160, 90, 0.15, 'square', 0.1); return; }
@@ -466,7 +466,7 @@ function addToInv(key, tier) {
 /* 🔧 合成系统已退役（v52）：商店宝箱永不出重复装备→材料永远凑不齐→合成是摆设；升级全靠升级石 */
 /* ================= 🏪 地图实体商店（每关 2 个随机类型，走近按 B / 点「进入」） ================= */
 const SHOP_TYPES = [['weapon', '🗡️ 武器店', 50], ['gear', '🛡️ 装备店', 30], ['skill', '✨ 法术店', 20], ['pet', '🐾 宠物店', 30]];
-const SHOP_ICON = { weapon: '🗡️', gear: '🛡️', skill: '✨', pet: '🐾' };
+const SHOP_ICON = { mount:'🐴', house:'🏠', dia:'💎', weapon: '🗡️', gear: '🛡️', skill: '✨', pet: '🐾' };
 let mapShops = [], curShop = -1;
 function rollShopType() { const tot = SHOP_TYPES.reduce((s, t) => s + t[2], 0); let r = Math.random() * tot; for (const t of SHOP_TYPES) { r -= t[2]; if (r <= 0) return t; } return SHOP_TYPES[0]; }
 function shopDisc() { return Math.min(0.3, (player.owned.charm ? 0.1 : 0) + (player.job === 'rogue' ? 0.2 : 0)); }   // 🪙🃏 折扣叠加：金币护符 9 折 + 盗贼 8 折
@@ -505,7 +505,7 @@ function nearShop() { for (let i = 0; i < mapShops.length; i++) if (Math.hypot(p
 function openMapShop(i) { if (i < 0) return; curShop = i; diaPicking = false; paused = true; renderMapShop(); shopEl.style.display = 'flex'; beep(500, 700, 0.1, 'sine', 0.1); }
 function renderMapShop() {
   const s = mapShops[curShop]; if (!s) return;
-  document.getElementById('shopTitle').textContent = s.label;
+  document.getElementById('shopTitle').textContent = s.kind === 'mount' ? '🐴 马厩老板·老马' : s.kind === 'house' ? '🏠 房产中介·安居' : s.label;
   let h = '';
   if (s.kind === 'mount') {   // 🐴 马厩：20 匹坐骑（越贵越快/血越厚/攻越强）
     h = '<div class="htxt" style="text-align:center;margin-bottom:6px">🐴 挑一匹坐骑！怪物会先打它，它也会帮你踢怪</div>';
@@ -523,6 +523,7 @@ function renderMapShop() {
   if (s.kind === 'house') {   // 🏠 房产中介：一万买小家
     h = ownedHouse ? '<div class="htxt">你已经有自己的小家啦！北边那栋蓝房子就是</div>'
       : `<div class="shopIt"><div class="ic">🏡</div><div><div class="nm">温馨小房间</div><div class="ds">有床有柜子！床能睡觉回满血+存档，柜子能存背包里的宝贝</div></div>${player.gold >= 10000 ? '<button data-house="1">💰10000</button>' : `<button disabled>💰10000（差${10000 - player.gold}）</button>`}</div>`;
+    h += '<button id=decorateOpen>🪑 装修 · 20 件家具目录</button>';
   } else if (s.kind === 'dia') {   // 💎 钻石商店：只收钻石，全部不限购
     h = `<div class="htxt" style="text-align:center;margin-bottom:6px">你有 💎 ${player.diamonds || 0}（钻石只在试炼塔里掉）</div>`;
     if (diaPicking) {   // 🎯 指定转职：挑一个职业
@@ -550,6 +551,7 @@ function renderMapShop() {
     h += `<div class="shopIt"><div class="ic">${d.icon}</div><div><div class="nm">${d.name}${tb}</div><div class="ds">${d.desc}${own}${it.use ? '——无限购！' : ''}</div></div>${btn}</div>`;
   }
   shopItems.innerHTML = h;
+  const db = document.getElementById('decorateOpen'); if(db) db.onclick = openDecorate;
   const hb = shopItems.querySelector('button[data-house]'); if (hb) hb.onclick = buyHouse;
   for (const b of shopItems.querySelectorAll('button[data-dia]')) b.onclick = () => buyDia(b.dataset.dia);   // 💎 钻石商店买单
   for (const b of shopItems.querySelectorAll('button[data-job]')) b.onclick = () => {   // 🎯 指定转职挑职业
@@ -690,7 +692,7 @@ function ctxGo() {
   else if (c.act === 'altar') openAltar();   // 🔮 摸祭坛看契约
   else if (c.act === 'dungeon') Dgn.enterDungeon();   // 🌲 进哥布林森林副本
   else if (c.act === 'fishshop') Sky.openFishShop();   // 🐟 天空城鱼商人
-  else if (c.act === 'skyleave') leavePvp();   // 🚪 离开天空城回冒险
+  else if (c.act === 'skyleave') { if(travelReturn || !pvpMode) returnTravel(); else leavePvp(); }   // 🚪 离开天空城回冒险
   else if (c.act === 'play') Games.startPlay(c.play);   // 🎡 游乐项目
 }
 document.getElementById('enterBtn').onclick = ctxGo;

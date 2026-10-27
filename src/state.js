@@ -32,8 +32,10 @@ const LEVELS = {
   10: { name: '苦力怕矿洞', grassA: '#2a3020', grassB: '#242a1c', edge: '#141810', trunk: '#3a3428', leaf: '#5a6a3a', leafHi: '#7a8a4a', rock: '#4a4a44', rockHi: '#6a6a60', enemy: 'creeper', bossName: '🧨 泰坦苦力怕' },
   11: { name: '史莱姆沼泽', grassA: '#1e3026', grassB: '#1a2a22', edge: '#0c1812', trunk: '#2a3a2a', leaf: '#3a6a4a', leafHi: '#5a9a6a', rock: '#2a4438', rockHi: '#4a6a58', enemy: 'slime', bossName: '👻 恶魂' },
   12: { name: '深邃古城', grassA: '#0e1a1e', grassB: '#0c161a', edge: '#060c0e', trunk: '#1a2e34', leaf: '#2a4a44', leafHi: '#3a6a5a', rock: '#16262c', rockHi: '#26424a', enemy: 'bat', bossName: '👿 坚守者' },
+  14: {name:'猪灵堡垒',grassA:'#503022',grassB:'#593828',edge:'#261810',trunk:'#8a5828',leaf:'#b89032',leafHi:'#ffd24a',rock:'#705044',rockHi:'#d8aa40',enemy:'piglin',bossName:'⚔️ 猪灵剑神'},
   13: { name: '镜面洞穴', grassA: '#bfc8d0', grassB: '#d3dae0', edge: '#727e8c', trunk: '#96a4b2', leaf: '#dae5ee', leafHi: '#ffffff', rock: '#a5b5c4', rockHi: '#ffffff', enemy: 'mirror', bossName: '🪞 镜面魔王' },
 };
+const worldState = { get mapId() { return currentMapId(); } };
 let level = 1, earrows = [], parrows = [], garrows = [], meteors = [], puddles = [], skillShots = [], clouds = [], fxLines = [], netOrbs = null, shocks = [];   // 各种飞行物与特效
 let towerMode = false;   // 🗼 试炼塔（无尽）中：第八关是凋零关主线，无尽搬进了小镇试炼塔
 let campaignLv = 1;   // 🧭 主线进度（唯一的真相）：试炼塔用 level=8 显示，主线第几关永远记在这里
@@ -67,11 +69,11 @@ function spawnEnemy() {   // 按关卡出怪（试炼塔按波次）
   if (pvpMode) return;   // 📡 PVP 擂台不刷怪，只有对面那个真人
   if (typeof coopMode !== 'undefined' && coopMode === 'client') return;   // 🤝 合作客机不跑怪生成
   if (typeof coopMode !== 'undefined' && coopMode === 'host') {
-    const w = ((coopWave - 1) % 13) + 1;
+    const w = ((coopWave - 1) % 14) + 1;
     const s = pickSpawn(player, Math.random);
-    zombies.push(w === 2 ? makeSkeleton(s.x, s.y, Math.random) : w === 3 ? makeGhost(s.x, s.y, Math.random) : w === 4 ? makeLava(s.x, s.y, Math.random) : w === 5 ? makeStorm(s.x, s.y, Math.random) : w === 6 ? makeVoid(s.x, s.y, Math.random) : w === 7 ? makeCrystal(s.x, s.y, Math.random) : w === 8 ? makeWSkel(s.x, s.y) : w === 10 ? makeCreeper(s.x, s.y) : w === 11 ? makeSlime(s.x, s.y, 2) : w === 12 ? makeBat(s.x, s.y) : w === 13 ? makeMirror(s.x, s.y, mirrorSnapshot(), Math.random) : spawnZombie(player, Math.random));
+    zombies.push(w === 2 ? makeSkeleton(s.x, s.y, Math.random) : w === 3 ? makeGhost(s.x, s.y, Math.random) : w === 4 ? makeLava(s.x, s.y, Math.random) : w === 5 ? makeStorm(s.x, s.y, Math.random) : w === 6 ? makeVoid(s.x, s.y, Math.random) : w === 7 ? makeCrystal(s.x, s.y, Math.random) : w === 8 ? makeWSkel(s.x, s.y) : w === 10 ? makeCreeper(s.x, s.y) : w === 11 ? makeSlime(s.x, s.y, 2) : w === 12 ? makeBat(s.x, s.y) : w === 14 ? makePiglin(s.x,s.y) : w === 13 ? makeMirror(s.x, s.y, mirrorSnapshot(), Math.random) : spawnZombie(player, Math.random));
     const zz = zombies[zombies.length - 1];
-    zz.kind = ['', 'zombie', 'skeleton', 'ghost', 'lava', 'storm', 'voidw', 'crystal', 'wskeleton', 'none', 'creeper', 'slime', 'bat', 'mirror'][w];
+    zz.kind = ['', 'zombie', 'skeleton', 'ghost', 'lava', 'storm', 'voidw', 'crystal', 'wskeleton', 'none', 'creeper', 'slime', 'bat', 'mirror', 'piglin'][w];
     const aff = rollAffix(Math.random);
     zz.maxHp = zz.hp;
     if (altarMods && altarMods.hpMul) { zz.hp *= altarMods.hpMul; zz.maxHp = zz.hp; }
@@ -81,8 +83,8 @@ function spawnEnemy() {   // 按关卡出怪（试炼塔按波次）
   if (towerMode) { waveSpawn(); return; }
   if (level === 9) return;   // 🐉 末影之地只有末影龙，一只小怪都没有
   const s = pickSpawn(player, Math.random);
-  zombies.push(level === 2 ? makeSkeleton(s.x, s.y, Math.random) : level === 3 ? makeGhost(s.x, s.y, Math.random) : level === 4 ? makeLava(s.x, s.y, Math.random) : level === 5 ? makeStorm(s.x, s.y, Math.random) : level === 6 ? makeVoid(s.x, s.y, Math.random) : level === 7 ? makeCrystal(s.x, s.y, Math.random) : level === 8 ? makeWSkel(s.x, s.y) : level === 10 ? makeCreeper(s.x, s.y) : level === 11 ? makeSlime(s.x, s.y, 2) : level === 12 ? makeBat(s.x, s.y) : level === 13 ? makeMirror(s.x, s.y, mirrorSnapshot(), Math.random) : spawnZombie(player, Math.random));
-  zombies[zombies.length - 1].kind = ['', 'zombie', 'skeleton', 'ghost', 'lava', 'storm', 'voidw', 'crystal', 'wskeleton', 'none', 'creeper', 'slime', 'bat', 'mirror'][level];   // 📖 图鉴计数用
+  zombies.push(level === 2 ? makeSkeleton(s.x, s.y, Math.random) : level === 3 ? makeGhost(s.x, s.y, Math.random) : level === 4 ? makeLava(s.x, s.y, Math.random) : level === 5 ? makeStorm(s.x, s.y, Math.random) : level === 6 ? makeVoid(s.x, s.y, Math.random) : level === 7 ? makeCrystal(s.x, s.y, Math.random) : level === 8 ? makeWSkel(s.x, s.y) : level === 10 ? makeCreeper(s.x, s.y) : level === 11 ? makeSlime(s.x, s.y, 2) : level === 12 ? makeBat(s.x, s.y) : level === 14 ? makePiglin(s.x,s.y) : level === 13 ? makeMirror(s.x, s.y, mirrorSnapshot(), Math.random) : spawnZombie(player, Math.random));
+  zombies[zombies.length - 1].kind = ['', 'zombie', 'skeleton', 'ghost', 'lava', 'storm', 'voidw', 'crystal', 'wskeleton', 'none', 'creeper', 'slime', 'bat', 'mirror', 'piglin'][level];   // 📖 图鉴计数用
   const zz = zombies[zombies.length - 1], aff = rollAffix(Math.random);   // 👑 12% 精英词缀
   zz.maxHp = zz.hp;   // ♻️ 再生词缀回血上限
   if (altarMods && altarMods.hpMul) { zz.hp *= altarMods.hpMul; zz.maxHp = zz.hp; }   // 🔮 嗜血契约：怪血×3
@@ -97,12 +99,13 @@ function spawnBoss(restoreHp) {   // 🩸 restoreHp>0=看门狗补召继承残�
   for (const z of zombies) if (!z.boss) z.dead = true;   // 👑 BOSS 登场清场
   summonT = 10;   // 10 秒后开始召唤小怪
   const pos = pickSpawn(player, Math.random);
-  const b = (towerMode ? endlessWave : level) === 13 ? makeMirror(pos.x, pos.y, mirrorSnapshot(), Math.random, true) : makeBoss(pos.x, pos.y);
+  const bossLevel = coopMode ? ((coopWave-1)%14)+1 : towerMode ? endlessWave : level;
+  const b = bossLevel === 14 ? makePiglin(pos.x,pos.y,true) : bossLevel === 13 ? makeMirror(pos.x, pos.y, mirrorSnapshot(), Math.random, true) : makeBoss(pos.x, pos.y);
   if (typeof coopMode !== 'undefined' && coopMode) {
-    const w = ((coopWave - 1) % 13) + 1;
+    const w = ((coopWave - 1) % 14) + 1;
     b.skelBoss = w === 2; b.ghostBoss = w === 3; b.lavaBoss = w === 4; b.stormBoss = w === 5; b.voidBoss = w === 6; b.crystalBoss = w === 7;
     b.wither = w === 8; b.ender = w === 9; b.titan = w === 10; b.ghast = w === 11; b.warden = w === 12;
-    b.hp = b.maxHp = Math.round(BOSS.hp + (coopWave - 1) * 20);
+    b.hp = b.maxHp = b.piglinKing ? 1000 : Math.round(BOSS.hp + (coopWave - 1) * 20);
     b.kind = 'boss' + w;
     if (restoreHp > 0) b.hp = Math.max(1, Math.min(b.maxHp, restoreHp));
     zombies.push(b);
@@ -136,7 +139,7 @@ function spawnBoss(restoreHp) {   // 🩸 restoreHp>0=看门狗补召继承残�
   b.ghast = level === 11;      // 👻 第十一关出恶魂（火球可打回去）
   b.warden = level === 12;     // 👿 第十二关出坚守者（50 万血！盲眼听声辨位+音波炮）
   b.kind = 'boss' + level;     // 📖 图鉴计数用
-  if (!b.mirrorKing) b.hp = b.maxHp = BOSS.hp + (level - 1) * 15;   // 🌡️ 难度爬坡：每关 BOSS 血更厚（40→55→70→85→100→115）
+  if (!b.mirrorKing && !b.piglinKing) b.hp = b.maxHp = BOSS.hp + (level - 1) * 15;   // 🌡️ 难度爬坡：每关 BOSS 血更厚（40→55→70→85→100→115）
   if (b.ender) b.hp = b.maxHp = 10000;   // 🐉 末影龙一万血（恩泽定的）
   if (b.warden) b.hp = b.maxHp = 500000;   // 👿 坚守者五十万血（恩泽定的，慢慢磨！）
   if (restoreHp > 0) b.hp = Math.max(1, Math.min(b.maxHp, restoreHp));   // 🩸 看门狗补召：继承蒸发前的残血（不超上限、至少 1 血）
@@ -443,6 +446,7 @@ function dotTick(z, dt) {
   return false;
 }
 function bossUpdate(z, dt) {
+  if (z.piglinKing) { updatePiglin(z,dt); return; }
   if (z.mirrorKing) { mirrorUpdate(z, dt); return; }   // 🪞 魔王使用玩家快照
   if (z.dgnKing) { Dgn.dgnKingTick(z, dt); return; }   // 👑 哥布林王有自己的大脑
   if (z.warden) { wardenTick(z, dt); return; }   // 👿 坚守者有自己的大脑
@@ -571,6 +575,8 @@ function bossUpdate(z, dt) {
   }
 }
 function reset() {
+  resourceMaps = {}; travelReturn = null; furniturePick = null;
+  skyMode = false;
   player = makePlayer(); zombies = []; kills = 0; spawnT = 1; summonT = 10; parts = []; gameOver = false;
   player.job = null; player.job2 = null; player.offhand = null; warriorHand = false; lastSwingKey = null;   // 🥷⚔️ 新冒险：无职业无副手，等宝箱觉醒
   towerMode = false; campaignLv = 1;   // 🗼🧭 新冒险不在塔里，主线从第一关开始
@@ -602,6 +608,6 @@ function reset() {
   placePortal();   // 🕳️ 这关的山洞在哪呢
   placeShops();   // 🏪 地图上摆两个商店
 }
-function updateScore() { document.getElementById('score').textContent = '⚔️ 击败 ' + kills; document.getElementById('levelTag').textContent = (typeof coopMode !== 'undefined' && coopMode) ? `🤝 合作冒险·第${coopWave}波` : pvpMode ? '☁️ 天空城 #' + String(pvpMode).replace('net', '') : dungeonMode ? '🌲 哥布林森林 ' + dgnKills + '/' + DGN_GOAL + (dgnKingSpawned ? ' 👑王来了！' : '') : townMode ? '🏡 宁静小镇' : towerMode ? `🗼试炼塔 第${endlessRound}遍·第${endlessWave}波` : '🗺️ 第' + level + '关·' + LEVELS[level].name; }
+function updateScore() { document.getElementById('score').textContent = '⚔️ 击败 ' + kills; document.getElementById('levelTag').textContent = skyMode ? '☁️ 天空城' : townMode ? (inRoom ? '🏠 小镇·家' : '🏡 宁静小镇') : (typeof coopMode !== 'undefined' && coopMode) ? `🤝 合作冒险·第${coopWave}波` : pvpMode ? '☁️ 天空城 #' + String(pvpMode).replace('net', '') : dungeonMode ? '🌲 哥布林森林 ' + dgnKills + '/' + DGN_GOAL + (dgnKingSpawned ? ' 👑王来了！' : '') : townMode ? '🏡 宁静小镇' : towerMode ? `🗼试炼塔 第${endlessRound}遍·第${endlessWave}波` : '🗺️ 第' + level + '关·' + LEVELS[level].name; }
 function updateGold() { document.getElementById('gold').textContent = '💰 ' + player.gold; updateDia(); }
 function updateDia() { document.getElementById('dia').textContent = '💎 ' + (player.diamonds || 0); }   // 💎 钻石只认试炼塔
