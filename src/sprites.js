@@ -207,7 +207,69 @@ function darkenHex(hex) {   // 颜色加深 30%（衣服暗纹）
   const f = v => Math.max(0, Math.round(v * 0.7));
   return '#' + [f(n >> 16 & 255), f(n >> 8 & 255), f(n & 255)].map(v => v.toString(16).padStart(2, '0')).join('');
 }
-function drawPlayerSpr(ctx, spr, x, y, px, flip, skin) {
+/* 火柴人：四向关节姿势。只负责外观，不改变玩家半径、速度或伤害。 */
+function stickmanPose(actor = {}) {
+  const dir = Number.isFinite(actor.dir) ? actor.dir : Math.PI / 2;
+  const side = Math.abs(Math.cos(dir)) > Math.abs(Math.sin(dir));
+  const sign = Math.cos(dir) < 0 ? -1 : 1;
+  const facing = side ? (sign < 0 ? 'left' : 'right') : (Math.sin(dir) < 0 ? 'up' : 'down');
+  const gait = actor.moving ? Math.sin((actor.walkT || 0) * 9) : 0;
+  const attack = actor.atkT > 0;
+  const progress = attack ? Math.max(0, Math.min(1, 1 - actor.atkT / ATTACK.swing)) : 0;
+  const lean = attack ? Math.sin(progress * Math.PI) * Math.cos(dir) * 0.9 : 0;
+  let head = [lean, -13.2, 2.55], hip = [0, -5.2], neck = [lean, -10.4];
+  const paths = [[neck, hip]];
+  for (const leg of [-1, 1]) {
+    const step = gait * leg, lift = Math.max(0, step) * 0.9;
+    paths.push(side
+      ? [hip, [step * 1.5 - sign * 0.4, -2.7 - lift], [step * 3.2, -lift], [step * 3.2 + sign * 1.1, -lift]]
+      : [hip, [leg * 1.3, -2.5 - step * 0.8], [leg * 2, -lift - (facing === 'up' ? 0.4 : 0)], [leg * 2 + leg * 0.7, -lift]]);
+  }
+  const shoulder = [lean, -9.3];
+  const rearHand = side ? [-gait * 2.1, -5.5] : [-3.4, -5.8 - gait];
+  paths.push([shoulder, side ? [-gait, -7.3] : [-2.5, -7.5 + gait * 0.5], rearHand]);
+  let hand = side ? [gait * 2.1, -5.5] : [3.4, -5.8 + gait];
+  if (attack || actor.armed) {
+    const angle = attack ? (actor.ranged ? dir : dir + (actor.swingDir < 0 ? -1 : 1) * (-0.9 + progress * 1.8)) : dir + 0.55;
+    const radius = actor.armed ? 8 : 6;
+    hand = [Math.cos(angle) * radius, -10 + Math.sin(angle) * radius];
+  }
+  const elbow = !side && attack ? [(actor.swingDir < 0 ? -1 : 1) * 3.3, -7.6] : [(shoulder[0] + hand[0]) / 2 - Math.sin(dir), (shoulder[1] + hand[1]) / 2 + 1];
+  paths.push([shoulder, elbow, hand]);
+  if (actor.seated) {
+    head = [-2.7 * sign, -14.5, 2.55]; hip = [-3 * sign, -5.5];
+    paths.splice(0, paths.length,
+      [[-2.7 * sign, -11.8], hip], [hip, [3 * sign, -5.5], [3 * sign, 0], [4.2 * sign, 0]],
+      [[-2.7 * sign, -10.5], [sign, -8], [3 * sign, -5.8]]);
+  }
+  return { facing, head, paths, hand };
+}
+function drawStickman(ctx, x, y, px, actor = {}) {
+  const p = stickmanPose(actor);
+  ctx.save(); ctx.translate(x + 6 * px, y + 16 * px); ctx.scale(px, px);
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  // 浅描边在深色关卡可见；本体仍是黑色线条，不依赖图片或表情。
+  for (const [color, width] of [['#eee8d8', 1.8], ['#17171c', 1.05]]) {
+    ctx.strokeStyle = color; ctx.lineWidth = width;
+    for (const path of p.paths) { ctx.beginPath(); ctx.moveTo(...path[0]); for (const pt of path.slice(1)) ctx.lineTo(...pt); ctx.stroke(); }
+  }
+  const [hx, hy, radius] = p.head;
+  ctx.fillStyle = '#f8f1df'; ctx.strokeStyle = '#17171c'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.arc(hx, hy, radius, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#17171c';
+  if (p.facing === 'down') { ctx.fillRect(hx - 1.1, hy - .25, .45, .65); ctx.fillRect(hx + .65, hy - .25, .45, .65); }
+  else if (p.facing !== 'up') {
+    const s = p.facing === 'left' ? -1 : 1;
+    ctx.fillRect(hx + s * 1.3 - .2, hy - .4, .5, .65);
+    ctx.beginPath(); ctx.moveTo(hx + s * 2.1, hy); ctx.lineTo(hx + s * 2.9, hy + .5); ctx.lineTo(hx + s * 2, hy + .8); ctx.stroke();
+  }
+  ctx.restore();
+}
+function drawPlayerSpr(ctx, spr, x, y, px, flip, skin, animation) {
+  if (skin && skin.model === 'stickman') {
+    const dir = spr === MAN_UP ? -Math.PI / 2 : spr === MAN_SIDE ? (flip ? Math.PI : 0) : Math.PI / 2;
+    drawStickman(ctx, x, y, px, { dir, ...animation }); return;
+  }
   const sk = skin || {};
   for (let r = 0; r < spr.length; r++) for (let c = 0; c < spr[r].length; c++) {
     const ch = spr[r][flip ? spr[r].length - 1 - c : c];

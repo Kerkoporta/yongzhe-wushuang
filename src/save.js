@@ -114,7 +114,7 @@ function applySave(s) {
   if (level < 14 && pendingNext === 'town' && !s.townUnlocked) pendingNext = 'level';   // 🪞 旧档待开宝箱继续去镜面洞穴   // 🎁 没开的宝箱回来
   faintDone = !!s.faintDone; townMode = !!s.townMode; townUnlocked = !!s.townUnlocked; ownedHouse = !!s.ownedHouse; storage = s.storage || {}; inRoom = false;   // 💉🏡 剧情进度回来（进门状态不存）
   if ((s.campaignLv >= 12 || s.level >= 12) && !townUnlocked) townUnlocked = true;   // 🏡 十二关时代的老玩家保留小镇资格
-  if (s.skin) player.skin = s.skin;   // 🎨 捏人形象读档回来（老档没有就用默认配色）
+  player.skin = { ...makePlayer().skin, ...(s.skin || {}), model: s.skin && s.skin.model === 'stickman' ? 'stickman' : 'normal' };   // 老档颜色保留，缺失/未知模型回到普通皮肤
   player.mount = s.mount || null; player.mountHp = s.mountHp || 0; player.mountCd = 0;   // 🐴 坐骑读档回来
   dungeonMode = false; dgnKills = 0; dgnKingSpawned = false; dgnExit = null;   // 🌲 副本不跟档走：读档永远落在副本外
   skyMode = false; fishState = null; bobber = null;   // ☁️ 天空城也不跟档走

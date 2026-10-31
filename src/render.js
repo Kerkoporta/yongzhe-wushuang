@@ -443,7 +443,7 @@ function draw() {
   for (const mn of minions) {   // ☠️ 死灵骷髅小弟/👥分身：白色小骨架/半透明影子+寿命倒计时
     ctx.globalAlpha = 0.3; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.ellipse(mn.x, mn.y + 2, 8, 3.5, 0, 0, 6.3); ctx.fill(); ctx.globalAlpha = 1;
     if (mn.clone) {   // 👥 分身：我的半透明影子
-      ctx.globalAlpha = 0.55; drawPlayerSpr(ctx, MAN_DOWN, mn.x - 12, mn.y - 16, 2, mn.face < 0, player.skin); ctx.globalAlpha = 1;
+      ctx.globalAlpha = 0.55; drawPlayerSpr(ctx, MAN_DOWN, mn.x - 12, mn.y - 16, 2, mn.face < 0, player.skin, { dir: mn.face < 0 ? Math.PI : 0, moving: true, walkT: mn.animT || 0 }); ctx.globalAlpha = 1;
       ctx.fillStyle = '#b8b8ff'; ctx.font = '9px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(Math.ceil(mn.t) + 's', mn.x, mn.y - 26); ctx.textAlign = 'left';
       continue;
     }
@@ -528,7 +528,7 @@ function draw() {
     const fside = Math.abs(Math.cos(f.dir)) > Math.abs(Math.sin(f.dir));
     const fspr = fside ? MAN_SIDE : (Math.sin(f.dir) < 0 ? MAN_UP : MAN_DOWN);
     ctx.globalAlpha = f.stale ? 0.35 : 1;
-    drawPlayerSpr(ctx, fspr, f.x - 12, f.y - 16 - fb, 2, fside && Math.cos(f.dir) < 0, f.skin);
+    drawPlayerSpr(ctx, fspr, f.x - 12, f.y - 16 - fb, 2, fside && Math.cos(f.dir) < 0, f.skin, { ...f, atkT: f.atkT != null ? f.atkT : f.swing ? ATTACK.swing / 2 : 0, armed: !!f.weapon, ranged: !!(WEAPON_FX[f.weapon] && (WEAPON_FX[f.weapon].bow || WEAPON_FX[f.weapon].staff || WEAPON_FX[f.weapon].gun)) });
     if (typeof coopMode !== 'undefined' && coopMode) {
       ctx.strokeStyle = '#7ee85a'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(f.x, f.y + 6, 16, 7, 0, 0, 6.3); ctx.stroke();   // 🤝 绿色队友光圈
     } else {
@@ -548,6 +548,8 @@ function draw() {
     const side = Math.abs(dirH) > Math.abs(dirV);
     const spr = side ? MAN_SIDE : (dirV < 0 ? MAN_UP : MAN_DOWN), flip = side && dirH < 0;
     const bob = player.moving ? Math.abs(Math.sin(player.walkT * 9)) * 2 : 0;
+    const heroWeapon = WEAPON_FX[(player.atkT > 0 && lastSwingKey) || player.weapon] || {};
+    const heroAnim = { dir: player.dir, moving: player.moving, walkT: player.walkT, atkT: player.atkT, swingDir, armed: !!player.weapon, ranged: !!(heroWeapon.bow || heroWeapon.staff || heroWeapon.gun) };
     if (player.mount && !gameOver && !sittingBench && playerFlyT <= 0) {   // 🐴 骑乘：坐骑驮着你（它在脚下，你骑高了）
       const mo = mountOf(player.mount);
       if (mo) {
@@ -560,17 +562,17 @@ function draw() {
     if (gameOver) {   // 💀 死亡动画：缓缓倒下+淡出
       ctx.save(); ctx.globalAlpha = Math.max(0, 1 - deathT / 1.15);
       ctx.translate(Math.round(player.x), Math.round(player.y - 6)); ctx.rotate(Math.min(1.5, deathT * 2.6));
-      drawPlayerSpr(ctx, spr, -12, -10, 2, flip, player.skin); ctx.restore(); ctx.globalAlpha = 1;
+      drawPlayerSpr(ctx, spr, -12, -10, 2, flip, player.skin, { dir: player.dir }); ctx.restore(); ctx.globalAlpha = 1;
     } else if (playerFlyT > 0) {   // 🦅 被顶飞：抛物线飞起+影子留在原地
       const ph = 1 - playerFlyT / 0.9, flyH = Math.sin(ph * Math.PI) * 46;
       ctx.globalAlpha = 0.3; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.ellipse(player.x, player.y + 2, 10, 4, 0, 0, 6.3); ctx.fill(); ctx.globalAlpha = 1;
       ctx.save(); ctx.translate(Math.round(player.x), Math.round(player.y - flyH)); ctx.rotate(ph * 5);
-      drawPlayerSpr(ctx, spr, -12, -16, 2, flip, player.skin); ctx.restore();
+      drawPlayerSpr(ctx, spr, -12, -16, 2, flip, player.skin, { dir: player.dir }); ctx.restore();
     } else if (hurtT > 0) {   // 💥 受击后仰：往后一仰
       ctx.save(); ctx.translate(Math.round(player.x), Math.round(player.y)); ctx.rotate(-0.38 * (hurtT / 0.28));
-      drawPlayerSpr(ctx, spr, -12, -16 - bob, 2, flip, player.skin); ctx.restore();
+      drawPlayerSpr(ctx, spr, -12, -16 - bob, 2, flip, player.skin, heroAnim); ctx.restore();
     } else if (sittingBench) TownArt.drawSeated(player.x, player.y, sittingBench.face, player.skin);   // 🪑 真坐姿
-    else drawPlayerSpr(ctx, spr, player.x - 12, player.y - 16 - bob - rideUp, 2, flip, player.skin);
+    else drawPlayerSpr(ctx, spr, player.x - 12, player.y - 16 - bob - rideUp, 2, flip, player.skin, heroAnim);
     if (player.atkT > 0) {   // ⚔️ 攻击动作（回旋镖=真一圈扩散环；寒冰弓=更大的弧）
       const t = 1 - player.atkT / ATTACK.swing;
       ctx.strokeStyle = player.swingColor || 'rgba(255,255,255,.9)';

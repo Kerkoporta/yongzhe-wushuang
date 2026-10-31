@@ -190,12 +190,32 @@ const SKIN_PARTS = [   // 键=皮肤字符（a=鞋，f 被岩浆怪占用了）
   ['p', '👖 裤子', ['#3a3a4a', '#1a2a5a', '#5a3a1a', '#6a6a6a', '#b8a878', '#e8e8e8', '#8a2a2a', '#2a5a3a']],
   ['a', '👟 鞋子', ['#1a1a1a', '#5a3a1a', '#e8e8e8', '#c83a2a', '#3a6ee8', '#e8c84a', '#8a8a92', '#e8a8c8']],
 ];
-const SKIN_DEFAULT = { h: '#5a3a1a', s: '#e8b88a', b: '#3a6ee8', p: '#3a3a4a', a: '#1a1a1a' };
+const SKIN_DEFAULT = { model: 'normal', h: '#5a3a1a', s: '#e8b88a', b: '#3a6ee8', p: '#3a3a4a', a: '#1a1a1a' };
+let skinPreviewAction = 'down', skinPreviewRunning = false, skinPausedBefore = false;
+function selectSkinModel(model) {
+  if (model !== 'normal' && model !== 'stickman') return;
+  player.skin = { ...SKIN_DEFAULT, ...player.skin, model };
+  renderSkinRows(); drawSkinPreview();
+}
 function openSkin() {
+  skinPausedBefore = paused; paused = true;
+  player.skin = { ...SKIN_DEFAULT, ...player.skin };
   renderSkinRows(); drawSkinPreview();
   document.getElementById('skin').style.display = 'flex';
+  if (!skinPreviewRunning) { skinPreviewRunning = true; requestAnimationFrame(skinPreviewFrame); }
+}
+function skinPreviewFrame() {
+  if (document.getElementById('skin').style.display !== 'flex') { skinPreviewRunning = false; return; }
+  drawSkinPreview(); requestAnimationFrame(skinPreviewFrame);
 }
 function renderSkinRows() {   // 五排色板，当前选中的带金框
+  const isStick = player.skin.model === 'stickman';
+  document.querySelectorAll('[data-skin-model]').forEach(b => {
+    const selected = b.dataset.skinModel === (isStick ? 'stickman' : 'normal');
+    b.setAttribute('aria-pressed', String(selected)); b.style.border = selected ? '3px solid #ffd24a' : '3px solid #666';
+  });
+  document.getElementById('skinHint').textContent = isStick ? '圆头、线条身体；四向走路和挥手攻击。普通皮肤的配色会保留。' : '普通皮肤：可以继续调整下面五个部位的颜色。';
+  document.getElementById('skinRows').style.display = isStick ? 'none' : 'block';
   const rows = document.getElementById('skinRows'); rows.innerHTML = '';
   for (const [key, label, colors] of SKIN_PARTS) {
     const row = document.createElement('div'); row.style.margin = '6px 0';
@@ -213,10 +233,16 @@ function renderSkinRows() {   // 五排色板，当前选中的带金框
 function drawSkinPreview() {   // 🎨 画布留足 16 行×6px+顶部边距，鞋子不裁切
   const cv = document.getElementById('skinCv'), c2 = cv.getContext('2d');
   c2.clearRect(0, 0, cv.width, cv.height);
-  drawPlayerSpr(c2, MAN_DOWN, 12, 8, 6, false, player.skin);
+  const dir = { down: Math.PI / 2, up: -Math.PI / 2, left: Math.PI, right: 0, attack: 0 }[skinPreviewAction];
+  const side = Math.abs(Math.cos(dir)) > Math.abs(Math.sin(dir)), spr = side ? MAN_SIDE : dir < 0 ? MAN_UP : MAN_DOWN;
+  const time = performance.now() / 1000;
+  drawPlayerSpr(c2, spr, cv.width / 2 - 36, 12, 6, side && Math.cos(dir) < 0, player.skin, { dir, moving: skinPreviewAction !== 'attack', walkT: time, atkT: skinPreviewAction === 'attack' ? ATTACK.swing * (1 - time * 1.6 % 1) : 0, swingDir: 1 });
 }
+document.querySelectorAll('[data-skin-model]').forEach(b => b.onclick = () => selectSkinModel(b.dataset.skinModel));
+document.querySelectorAll('[data-skin-preview]').forEach(b => b.onclick = () => { skinPreviewAction = b.dataset.skinPreview; drawSkinPreview(); });
+document.getElementById('gearSkin').onclick = () => { toggleGear(false); openSkin(); };
 document.getElementById('homeSkin').onclick = () => { openSkin(); beep(500, 800, 0.08, 'sine', 0.1); };
 document.getElementById('homeDaily').onclick = () => { startDaily(); };   // 📅 每日挑战
 document.getElementById('homeSandbox').onclick = () => { enterSandbox(); };   // 🔮 旁观者模式
-document.getElementById('skinDone').onclick = () => { document.getElementById('skin').style.display = 'none'; saveGame(); setBanner('🎨 新形象保存啦！联机时对面也能看见'); beep(700, 1200, 0.15, 'sine', 0.12); };
+document.getElementById('skinDone').onclick = () => { document.getElementById('skin').style.display = 'none'; paused = skinPausedBefore || anyPanelOpen(); saveGame(); if (coopMode) coopWrite(); if (pvpMode) pvpWrite(); setBanner('🎨 新形象保存啦！联机时对面也能看见'); beep(700, 1200, 0.15, 'sine', 0.12); };
 document.getElementById('skinReset').onclick = () => { player.skin = Object.assign({}, SKIN_DEFAULT); renderSkinRows(); drawSkinPreview(); beep(300, 500, 0.08, 'sine', 0.08); };

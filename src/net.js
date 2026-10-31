@@ -118,7 +118,7 @@ function leavePvp() {
 
 function pvpWrite() {   // 📡 0.1 秒一存：我的状态直接写进"游戏代码"（对面窗口读它看到我）
   if (!pvpMode) return;
-  try { localStorage.setItem(pvpRoomKey(pvpMode) + '_p' + pvpSide, JSON.stringify({ mapId: currentMapId(), x: Math.round(player.x), y: Math.round(player.y), hearts: player.hearts, maxHearts: player.maxHearts, weapon: player.weapon, skin: player.skin, dir: player.dir, moving: player.moving, walkT: player.walkT, swing: player.atkT > 0, holdFish: player.holdFish || null, hits: pvpHits.slice(-5), when: Date.now() })); } catch (e) {}
+  try { localStorage.setItem(pvpRoomKey(pvpMode) + '_p' + pvpSide, JSON.stringify({ mapId: currentMapId(), x: Math.round(player.x), y: Math.round(player.y), hearts: player.hearts, maxHearts: player.maxHearts, weapon: player.weapon, skin: player.skin, dir: player.dir, moving: player.moving, walkT: player.walkT, swing: player.atkT > 0, atkT: player.atkT || 0, swingDir: typeof swingDir !== 'undefined' ? swingDir : 1, holdFish: player.holdFish || null, hits: pvpHits.slice(-5), when: Date.now() })); } catch (e) {}
 }
 function pvpRead() {   // 📡 读对面的存档 → 幻影对手出现在我的战场
   if (!pvpMode) { pvpFoe = null; return; }
@@ -241,6 +241,7 @@ function coopStatePacket() {
     moving: player.moving,
     walkT: player.walkT,
     swing: player.atkT > 0,
+    atkT: player.atkT || 0, swingDir: typeof swingDir !== 'undefined' ? swingDir : 1,
     skin: player.skin,
     down: coopDownT > 0,
     when: Date.now()
@@ -486,7 +487,7 @@ const _pvpWriteRaw = pvpWrite;
 pvpWrite = function () {
   if (!pvpMode) return;
   if (netReady) {
-    netSend({ type: 'state', mapId: currentMapId(), x: Math.round(player.x), y: Math.round(player.y), hearts: player.hearts, maxHearts: player.maxHearts, weapon: player.weapon, skin: player.skin, dir: player.dir, moving: player.moving, walkT: player.walkT, swing: player.atkT > 0, holdFish: player.holdFish || null, hits: pvpHits.slice(-5), when: Date.now() });
+    netSend({ type: 'state', mapId: currentMapId(), x: Math.round(player.x), y: Math.round(player.y), hearts: player.hearts, maxHearts: player.maxHearts, weapon: player.weapon, skin: player.skin, dir: player.dir, moving: player.moving, walkT: player.walkT, swing: player.atkT > 0, atkT: player.atkT || 0, swingDir: typeof swingDir !== 'undefined' ? swingDir : 1, holdFish: player.holdFish || null, hits: pvpHits.slice(-5), when: Date.now() });
     return;
   }
   _pvpWriteRaw();

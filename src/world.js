@@ -310,6 +310,7 @@ drawBench(x, y, face) {   // 整条长椅（靠背在远离喷泉的一侧）
 },
 
 drawSeated(x, y, face, skin = {}) {   // 🪑 真·坐姿：屁股贴椅面、大腿平放、小腿垂到地面、背靠椅背
+  if (skin.model === 'stickman') { drawStickman(ctx, x - 12, y - 32, 2, { dir: face < 0 ? Math.PI : 0, seated: true }); return; }
   ctx.save(); ctx.translate(Math.round(x), Math.round(y)); if (face < 0) ctx.scale(-1, 1);
   ctx.fillStyle = skin.b || PAL.b; ctx.fillRect(-11, -25, 9, 16);   // 躯干（底部正好落在椅面）
   ctx.fillRect(-8, -22, 3, 9);   // 手臂垂放身侧

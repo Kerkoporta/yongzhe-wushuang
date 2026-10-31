@@ -1,6 +1,12 @@
 /* 🎨 勇者无双样式表（从 index.html 抽出） */
   html,body{margin:0;height:100%;overflow:hidden;background:#1a2a1a;touch-action:none;user-select:none;-webkit-user-select:none}
   canvas{display:block;position:fixed;inset:0}
+  #skinCv{position:static;inset:auto;display:inline-block;vertical-align:middle}
+  #skin button{touch-action:manipulation;cursor:pointer;border-radius:8px}
+  #skinActions button{padding:7px 9px;background:#51425e;color:#fff;border:1px solid #8e7a9b}
+  #skinModels button{background:#45354f;color:#fff}
+  #skinCard{max-height:86vh;overflow-y:auto}
+  #rot.rot90 #skinCard{max-height:80vw;overflow-y:auto}
   #hud{position:fixed;left:10px;top:10px;z-index:5;pointer-events:none;font-family:sans-serif}
   #score{position:fixed;right:12px;top:10px;z-index:5;color:#fff;font:bold 18px sans-serif;text-shadow:0 2px 4px #000;pointer-events:none}
   #levelTag{position:fixed;right:12px;top:36px;z-index:5;color:#fff;font:bold 13px sans-serif;text-shadow:0 2px 4px #000;pointer-events:none}
